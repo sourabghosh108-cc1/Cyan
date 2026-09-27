@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cyan Translate - Instant Language Translator | Hind.com</title>
+  <link rel="icon" type="image/x-icon" href="../Hind-main/icon.jpg">
+  <link rel="apple-touch-icon" href="../Hind-main/icon.jpg">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,600;0,700;0,800;1,700&display=swap" rel="stylesheet">
+  <!-- Bootstrap 5 & FontAwesome 6 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-color: #f8fafc;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --card-bg: #ffffff;
+      --card-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+      --cyan-primary: #0891b2;
+      --cyan-light: #06b6d4;
+      --cyan-hover: #0e7490;
+      --cyan-glow: rgba(6, 182, 212, 0.15);
+      --input-bg: #ffffff;
+      --input-border: #cbd5e1;
+      --footer-bg: #ffffff;
+      --footer-border: #e2e8f0;
+      --nav-link: #475569;
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #0f172a;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #1e293b;
+      --card-bg: #1e293b;
+      --card-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.5);
+      --cyan-primary: #06b6d4;
+      --cyan-light: #22d3ee;
+      --cyan-hover: #67e8f9;
+      --cyan-glow: rgba(34, 211, 238, 0.2);
+      --input-bg: #0f172a;
+      --input-border: #334155;
+      --footer-bg: #0f172a;
+      --footer-border: #1e293b;
+      --nav-link: #cbd5e1;
+    }
+
+    * { box-sizing: border-box; }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-color); }
+    ::-webkit-scrollbar-thumb { background: var(--cyan-primary); border-radius: 4px; }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      margin: 0;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* Header Nav */
+    .translate-header {
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border-color);
+      padding: 1rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    }
+
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .cyan-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 1.6rem;
+      color: var(--text-main);
+      transition: transform 0.2s ease;
+    }
+
+    .cyan-logo:hover {
+      transform: scale(1.03);
+      color: var(--text-main);
+    }
+
+    .cyan-badge {
+      background: linear-gradient(135deg, #06b6d4 0%, #0284c7 100%);
+      color: #ffffff;
+      padding: 0.25rem 0.65rem;
+      border-radius: 8px;
+      font-size: 1.25rem;
+      box-shadow: 0 4px 12px var(--cyan-glow);
+    }
+
+    .cyan-text { color: var(--cyan-primary); }
+
+    .hind-subtext {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-left: -0.2rem;
+    }
+
+    /* Header Search */
+    .header-search-form {
+      flex: 1;
+      max-width: 480px;
+      position: relative;
+    }
+
+    .header-search-input {
+      width: 100%;
+      height: 44px;
+      padding: 0 3rem 0 2.5rem;
+      border-radius: 22px;
+      border: 1px solid var(--input-border);
+      background: var(--input-bg);
+      color: var(--text-main);
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+    }
+
+    .header-search-input:focus {
+      outline: none;
+      border-color: var(--cyan-primary);
+      box-shadow: 0 0 0 4px var(--cyan-glow);
+    }
+
+    .search-icon-pos {
+      position: absolute;
+      left: 0.9rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+
+    .search-btn-pos {
+      position: absolute;
+      right: 0.3rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: none;
+      background: linear-gradient(135deg, #06b6d4 0%, #0284c7 100%);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .header-nav-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .nav-btn {
+      color: var(--nav-link);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      padding: 0.4rem 0.8rem;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .nav-btn:hover {
+      color: var(--cyan-primary);
+      background: var(--cyan-glow);
+    }
+
+    .theme-toggle-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 0.4rem 0.85rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      transition: all 0.2s ease;
+    }
+
+    .theme-toggle-btn:hover {
+      border-color: var(--cyan-primary);
+      color: var(--cyan-primary);
+    }
+
+    /* Main Translator Container */
+    .translator-main {
+      max-width: 1050px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem;
+      flex: 1;
+    }
+
+    .translator-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      box-shadow: var(--card-shadow);
+      padding: 2rem;
+    }
+
+    .translator-title {
+      font-size: 1.75rem;
+      font-weight: 800;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    /* Controls Bar (Language selects + swap) */
+    .lang-controls-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .lang-select-group {
+      flex: 1;
+      min-width: 220px;
+    }
+
+    .lang-select {
+      width: 100%;
+      padding: 0.65rem 1rem;
+      border-radius: 14px;
+      border: 1px solid var(--input-border);
+      background: var(--input-bg);
+      color: var(--text-main);
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .lang-select:focus {
+      border-color: var(--cyan-primary);
+      box-shadow: 0 0 0 4px var(--cyan-glow);
+    }
+
+    .swap-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1px solid var(--border-color);
+      background: var(--card-bg);
+      color: var(--cyan-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .swap-btn:hover {
+      background: linear-gradient(135deg, #06b6d4 0%, #0284c7 100%);
+      color: #ffffff;
+      border-color: transparent;
+      transform: rotate(180deg);
+    }
+
+    /* Text Grid */
+    .text-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .text-grid { grid-template-columns: 1fr; }
+    }
+
+    .text-box-container {
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 16px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: border-color 0.2s ease;
+    }
+
+    .text-box-container:focus-within {
+      border-color: var(--cyan-primary);
+      box-shadow: 0 0 0 4px var(--cyan-glow);
+    }
+
+    .translate-textarea {
+      width: 100%;
+      height: 180px;
+      border: none;
+      background: transparent;
+      color: var(--text-main);
+      font-size: 1.05rem;
+      font-family: inherit;
+      resize: none;
+      outline: none;
+    }
+
+    .translate-textarea::placeholder {
+      color: var(--text-muted);
+    }
+
+    .text-box-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    .icon-btn-group {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .icon-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1rem;
+      padding: 0.3rem 0.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .icon-btn:hover {
+      color: var(--cyan-primary);
+      background: var(--cyan-glow);
+    }
+
+    /* Submit Action Button */
+    .action-row {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+    }
+
+    .translate-btn {
+      background: linear-gradient(135deg, #06b6d4 0%, #0284c7 100%);
+      color: #ffffff;
+      border: none;
+      padding: 0.75rem 2rem;
+      border-radius: 30px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 15px var(--cyan-glow);
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .translate-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px var(--cyan-glow);
+      background: linear-gradient(135deg, #0891b2 0%, #0369a1 100%);
+    }
+
+    .translate-btn:active { transform: translateY(0); }
+
+    /* Footer */
+    .footer-container {
+      padding: 1.75rem 1rem;
+      text-align: center;
+      border-top: 1px solid var(--border-color);
+      background: var(--card-bg);
+    }
+
+    .footer-brand {
+      font-weight: 700;
+      color: var(--text-main);
+      font-size: 0.95rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .footer-links {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+
+    .footer-links a:hover {
+      color: var(--cyan-primary);
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header Navigation -->
+  <header class="translate-header">
+    <div class="header-content">
+      <a href="../Hind-main/index.html" class="cyan-logo">
+        <span class="cyan-badge"><i class="fa-solid fa-language"></i></span>
+        <span>Cyan <span class="cyan-text">Translate</span></span>
+      </a>
+
+      <!-- Header Search Bar -->
+      <form method="get" action="../Hind-main/search.html" class="header-search-form">
+        <i class="fa-solid fa-magnifying-glass search-icon-pos"></i>
+        <input type="text" name="q" class="header-search-input" placeholder="Search Hind..." required />
+        <button type="submit" class="search-btn-pos" aria-label="Search">
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </form>
+
+      <div class="header-nav-right">
+        <button id="themeToggle" class="theme-toggle-btn">
+          <i class="fa-solid fa-moon" id="themeIcon"></i>
+          <span id="themeText" class="ms-1 d-none d-sm-inline">Dark Mode</span>
+        </button>
+        <a href="../Hind-main/index.html" class="nav-btn"><i class="fa-solid fa-house me-1"></i> Hind Home</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Translator Box -->
+  <main class="translator-main">
+    <div class="translator-card">
+      <h2 class="translator-title">
+        <i class="fa-solid fa-language text-info"></i> Instant Text &amp; Speech Translator
+      </h2>
+
+      <!-- Language Selector Bar -->
+      <div class="lang-controls-bar">
+        <div class="lang-select-group">
+          <label class="form-label text-muted fw-semibold small mb-1">Source Language</label>
+          <select id="selectFrom" class="lang-select"></select>
+        </div>
+
+        <button type="button" id="exchangeBtn" class="swap-btn" title="Swap languages">
+          <i class="fa-solid fa-right-left"></i>
+        </button>
+
+        <div class="lang-select-group">
+          <label class="form-label text-muted fw-semibold small mb-1">Target Language</label>
+          <select id="selectTo" class="lang-select"></select>
+        </div>
+      </div>
+
+      <!-- Text Inputs Container -->
+      <div class="text-grid">
+        <!-- Input Text -->
+        <div class="text-box-container">
+          <textarea id="fromText" class="translate-textarea" placeholder="Type or paste text to translate..." spellcheck="false"></textarea>
+          <div class="text-box-footer">
+            <span id="charCount">0 / 5000</span>
+            <div class="icon-btn-group">
+              <button type="button" id="speechFrom" class="icon-btn" title="Listen"><i class="fa-solid fa-volume-high"></i></button>
+              <button type="button" id="copyFrom" class="icon-btn" title="Copy"><i class="fa-regular fa-copy"></i></button>
+              <button type="button" id="clearFrom" class="icon-btn" title="Clear"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Output Translation -->
+        <div class="text-box-container">
+          <textarea id="toText" class="translate-textarea" placeholder="Translation will appear here..." readonly spellcheck="false"></textarea>
+          <div class="text-box-footer">
+            <span id="statusText">Ready</span>
+            <div class="icon-btn-group">
+              <button type="button" id="speechTo" class="icon-btn" title="Listen"><i class="fa-solid fa-volume-high"></i></button>
+              <button type="button" id="copyTo" class="icon-btn" title="Copy"><i class="fa-regular fa-copy"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Row -->
+      <div class="action-row">
+        <button type="button" id="translateBtn" class="translate-btn">
+          <span>Translate</span> <i class="fa-solid fa-wand-magic-sparkles"></i>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer-container">
+    <div class="footer-brand">© 2026 Lemon India Inc.</div>
+    <p class="footer-links">
+      <a href="../Hind-main/about.html">About &amp; Privacy Policy</a>
+      <span>•</span>
+      <a href="https://cse.google.com/cse.js?cx=c04bc7b605f41d47f" target="_blank">Open Source License</a>
+      <span>•</span>
+      <span>Copyright 2026 all rights reserved</span>
+    </p>
+  </footer>
+
+  <script src="countries.js"></script>
+  <script>
+    const fromText = document.getElementById("fromText");
+    const toText = document.getElementById("toText");
+    const selectFrom = document.getElementById("selectFrom");
+    const selectTo = document.getElementById("selectTo");
+    const exchangeBtn = document.getElementById("exchangeBtn");
+    const translateBtn = document.getElementById("translateBtn");
+    const charCount = document.getElementById("charCount");
+    const statusText = document.getElementById("statusText");
+
+    // Populate Languages Select
+    for (let code in countries) {
+      let selectedFrom = code === "en-GB" ? "selected" : "";
+      let selectedTo = code === "hi-IN" ? "selected" : "";
+      selectFrom.insertAdjacentHTML("beforeend", `<option value="${code}" ${selectedFrom}>${countries[code]}</option>`);
+      selectTo.insertAdjacentHTML("beforeend", `<option value="${code}" ${selectedTo}>${countries[code]}</option>`);
+    }
+
+    // Character Counter
+    fromText.addEventListener("input", () => {
+      charCount.innerText = `${fromText.value.length} / 5000`;
+      if (!fromText.value.trim()) {
+        toText.value = "";
+        statusText.innerText = "Ready";
+      }
+    });
+
+    // Swap Languages
+    exchangeBtn.addEventListener("click", () => {
+      let tempText = fromText.value;
+      fromText.value = toText.value;
+      toText.value = tempText;
+
+      let tempLang = selectFrom.value;
+      selectFrom.value = selectTo.value;
+      selectTo.value = tempLang;
+      charCount.innerText = `${fromText.value.length} / 5000`;
+    });
+
+    // Translate Action
+    async function translate() {
+      let text = fromText.value.trim();
+      let langFrom = selectFrom.value;
+      let langTo = selectTo.value;
+      if (!text) return;
+
+      statusText.innerText = "Translating...";
+      toText.setAttribute("placeholder", "Translating...");
+
+      // Extract 2-letter ISO 639-1 language codes for MyMemory API (e.g. ja-JP -> ja, ur-PK -> ur)
+      let langFromCode = langFrom.split('-')[0];
+      let langToCode = langTo.split('-')[0];
+      if (langFrom === 'zh-CN') langFromCode = 'zh';
+      if (langTo === 'zh-CN') langToCode = 'zh';
+
+      try {
+        let apiUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${langFromCode}|${langToCode}`;
+        let res = await fetch(apiUrl);
+        let data = await res.json();
+        
+        let translatedText = data.responseData ? data.responseData.translatedText : '';
+        if (data.matches && data.matches.length > 0) {
+          const zeroMatch = data.matches.find(m => m.id === 0 && m.translation);
+          if (zeroMatch) translatedText = zeroMatch.translation;
+        }
+
+        if (translatedText) {
+          toText.value = translatedText;
+          statusText.innerText = "Translated";
+        } else {
+          statusText.innerText = "No result";
+        }
+      } catch (err) {
+        console.error(err);
+        statusText.innerText = "Error translating";
+        toText.value = "Translation error. Please check connection.";
+      }
+    }
+
+    translateBtn.addEventListener("click", translate);
+
+    // Speech & Copy Actions
+    document.getElementById("copyFrom").addEventListener("click", () => {
+      if (fromText.value) navigator.clipboard.writeText(fromText.value);
+    });
+
+    document.getElementById("copyTo").addEventListener("click", () => {
+      if (toText.value) navigator.clipboard.writeText(toText.value);
+    });
+
+    document.getElementById("clearFrom").addEventListener("click", () => {
+      fromText.value = "";
+      toText.value = "";
+      charCount.innerText = "0 / 5000";
+      statusText.innerText = "Ready";
+    });
+
+    document.getElementById("speechFrom").addEventListener("click", () => {
+      if (!fromText.value) return;
+      let utterance = new SpeechSynthesisUtterance(fromText.value);
+      utterance.lang = selectFrom.value;
+      speechSynthesis.speak(utterance);
+    });
+
+    document.getElementById("speechTo").addEventListener("click", () => {
+      if (!toText.value) return;
+      let utterance = new SpeechSynthesisUtterance(toText.value);
+      utterance.lang = selectTo.value;
+      speechSynthesis.speak(utterance);
+    });
+
+    // Dark Mode Toggle Logic
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const themeText = document.getElementById('themeText');
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('hind_theme', theme);
+      if (theme === 'dark') {
+        themeIcon.className = 'fa-solid fa-sun';
+        themeIcon.style.color = '#f59e0b';
+        if (themeText) themeText.textContent = 'Light Mode';
+      } else {
+        themeIcon.className = 'fa-solid fa-moon';
+        themeIcon.style.color = '';
+        if (themeText) themeText.textContent = 'Dark Mode';
+      }
+    }
+
+    const savedTheme = localStorage.getItem('hind_theme') || 
+      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+    setTheme(savedTheme);
+
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+    });
+  </script>
+</body>
+</html>

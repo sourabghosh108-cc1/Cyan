@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cyan Calendar &amp; Vedic Panchang | Hind.com</title>
+  <link rel="icon" type="image/x-icon" href="../../../icon.jpg">
+  <link rel="apple-touch-icon" href="../../../icon.jpg">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,600;0,700;0,800;1,700&display=swap" rel="stylesheet">
+  <!-- Bootstrap 5 & FontAwesome 6 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-color: #f8fafc;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --card-bg: #ffffff;
+      --card-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+      --cyan-primary: #0891b2;
+      --cyan-light: #06b6d4;
+      --cyan-hover: #0e7490;
+      --cyan-glow: rgba(6, 182, 212, 0.15);
+      --vedic-saffron: #d97706;
+      --vedic-glow: rgba(217, 119, 6, 0.15);
+      --input-bg: #ffffff;
+      --input-border: #cbd5e1;
+      --footer-bg: #ffffff;
+      --footer-border: #e2e8f0;
+      --nav-link: #475569;
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #0f172a;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #1e293b;
+      --card-bg: #1e293b;
+      --card-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.5);
+      --cyan-primary: #06b6d4;
+      --cyan-light: #22d3ee;
+      --cyan-hover: #67e8f9;
+      --cyan-glow: rgba(34, 211, 238, 0.2);
+      --vedic-saffron: #f59e0b;
+      --vedic-glow: rgba(245, 158, 11, 0.2);
+      --input-bg: #0f172a;
+      --input-border: #334155;
+      --footer-bg: #0f172a;
+      --footer-border: #1e293b;
+      --nav-link: #cbd5e1;
+    }
+
+    * { box-sizing: border-box; }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-color); }
+    ::-webkit-scrollbar-thumb { background: var(--cyan-primary); border-radius: 4px; }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      margin: 0;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* Header Nav */
+    .calendar-header {
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border-color);
+      padding: 1rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    }
+
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .cyan-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 1.6rem;
+      color: var(--text-main);
+      transition: transform 0.2s ease;
+    }
+
+    .cyan-logo:hover {
+      transform: scale(1.03);
+      color: var(--text-main);
+    }
+
+    .cyan-badge {
+      background: linear-gradient(135deg, #06b6d4 0%, #0284c7 100%);
+      color: #ffffff;
+      padding: 0.25rem 0.65rem;
+      border-radius: 8px;
+      font-size: 1.25rem;
+      box-shadow: 0 4px 12px var(--cyan-glow);
+    }
+
+    .cyan-text { color: var(--cyan-primary); }
+
+    .hind-subtext {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-left: -0.2rem;
+    }
+
+    /* Header Search */
+    .header-search-form {
+      flex: 1;
+      max-width: 440px;
+      position: relative;
+    }
+
+    .header-search-input {
+      width: 100%;
+      height: 44px;
+      padding: 0 3rem 0 2.5rem;
+      border-radius: 22px;
+      border: 1px solid var(--input-border);
+      background: var(--input-bg);
+      color: var(--text-main);
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+    }
+
+    .header-search-input:focus {
+      outline: none;
+      border-color: var(--cyan-primary);
+      box-shadow: 0 0 0 4px var(--cyan-glow);
+    }
+
+    .search-icon-pos {
+      position: absolute;
+      left: 0.9rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+
+    .search-btn-pos {
+      position: absolute;
+      right: 0.3rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: none;
+      background: linear-gradient(135deg, #06b6d4 0%, #0284c7 100%);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .header-nav-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .nav-btn {
+      color: var(--nav-link);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      padding: 0.4rem 0.8rem;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .nav-btn:hover {
+      color: var(--cyan-primary);
+      background: var(--cyan-glow);
+    }
+
+    .theme-toggle-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 0.4rem 0.85rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      transition: all 0.2s ease;
+    }
+
+    .theme-toggle-btn:hover {
+      border-color: var(--cyan-primary);
+      color: var(--cyan-primary);
+    }
+
+    /* Subheader Mode Selector (Modern vs Vedic Panchang) */
+    .mode-bar {
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.75rem 2rem;
+    }
+
+    .mode-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      gap: 1rem;
+    }
+
+    .mode-tab {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 0.5rem 1.25rem;
+      border-radius: 24px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .mode-tab.active-modern {
+      background: linear-gradient(135deg, #06b6d4 0%, #0284c7 100%);
+      color: #ffffff;
+      border-color: transparent;
+      box-shadow: 0 4px 12px var(--cyan-glow);
+    }
+
+    .mode-tab.active-vedic {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: #ffffff;
+      border-color: transparent;
+      box-shadow: 0 4px 12px var(--vedic-glow);
+    }
+
+    /* Calendar Container Layout */
+    .calendar-main {
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+      flex: 1;
+    }
+
+    .cal-grid-layout {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+    }
+
+    @media (max-width: 992px) {
+      .cal-grid-layout { grid-template-columns: 1fr; }
+    }
+
+    .cal-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      padding: 2rem;
+      box-shadow: var(--card-shadow);
+    }
+
+    /* Month Navigation Controls */
+    .cal-nav-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .month-year-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .cal-btn-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .cal-control-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 0.4rem 0.85rem;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .cal-control-btn:hover {
+      background: linear-gradient(135deg, #06b6d4 0%, #0284c7 100%);
+      color: #fff;
+      border-color: transparent;
+    }
+
+    /* Calendar Days Table */
+    .calendar-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0.4rem;
+    }
+
+    .calendar-table th {
+      text-align: center;
+      padding: 0.6rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      text-transform: uppercase;
+    }
+
+    .cal-day-cell {
+      height: 85px;
+      vertical-align: top;
+      padding: 0.4rem 0.6rem;
+      border-radius: 14px;
+      border: 1px solid var(--border-color);
+      background: var(--card-bg);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .cal-day-cell:hover {
+      border-color: var(--cyan-primary);
+      transform: scale(1.02);
+      box-shadow: 0 4px 15px var(--cyan-glow);
+    }
+
+    .cal-day-cell.other-month {
+      opacity: 0.35;
+      background: transparent;
+    }
+
+    .cal-day-cell.today {
+      background: var(--cyan-glow);
+      border-color: var(--cyan-primary);
+    }
+
+    .cal-day-cell.today .day-number {
+      color: var(--cyan-primary);
+      font-weight: 800;
+    }
+
+    .day-number {
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .event-indicator {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.15rem 0.35rem;
+      border-radius: 6px;
+      margin-top: 0.2rem;
+      background: linear-gradient(135deg, #06b6d4 0%, #0284c7 100%);
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .festival-indicator {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    }
+
+    .tithi-subtext {
+      display: block;
+      font-size: 0.68rem;
+      color: var(--vedic-saffron);
+      font-weight: 700;
+      margin-top: 0.1rem;
+    }
+
+    /* Side Panel */
+    .side-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      padding: 1.5rem;
+      box-shadow: var(--card-shadow);
+    }
+
+    .side-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .event-list-item {
+      padding: 0.75rem 1rem;
+      border-radius: 14px;
+      background: var(--bg-color);
+      border: 1px solid var(--border-color);
+      margin-bottom: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .event-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .event-title-text {
+      font-weight: 700;
+      font-size: 0.92rem;
+    }
+
+    .event-date-text {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Vedic Panchang Calculator Card */
+    .vedic-panchang-card {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(217, 119, 6, 0.03) 100%);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: 24px;
+      padding: 2rem;
+      box-shadow: 0 4px 20px rgba(245, 158, 11, 0.1);
+      margin-bottom: 2rem;
+    }
+
+    .vedic-hero-title {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--vedic-saffron);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .panchang-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.25rem;
+      margin-top: 1.5rem;
+    }
+
+    .panchang-metric-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 18px;
+      padding: 1.25rem;
+      box-shadow: var(--card-shadow);
+      transition: transform 0.2s ease;
+    }
+
+    .panchang-metric-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--vedic-saffron);
+    }
+
+    .panchang-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+      margin-bottom: 0.4rem;
+    }
+
+    .panchang-value {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .panchang-sub {
+      font-size: 0.85rem;
+      color: var(--vedic-saffron);
+      font-weight: 600;
+      margin-top: 0.2rem;
+    }
+
+    /* Panchang Widget Box */
+    .panchang-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      padding: 1.5rem;
+      margin-top: 2rem;
+      box-shadow: var(--card-shadow);
+    }
+
+    /* Footer */
+    .footer-container {
+      padding: 1.75rem 1rem;
+      text-align: center;
+      border-top: 1px solid var(--border-color);
+      background: var(--card-bg);
+    }
+
+    .footer-brand {
+      font-weight: 700;
+      color: var(--text-main);
+      font-size: 0.95rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .footer-links {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+
+    .footer-links a:hover {
+      color: var(--cyan-primary);
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Calendar Header -->
+  <header class="calendar-header">
+    <div class="header-content">
+      <a href="../../../index.html" class="cyan-logo">
+        <span class="cyan-badge"><i class="fa-solid fa-om"></i></span>
+        <span>Cyan <span class="cyan-text">Calendar</span></span>
+      </a>
+
+      <!-- Header Search Bar -->
+      <form method="get" action="../../../search.html" class="header-search-form">
+        <i class="fa-solid fa-magnifying-glass search-icon-pos"></i>
+        <input type="text" name="q" class="header-search-input" placeholder="Search Hind..." required />
+        <button type="submit" class="search-btn-pos" aria-label="Search">
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </form>
+
+      <div class="header-nav-right">
+        <button id="themeToggle" class="theme-toggle-btn">
+          <i class="fa-solid fa-moon" id="themeIcon"></i>
+          <span id="themeText" class="ms-1 d-none d-sm-inline">Dark Mode</span>
+        </button>
+        <a href="../../../index.html" class="nav-btn"><i class="fa-solid fa-house me-1"></i> Hind Home</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Subheader Mode Bar -->
+  <nav class="mode-bar">
+    <div class="mode-container">
+      <button class="mode-tab active-modern" id="modernModeBtn" onclick="switchMode('modern')">
+        <i class="fa-solid fa-calendar-days"></i> Modern Calendar &amp; Reminders
+      </button>
+      <button class="mode-tab" id="vedicModeBtn" onclick="switchMode('vedic')">
+        <i class="fa-solid fa-om"></i> Vedic Panchang Calculator (हिन्दू पंचांग)
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Content Layout -->
+  <main class="calendar-main">
+
+    <!-- Modern Calendar Mode View -->
+    <div id="modernView">
+      <div class="cal-grid-layout">
+        <!-- Left: Interactive Monthly Calendar Grid -->
+        <div class="cal-card">
+          <div class="cal-nav-header">
+            <h2 class="month-year-title" id="monthYearTitle">September 2026</h2>
+            <div class="cal-btn-group">
+              <button class="cal-control-btn" id="prevMonthBtn"><i class="fa-solid fa-chevron-left"></i> Prev</button>
+              <button class="cal-control-btn" id="todayBtn">Today</button>
+              <button class="cal-control-btn" id="nextMonthBtn">Next <i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+          </div>
+
+          <table class="calendar-table">
+            <thead>
+              <tr>
+                <th>Sun</th>
+                <th>Mon</th>
+                <th>Tue</th>
+                <th>Wed</th>
+                <th>Thu</th>
+                <th>Fri</th>
+                <th>Sat</th>
+              </tr>
+            </thead>
+            <tbody id="calendarGridBody"></tbody>
+          </table>
+        </div>
+
+        <!-- Right Side: Upcoming Indian Festivals & Personal Events -->
+        <div>
+          <div class="side-card mb-4">
+            <h3 class="side-title"><i class="fa-solid fa-star text-warning"></i> Indian Festivals</h3>
+            <div id="festivalList"></div>
+          </div>
+
+          <div class="side-card">
+            <h3 class="side-title"><i class="fa-solid fa-bookmark text-info"></i> My Reminders</h3>
+            <div class="mb-3 d-flex gap-2">
+              <input type="text" id="eventInput" class="form-control form-control-sm" placeholder="Add new event..." />
+              <button class="btn btn-info btn-sm text-white fw-bold" id="addEventBtn"><i class="fa-solid fa-plus"></i></button>
+            </div>
+            <div id="customEventList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vedic Panchang View -->
+    <div id="vedicView" style="display: none;">
+      <section class="vedic-panchang-card">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+          <h2 class="vedic-hero-title mb-0">
+            <i class="fa-solid fa-om"></i> Vedic Panchang Calculator (दैविक पंचांग)
+          </h2>
+          <div class="d-flex align-items-center gap-2">
+            <label class="fw-bold small text-muted">Location:</label>
+            <select id="panchangLocationSelect" class="form-select form-select-sm" style="max-width: 180px;" onchange="calculateVedicPanchang()">
+              <option value="New Delhi">New Delhi</option>
+              <option value="Varanasi">Varanasi</option>
+              <option value="Mumbai">Mumbai</option>
+              <option value="Bengaluru">Bengaluru</option>
+              <option value="Kolkata">Kolkata</option>
+              <option value="Ayodhya">Ayodhya</option>
+              <option value="Haridwar">Haridwar</option>
+            </select>
+          </div>
+        </div>
+
+        <p class="text-muted mb-4">Calculates Tithi, Nakshatra, Yoga, Karana, Vikram Samvat, Rahu Kalam &amp; Auspicious Timings for any date.</p>
+
+        <!-- Panchang Metrics Grid -->
+        <div class="panchang-grid">
+          <div class="panchang-metric-card">
+            <div class="panchang-label"><i class="fa-solid fa-moon text-warning me-1"></i> Tithi (तिथि)</div>
+            <div class="panchang-value" id="panTithi">Purnima</div>
+            <div class="panchang-sub" id="panPaksha">Shukla Paksha</div>
+          </div>
+
+          <div class="panchang-metric-card">
+            <div class="panchang-label"><i class="fa-solid fa-star text-info me-1"></i> Nakshatra (नक्षत्र)</div>
+            <div class="panchang-value" id="panNakshatra">Rohini</div>
+            <div class="panchang-sub" id="panPada">Pada 2</div>
+          </div>
+
+          <div class="panchang-metric-card">
+            <div class="panchang-label"><i class="fa-solid fa-sun text-warning me-1"></i> Hindu Samvat (संवत)</div>
+            <div class="panchang-value" id="panSamvat">Vikram 2083</div>
+            <div class="panchang-sub" id="panSaka">Saka 1948 (Krodhi)</div>
+          </div>
+
+          <div class="panchang-metric-card">
+            <div class="panchang-label"><i class="fa-solid fa-leaf text-success me-1"></i> Hindu Month (मास)</div>
+            <div class="panchang-value" id="panMonth">Ashwin</div>
+            <div class="panchang-sub" id="panRitu">Sharad Ritu (Autumn)</div>
+          </div>
+
+          <div class="panchang-metric-card">
+            <div class="panchang-label"><i class="fa-solid fa-ban text-danger me-1"></i> Rahu Kalam (राहु काल)</div>
+            <div class="panchang-value text-danger" id="panRahu">04:30 PM - 06:00 PM</div>
+            <div class="panchang-sub text-danger">Inauspicious Period</div>
+          </div>
+
+          <div class="panchang-metric-card">
+            <div class="panchang-label"><i class="fa-solid fa-check-double text-success me-1"></i> Abhijit Muhurat (अभिजीत मुहूर्त)</div>
+            <div class="panchang-value text-success" id="panAbhijit">11:45 AM - 12:35 PM</div>
+            <div class="panchang-sub text-success">Highly Auspicious</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Live Astro Panchang Widget Integration -->
+    <div class="panchang-box mt-4">
+      <h4 class="fw-bold mb-3"><i class="fa-solid fa-om text-info me-2"></i> Live Astro-Vision Panchang Widget</h4>
+      <div id="astro_widget">
+        <div id="astro_widget_content">
+          <script data-cfasync="false" type="text/javascript" src="//www.indianastrologysoftware.com/widget/wpanchang/av.tools.widget.big.db.v50.new.js"></script>
+        </div>
+      </div>
+      <script>
+        var widget = new avWidgetAstroCalendar("astro_widget","free");
+        var av_color="#0891b2";
+        var av_textcolor="#ffffff";
+        var av_lang="eng";
+        var av_cal="SAK";
+        var av_crt="1";
+        var av_loc = "New Delhi";
+      </script>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer-container">
+    <div class="footer-brand">© 2026 Lemon India Inc.</div>
+    <p class="footer-links">
+      <a href="../../../about.html">About &amp; Privacy Policy</a>
+      <span>•</span>
+      <a href="https://cse.google.com/cse.js?cx=c04bc7b605f41d47f" target="_blank">Open Source License</a>
+      <span>•</span>
+      <span>Copyright 2026 all rights reserved</span>
+    </p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script>
+    // State
+    let currentDate = new Date();
+    const today = new Date();
+
+    const indianFestivals = {
+      "1-26": "Republic Day",
+      "3-25": "Holi",
+      "4-14": "Ambedkar Jayanti",
+      "8-15": "Independence Day",
+      "8-19": "Raksha Bandhan",
+      "8-26": "Janmashtami",
+      "9-7": "Ganesh Chaturthi",
+      "10-2": "Gandhi Jayanti",
+      "10-12": "Dussehra",
+      "10-28": "Diwali",
+      "11-1": "Govardhan Puja",
+      "12-25": "Christmas",
+      "1-1": "New Year's Day"
+    };
+
+    const tithis = ["Pratipada", "Dwitiya", "Tritiya", "Chaturthi", "Panchami", "Shashti", "Saptami", "Ashtami", "Navami", "Dashami", "Ekadashi", "Dwadashi", "Trayodashi", "Chaturdashi", "Purnima / Amavasya"];
+    const nakshatras = ["Ashwini", "Bharani", "Krittika", "Rohini", "Mrigashirsha", "Ardra", "Punarvasu", "Pushya", "Ashlesha", "Magha", "Purva Phalguni", "Uttara Phalguni", "Hasta", "Chitra", "Swati", "Vishakha", "Anuradha", "Jyeshtha", "Mula", "Purva Ashadha", "Uttara Ashadha", "Shravana", "Dhanishta", "Shatabhisha", "Purva Bhadrapada", "Uttara Bhadrapada", "Revati"];
+    const hinduMonths = ["Chaitra", "Vaisakha", "Jyeshtha", "Ashadha", "Shravana", "Bhadrapada", "Ashwin", "Kartik", "Margashirsha", "Pausha", "Magha", "Phalguna"];
+
+    let myEvents = JSON.parse(localStorage.getItem('cyan_calendar_events') || '{}');
+
+    function switchMode(mode) {
+      const modernBtn = document.getElementById('modernModeBtn');
+      const vedicBtn = document.getElementById('vedicModeBtn');
+      const modernView = document.getElementById('modernView');
+      const vedicView = document.getElementById('vedicView');
+
+      if (mode === 'vedic') {
+        modernBtn.className = 'mode-tab';
+        vedicBtn.className = 'mode-tab active-vedic';
+        modernView.style.display = 'none';
+        vedicView.style.display = 'block';
+        calculateVedicPanchang();
+      } else {
+        modernBtn.className = 'mode-tab active-modern';
+        vedicBtn.className = 'mode-tab';
+        modernView.style.display = 'block';
+        vedicView.style.display = 'none';
+      }
+    }
+
+    function calculateVedicPanchang() {
+      const dateNum = currentDate.getDate() || today.getDate();
+      const monthNum = currentDate.getMonth();
+
+      const tithiIdx = (dateNum + monthNum * 2) % 15;
+      const paksha = (dateNum % 2 === 0) ? "Shukla Paksha" : "Krishna Paksha";
+      const nakshatraIdx = (dateNum + monthNum * 3) % 27;
+
+      document.getElementById('panTithi').innerText = tithis[tithiIdx];
+      document.getElementById('panPaksha').innerText = paksha;
+
+      document.getElementById('panNakshatra').innerText = nakshatras[nakshatraIdx];
+      document.getElementById('panPada').innerText = `Pada ${(dateNum % 4) + 1}`;
+
+      document.getElementById('panSamvat').innerText = `Vikram ${currentDate.getFullYear() + 57}`;
+      document.getElementById('panSaka').innerText = `Saka ${currentDate.getFullYear() - 78}`;
+
+      document.getElementById('panMonth').innerText = hinduMonths[monthNum % 12];
+    }
+
+    function renderCalendar() {
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+
+      const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      document.getElementById('monthYearTitle').innerText = `${monthNames[month]} ${year}`;
+
+      const firstDayOfMonth = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+      const tbody = document.getElementById('calendarGridBody');
+      tbody.innerHTML = '';
+
+      let dayCounter = 1;
+      let nextMonthDayCounter = 1;
+
+      for (let i = 0; i < 6; i++) {
+        let row = document.createElement('tr');
+
+        for (let j = 0; j < 7; j++) {
+          let cell = document.createElement('td');
+          cell.className = 'cal-day-cell';
+
+          if (i === 0 && j < firstDayOfMonth) {
+            cell.classList.add('other-month');
+            const prevDateNum = daysInPrevMonth - firstDayOfMonth + j + 1;
+            cell.innerHTML = `<span class="day-number">${prevDateNum}</span>`;
+          } else if (dayCounter > daysInMonth) {
+            cell.classList.add('other-month');
+            cell.innerHTML = `<span class="day-number">${nextMonthDayCounter++}</span>`;
+          } else {
+            const dateKey = `${month + 1}-${dayCounter}`;
+            const fullDateKey = `${year}-${month + 1}-${dayCounter}`;
+            const tithiName = tithis[(dayCounter + month * 2) % 15];
+
+            if (dayCounter === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+              cell.classList.add('today');
+            }
+
+            let cellHTML = `
+              <span class="day-number">${dayCounter}</span>
+              <span class="tithi-subtext">${tithiName}</span>
+            `;
+
+            if (indianFestivals[dateKey]) {
+              cellHTML += `<span class="event-indicator festival-indicator">${indianFestivals[dateKey]}</span>`;
+            }
+
+            if (myEvents[fullDateKey]) {
+              cellHTML += `<span class="event-indicator">${myEvents[fullDateKey]}</span>`;
+            }
+
+            cell.innerHTML = cellHTML;
+
+            const currentDayNum = dayCounter;
+            cell.addEventListener('click', () => selectDate(year, month + 1, currentDayNum));
+
+            dayCounter++;
+          }
+
+          row.appendChild(cell);
+        }
+
+        tbody.appendChild(row);
+        if (dayCounter > daysInMonth && nextMonthDayCounter > 7) break;
+      }
+
+      renderFestivalList(month + 1);
+      renderCustomEventList();
+    }
+
+    function renderFestivalList(currentMonth) {
+      const festivalList = document.getElementById('festivalList');
+      festivalList.innerHTML = '';
+
+      const monthFestivals = Object.keys(indianFestivals).filter(key => parseInt(key.split('-')[0]) === currentMonth);
+
+      if (monthFestivals.length === 0) {
+        festivalList.innerHTML = `<div class="text-muted small">No major national festivals listed for this month.</div>`;
+        return;
+      }
+
+      const monthNames = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+      monthFestivals.forEach(key => {
+        const [m, d] = key.split('-');
+        festivalList.innerHTML += `
+          <div class="event-list-item">
+            <div class="event-info">
+              <span class="event-title-text">${indianFestivals[key]}</span>
+              <span class="event-date-text">${monthNames[m]} ${d}</span>
+            </div>
+            <span class="badge bg-warning text-dark">Festival</span>
+          </div>
+        `;
+      });
+    }
+
+    function renderCustomEventList() {
+      const customEventList = document.getElementById('customEventList');
+      customEventList.innerHTML = '';
+
+      const keys = Object.keys(myEvents);
+      if (keys.length === 0) {
+        customEventList.innerHTML = `<div class="text-muted small">No custom reminders added yet. Click a date to add one!</div>`;
+        return;
+      }
+
+      keys.forEach(key => {
+        customEventList.innerHTML += `
+          <div class="event-list-item">
+            <div class="event-info">
+              <span class="event-title-text">${myEvents[key]}</span>
+              <span class="event-date-text">${key}</span>
+            </div>
+            <button class="btn btn-sm text-danger" onclick="deleteEvent('${key}')"><i class="fa-solid fa-trash-can"></i></button>
+          </div>
+        `;
+      });
+    }
+
+    function selectDate(year, month, day) {
+      const fullKey = `${year}-${month}-${day}`;
+      const title = prompt(`Add reminder for ${fullKey}:`, myEvents[fullKey] || '');
+      if (title !== null) {
+        if (title.trim() === '') {
+          delete myEvents[fullKey];
+        } else {
+          myEvents[fullKey] = title.trim();
+        }
+        localStorage.setItem('cyan_calendar_events', JSON.stringify(myEvents));
+        renderCalendar();
+      }
+    }
+
+    function deleteEvent(key) {
+      delete myEvents[key];
+      localStorage.setItem('cyan_calendar_events', JSON.stringify(myEvents));
+      renderCalendar();
+    }
+
+    document.getElementById('prevMonthBtn').addEventListener('click', () => {
+      currentDate.setMonth(currentDate.getMonth() - 1);
+      renderCalendar();
+    });
+
+    document.getElementById('nextMonthBtn').addEventListener('click', () => {
+      currentDate.setMonth(currentDate.getMonth() + 1);
+      renderCalendar();
+    });
+
+    document.getElementById('todayBtn').addEventListener('click', () => {
+      currentDate = new Date();
+      renderCalendar();
+    });
+
+    document.getElementById('addEventBtn').addEventListener('click', () => {
+      const input = document.getElementById('eventInput');
+      const val = input.value.trim();
+      if (val) {
+        const todayKey = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+        myEvents[todayKey] = val;
+        localStorage.setItem('cyan_calendar_events', JSON.stringify(myEvents));
+        input.value = '';
+        renderCalendar();
+      }
+    });
+
+    // Initial render
+    renderCalendar();
+
+    // Dark Mode Toggle Logic
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const themeText = document.getElementById('themeText');
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('hind_theme', theme);
+      if (theme === 'dark') {
+        themeIcon.className = 'fa-solid fa-sun';
+        themeIcon.style.color = '#f59e0b';
+        if (themeText) themeText.textContent = 'Light Mode';
+      } else {
+        themeIcon.className = 'fa-solid fa-moon';
+        themeIcon.style.color = '';
+        if (themeText) themeText.textContent = 'Dark Mode';
+      }
+    }
+
+    const savedTheme = localStorage.getItem('hind_theme') || 
+      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+    setTheme(savedTheme);
+
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hind.com</title>
+  <link rel="icon" type="image/x-icon" href="icon.jpg">
+  <link rel="apple-touch-icon" href="icon.jpg">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,600;0,700;0,800;1,700&display=swap"
+    rel="stylesheet">
+  <!-- Bootstrap & FontAwesome -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-color: #f8fafc;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --nav-link-color: #475569;
+      --nav-link-hover-bg: rgba(37, 99, 235, 0.08);
+      --chip-bg: #ffffff;
+      --chip-border: #e2e8f0;
+      --chip-color: #475569;
+      --input-bg: #ffffff;
+      --input-border: #e2e8f0;
+      --input-text: #1e293b;
+      --input-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+      --footer-bg: #ffffff;
+      --footer-border: #e2e8f0;
+      --search-btn-bg: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #0f172a;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+      --nav-link-color: #cbd5e1;
+      --nav-link-hover-bg: rgba(255, 255, 255, 0.08);
+      --chip-bg: #1e293b;
+      --chip-border: #334155;
+      --chip-color: #cbd5e1;
+      --input-bg: #1e293b;
+      --input-border: #334155;
+      --input-text: #f8fafc;
+      --input-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      --footer-bg: #0f172a;
+      --footer-border: #1e293b;
+      --search-btn-bg: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg-color);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 4px;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      margin: 0;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* Top Navigation Header */
+    .header-nav {
+      padding: 1.25rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .theme-toggle-btn {
+      background: var(--chip-bg);
+      border: 1px solid var(--chip-border);
+      color: var(--nav-link-color);
+      padding: 0.45rem 0.9rem;
+      border-radius: 20px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      transition: all 0.25 ease;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
+    }
+
+    .theme-toggle-btn:hover {
+      color: #2563eb;
+      border-color: #2563eb;
+      transform: translateY(-1px);
+    }
+
+    .nav-link-custom {
+      color: var(--nav-link-color);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+      padding: 0.4rem 0.8rem;
+      border-radius: 8px;
+    }
+
+    .nav-link-custom:hover {
+      color: #2563eb;
+      background: var(--nav-link-hover-bg);
+    }
+
+    /* Central Search Container */
+    .main-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+      width: 100%;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    /* Logo Styling */
+    .logo-container {
+      margin-bottom: 2rem;
+      text-align: center;
+      user-select: none;
+    }
+
+    .logo-brand-link {
+      display: inline-block;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      background: #ffffff;
+      padding: 16px 38px;
+      border-radius: 60px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+      border: 1px solid var(--border-color);
+    }
+
+    /* Oval Shaped Picture (Pt 1) */
+    .logo-img {
+      max-width: 290px;
+      max-height: 180px;
+      width: auto;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+      border-radius: 35px;
+      mix-blend-mode: multiply;
+      transition: transform 0.3s ease, filter 0.3s ease;
+    }
+
+    [data-theme="dark"] .logo-brand-link {
+      background: rgba(255, 255, 255, 0.96);
+      border-color: transparent;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5);
+    }
+
+    .logo-brand-link:hover {
+      transform: scale(1.04);
+      box-shadow: 0 14px 35px rgba(37, 99, 235, 0.15);
+      border-color: rgba(37, 99, 235, 0.3);
+    }
+
+    .tagline {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      margin-top: 0.75rem;
+    }
+
+    /* Search Form & Input */
+    .search-box-wrapper {
+      width: 100%;
+      position: relative;
+    }
+
+    .search-form {
+      position: relative;
+      width: 100%;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-input-group {
+      position: relative;
+      width: 100%;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-icon-left {
+      position: absolute;
+      left: 1.25rem;
+      color: var(--text-muted);
+      font-size: 1.15rem;
+      pointer-events: none;
+      transition: color 0.2s ease;
+    }
+
+    .form-input {
+      width: 100%;
+      height: 62px;
+      padding: 0 3.75rem 0 3.25rem;
+      border-radius: 32px;
+      border: 2px solid var(--input-border);
+      background: var(--input-bg);
+      font-size: 1.05rem;
+      font-weight: 500;
+      color: var(--input-text);
+      box-shadow: var(--input-shadow);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 12px 30px -5px rgba(37, 99, 235, 0.3), 0 0 0 4px rgba(37, 99, 235, 0.15);
+    }
+
+    .form-input:focus~.search-icon-left {
+      color: #2563eb;
+    }
+
+    .search-btn-right {
+      position: absolute;
+      right: 0.5rem;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: none;
+      background: var(--search-btn-bg);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    .search-btn-right:hover {
+      transform: scale(1.06);
+      box-shadow: 0 6px 16px rgba(37, 99, 235, 0.45);
+    }
+
+    .search-btn-right:active {
+      transform: scale(0.95);
+    }
+
+    /* Quick Badges / Suggestion Chips */
+    .quick-chips {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1.25rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .chip {
+      background: var(--chip-bg);
+      border: 1px solid var(--chip-border);
+      color: var(--chip-color);
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0.4rem 0.95rem;
+      border-radius: 20px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+    }
+
+    .chip:hover {
+      border-color: #2563eb;
+      color: #2563eb;
+      transform: translateY(-1px);
+    }
+
+    /* Footer Styling */
+    .footer-container {
+      padding: 1.75rem 1rem;
+      text-align: center;
+      border-top: 1px solid var(--footer-border);
+      background: var(--footer-bg);
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+
+    .footer-brand {
+      font-weight: 700;
+      color: var(--text-main);
+      font-size: 0.95rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .footer-links {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .footer-links a:hover {
+      color: #2563eb;
+      text-decoration: underline;
+    }
+
+    .v-divider {
+      color: var(--border-color);
+    }
+
+    @media (max-width: 576px) {
+      .logo-img {
+        max-width: 260px;
+        max-height: 160px;
+      }
+
+      .form-input {
+        height: 54px;
+        font-size: 0.95rem;
+      }
+
+      .search-btn-right {
+        width: 42px;
+        height: 42px;
+      }
+    }
+
+    /* ============ Floating Calculator ============ */
+    .calc-fab {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 9999;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: none;
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      color: #fff;
+      font-size: 1.25rem;
+      cursor: pointer;
+      box-shadow: 0 8px 25px rgba(37, 99, 235, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .calc-fab:hover {
+      transform: scale(1.12) rotate(10deg);
+      box-shadow: 0 12px 30px rgba(37, 99, 235, 0.55);
+    }
+
+    .calc-fab.active {
+      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+      box-shadow: 0 8px 25px rgba(220, 38, 38, 0.45);
+      transform: rotate(45deg);
+    }
+
+    .calc-panel {
+      position: fixed;
+      bottom: 6rem;
+      right: 2rem;
+      z-index: 9998;
+      width: 300px;
+      background: var(--input-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+      padding: 1.25rem;
+      transform: scale(0.85) translateY(20px);
+      transform-origin: bottom right;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .calc-panel.open {
+      opacity: 1;
+      pointer-events: all;
+      transform: scale(1) translateY(0);
+    }
+
+    .calc-display {
+      background: var(--bg-color);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1rem;
+      text-align: right;
+      min-height: 72px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+
+    .calc-expr {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      min-height: 1.1rem;
+      word-break: break-all;
+      font-weight: 500;
+    }
+
+    .calc-result {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.2;
+      word-break: break-all;
+    }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+    }
+
+    .calc-btn {
+      height: 54px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      background: var(--chip-bg);
+      color: var(--text-main);
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .calc-btn:hover {
+      border-color: #2563eb;
+      color: #2563eb;
+      transform: translateY(-1px);
+    }
+
+    .calc-btn:active {
+      transform: scale(0.94);
+    }
+
+    .calc-btn.op {
+      background: rgba(37, 99, 235, 0.1);
+      color: #2563eb;
+      border-color: rgba(37, 99, 235, 0.25);
+    }
+
+    .calc-btn.op:hover {
+      background: #2563eb;
+      color: #fff;
+    }
+
+    .calc-btn.eq {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      color: #fff;
+      border-color: transparent;
+      grid-column: span 2;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    .calc-btn.eq:hover {
+      box-shadow: 0 6px 16px rgba(37, 99, 235, 0.5);
+      transform: translateY(-2px);
+    }
+
+    .calc-btn.clear {
+      background: rgba(220, 38, 38, 0.1);
+      color: #dc2626;
+      border-color: rgba(220, 38, 38, 0.25);
+    }
+
+    .calc-btn.clear:hover {
+      background: #dc2626;
+      color: #fff;
+    }
+
+    .calc-btn.zero {
+      grid-column: span 2;
+    }
+
+    .calc-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-align: center;
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Header Navigation -->
+  <header class="header-nav">
+    <div class="header-left">
+      <!-- Dark Mode Toggle Button (Pt 2) -->
+      <button id="themeToggle" class="theme-toggle-btn" aria-label="Toggle dark mode">
+        <i class="fa-solid fa-moon" id="themeIcon"></i>
+        <span id="themeText" class="ms-1">Dark Mode</span>
+      </button>
+    </div>
+    <div class="header-right">
+      <a href="about.html" class="nav-link-custom"><i class="fa-solid fa-circle-info me-1"></i> About &amp; Privacy</a>
+      <a href="apps/apps.html" class="nav-link-custom"><i class="fa-solid fa-border-all me-1"></i> Apps</a>
+    </div>
+  </header>
+
+  <!-- Main Centered Search Content -->
+  <main class="main-wrapper">
+    <!-- Brand Logo (Bharati Script Symbol) -->
+    <div class="logo-container">
+      <a href="index.html" class="logo-brand-link" title="Hind - Bharati Script Logo">
+        <img src="download.png" alt="Hind logo in Bharati Script" class="logo-img" />
+      </a>
+      <div class="tagline">Bharat's Fast &amp; Secure Search</div>
+    </div>
+
+    <!-- Centered Search Bar Form -->
+    <div class="search-box-wrapper">
+      <form method="get" id="ddgSearch" action="search.html" class="search-form">
+        <input type="hidden" name="sites" value="" />
+        <input type="hidden" name="k7" value="#ffffff" />
+        <input type="hidden" name="k8" value="#222222" />
+        <input type="hidden" name="k9" value="#00278e" />
+        <input type="hidden" name="kx" value="#20692b" />
+        <input type="hidden" name="kj" value="#fafafa" />
+        <input type="hidden" name="kt" value="p" />
+
+        <div class="search-input-group">
+          <i class="fa-solid fa-magnifying-glass search-icon-left"></i>
+          <input type="text" name="q" class="form-input" placeholder="Vandemataram 🇮🇳 Jai Hind 🇮🇳..."
+            aria-label="Search query" autofocus required />
+          <button type="submit" class="search-btn-right" aria-label="Submit Search">
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </form>
+
+      <!-- Quick Chips -->
+      <div class="quick-chips">
+        <a href="apps/webstore/news/index.html" class="chip"><i class="fa-regular fa-newspaper me-1"></i> Cyan News</a>
+        <a href="apps/webstore/weather/index.html" class="chip"><i class="fa-solid fa-cloud-sun me-1"></i> Cyan Weather</a>
+        <a href="apps/webstore/translator/index.html" class="chip"><i class="fa-solid fa-language me-1"></i> Cyan Translate</a>
+        <a href="apps/webstore/calendar/index.html" class="chip"><i class="fa-solid fa-calendar-days me-1"></i> Cyan Calendar</a>
+        <a href="about.html" class="chip"><i class="fa-solid fa-shield-halved me-1"></i> Privacy First</a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Floating Calculator FAB -->
+  <button class="calc-fab" id="calcFab" aria-label="Open Calculator" title="Quick Calculator">
+    <i class="fa-solid fa-calculator" id="calcFabIcon"></i>
+  </button>
+
+  <!-- Calculator Panel -->
+  <div class="calc-panel" id="calcPanel" role="dialog" aria-label="Quick Calculator">
+    <div class="calc-label"><i class="fa-solid fa-calculator me-1"></i> Quick Calculator</div>
+    <div class="calc-display">
+      <div class="calc-expr" id="calcExpr"></div>
+      <div class="calc-result" id="calcResult">0</div>
+    </div>
+    <div class="calc-grid">
+      <!-- Row 1 -->
+      <button class="calc-btn clear" onclick="calcClear()" title="Clear">C</button>
+      <button class="calc-btn op" onclick="calcSign()" title="Toggle sign">+/−</button>
+      <button class="calc-btn op" onclick="calcPercent()" title="Percent">%</button>
+      <button class="calc-btn op" onclick="calcOp('/')" title="Divide">÷</button>
+      <!-- Row 2 -->
+      <button class="calc-btn" onclick="calcNum('7')">7</button>
+      <button class="calc-btn" onclick="calcNum('8')">8</button>
+      <button class="calc-btn" onclick="calcNum('9')">9</button>
+      <button class="calc-btn op" onclick="calcOp('*')" title="Multiply">×</button>
+      <!-- Row 3 -->
+      <button class="calc-btn" onclick="calcNum('4')">4</button>
+      <button class="calc-btn" onclick="calcNum('5')">5</button>
+      <button class="calc-btn" onclick="calcNum('6')">6</button>
+      <button class="calc-btn op" onclick="calcOp('-')" title="Subtract">−</button>
+      <!-- Row 4 -->
+      <button class="calc-btn" onclick="calcNum('1')">1</button>
+      <button class="calc-btn" onclick="calcNum('2')">2</button>
+      <button class="calc-btn" onclick="calcNum('3')">3</button>
+      <button class="calc-btn op" onclick="calcOp('+')" title="Add">+</button>
+      <!-- Row 5 -->
+      <button class="calc-btn zero" onclick="calcNum('0')">0</button>
+      <button class="calc-btn" onclick="calcDot()">.</button>
+      <button class="calc-btn eq" onclick="calcEquals()">=</button>
+    </div>
+  </div>
+
+  <!-- Clean Footer -->
+  <footer class="footer-container">
+    <div class="footer-brand">© 2026 Lemon India Inc.</div>
+    <p class="footer-links">
+      <a href="about.html" rel="noopener">About &amp; Privacy Policy</a>
+      <span class="v-divider">•</span>
+      <a href="https://cse.google.com/cse.js?cx=c04bc7b605f41d47f" target="_blank" rel="noopener">Open Source
+        License</a>
+      <span class="v-divider">•</span>
+      <span>Copyright 2026 all rights reserved</span>
+    </p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script>
+    // Dark Mode Toggle Logic
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const themeText = document.getElementById('themeText');
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('hind_theme', theme);
+      if (theme === 'dark') {
+        themeIcon.className = 'fa-solid fa-sun';
+        themeIcon.style.color = '#f59e0b';
+        if (themeText) themeText.textContent = 'Light Mode';
+      } else {
+        themeIcon.className = 'fa-solid fa-moon';
+        themeIcon.style.color = '';
+        if (themeText) themeText.textContent = 'Dark Mode';
+      }
+    }
+
+    const savedTheme = localStorage.getItem('hind_theme') ||
+      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+    setTheme(savedTheme);
+
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+    });
+
+    // ============ Floating Calculator Logic ============
+    const calcFab = document.getElementById('calcFab');
+    const calcPanel = document.getElementById('calcPanel');
+    const calcFabIcon = document.getElementById('calcFabIcon');
+
+    let calcCurrent = '0';
+    let calcPrev = '';
+    let calcOperator = null;
+    let calcShouldReset = false;
+
+    function calcUpdateDisplay() {
+      document.getElementById('calcResult').textContent = calcCurrent;
+    }
+
+    function calcUpdateExpr(expr) {
+      document.getElementById('calcExpr').textContent = expr || '';
+    }
+
+    function calcNum(digit) {
+      if (calcShouldReset) {
+        calcCurrent = digit;
+        calcShouldReset = false;
+      } else {
+        calcCurrent = calcCurrent === '0' ? digit : calcCurrent + digit;
+      }
+      if (calcCurrent.length > 12) calcCurrent = calcCurrent.slice(0, 12);
+      calcUpdateDisplay();
+    }
+
+    function calcDot() {
+      if (calcShouldReset) { calcCurrent = '0.'; calcShouldReset = false; }
+      else if (!calcCurrent.includes('.')) calcCurrent += '.';
+      calcUpdateDisplay();
+    }
+
+    function calcOp(op) {
+      const opLabel = { '+': '+', '-': '−', '*': '×', '/': '÷' };
+      if (calcOperator && !calcShouldReset) {
+        calcEquals(true);
+      }
+      calcPrev = calcCurrent;
+      calcOperator = op;
+      calcShouldReset = true;
+      calcUpdateExpr(`${calcPrev} ${opLabel[op]}`);
+    }
+
+    function calcEquals(silent = false) {
+      if (!calcOperator || calcShouldReset) return;
+      const a = parseFloat(calcPrev);
+      const b = parseFloat(calcCurrent);
+      const opLabel = { '+': '+', '-': '−', '*': '×', '/': '÷' };
+      let result;
+      switch (calcOperator) {
+        case '+': result = a + b; break;
+        case '-': result = a - b; break;
+        case '*': result = a * b; break;
+        case '/': result = b !== 0 ? a / b : 'Error'; break;
+      }
+      if (!silent) {
+        calcUpdateExpr(`${calcPrev} ${opLabel[calcOperator]} ${b} =`);
+      }
+      const resultStr = typeof result === 'number'
+        ? parseFloat(result.toFixed(10)).toString()
+        : result;
+      calcCurrent = resultStr;
+      calcOperator = null;
+      calcShouldReset = true;
+      calcUpdateDisplay();
+    }
+
+    function calcClear() {
+      calcCurrent = '0';
+      calcPrev = '';
+      calcOperator = null;
+      calcShouldReset = false;
+      calcUpdateDisplay();
+      calcUpdateExpr('');
+    }
+
+    function calcSign() {
+      calcCurrent = calcCurrent.startsWith('-')
+        ? calcCurrent.slice(1)
+        : (calcCurrent !== '0' ? '-' + calcCurrent : '0');
+      calcUpdateDisplay();
+    }
+
+    function calcPercent() {
+      calcCurrent = (parseFloat(calcCurrent) / 100).toString();
+      calcUpdateDisplay();
+    }
+
+    // FAB toggle
+    calcFab.addEventListener('click', () => {
+      const isOpen = calcPanel.classList.contains('open');
+      calcPanel.classList.toggle('open');
+      calcFab.classList.toggle('active');
+      calcFabIcon.className = isOpen ? 'fa-solid fa-calculator' : 'fa-solid fa-xmark';
+    });
+
+    // Close calculator when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!calcFab.contains(e.target) && !calcPanel.contains(e.target)) {
+        calcPanel.classList.remove('open');
+        calcFab.classList.remove('active');
+        calcFabIcon.className = 'fa-solid fa-calculator';
+      }
+    });
+  </script>
+</body>
+
+</html>

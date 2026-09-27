@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cyan News - Bharat's Pulse | Hind.com</title>
+  <link rel="icon" type="image/x-icon" href="../Hind-main/icon.jpg">
+  <link rel="apple-touch-icon" href="../Hind-main/icon.jpg">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,600;0,700;0,800;1,700&display=swap" rel="stylesheet">
+  <!-- Bootstrap 5 & FontAwesome 6 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-color: #f8fafc;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --card-bg: #ffffff;
+      --card-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+      --cyan-primary: #0891b2;
+      --cyan-light: #06b6d4;
+      --cyan-hover: #0e7490;
+      --cyan-glow: rgba(6, 182, 212, 0.15);
+      --input-bg: #ffffff;
+      --input-border: #cbd5e1;
+      --footer-bg: #ffffff;
+      --footer-border: #e2e8f0;
+      --nav-link: #475569;
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #0f172a;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #1e293b;
+      --card-bg: #1e293b;
+      --card-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.5);
+      --cyan-primary: #06b6d4;
+      --cyan-light: #22d3ee;
+      --cyan-hover: #67e8f9;
+      --cyan-glow: rgba(34, 211, 238, 0.2);
+      --input-bg: #0f172a;
+      --input-border: #334155;
+      --footer-bg: #0f172a;
+      --footer-border: #1e293b;
+      --nav-link: #cbd5e1;
+    }
+
+    * { box-sizing: border-box; }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-color); }
+    ::-webkit-scrollbar-thumb { background: var(--cyan-primary); border-radius: 4px; }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      margin: 0;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* Header Nav */
+    .news-header {
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border-color);
+      padding: 1rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    }
+
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .brand-logo-area {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .cyan-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 1.6rem;
+      color: var(--text-main);
+      transition: transform 0.2s ease;
+    }
+
+    .cyan-logo:hover {
+      transform: scale(1.03);
+      color: var(--text-main);
+    }
+
+    .cyan-badge {
+      background: linear-gradient(135deg, #06b6d4 0%, #0284c7 100%);
+      color: #ffffff;
+      padding: 0.25rem 0.65rem;
+      border-radius: 8px;
+      font-size: 1.25rem;
+      box-shadow: 0 4px 12px var(--cyan-glow);
+    }
+
+    .cyan-text {
+      color: var(--cyan-primary);
+    }
+
+    .hind-subtext {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-left: -0.2rem;
+    }
+
+    /* Header Search */
+    .news-search-form {
+      flex: 1;
+      max-width: 480px;
+      position: relative;
+    }
+
+    .news-search-input {
+      width: 100%;
+      height: 44px;
+      padding: 0 3rem 0 2.5rem;
+      border-radius: 22px;
+      border: 1px solid var(--input-border);
+      background: var(--input-bg);
+      color: var(--text-main);
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+    }
+
+    .news-search-input:focus {
+      outline: none;
+      border-color: var(--cyan-primary);
+      box-shadow: 0 0 0 4px var(--cyan-glow);
+    }
+
+    .search-icon-pos {
+      position: absolute;
+      left: 0.9rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+
+    .search-btn-pos {
+      position: absolute;
+      right: 0.3rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: none;
+      background: linear-gradient(135deg, #06b6d4 0%, #0284c7 100%);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .header-nav-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .nav-btn {
+      color: var(--nav-link);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      padding: 0.4rem 0.8rem;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .nav-btn:hover {
+      color: var(--cyan-primary);
+      background: var(--cyan-glow);
+    }
+
+    .theme-toggle-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 0.4rem 0.85rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      transition: all 0.2s ease;
+    }
+
+    .theme-toggle-btn:hover {
+      border-color: var(--cyan-primary);
+      color: var(--cyan-primary);
+    }
+
+    /* Subheader Categories */
+    .category-bar {
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.75rem 2rem;
+      overflow-x: auto;
+    }
+
+    .category-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      gap: 0.75rem;
+      white-space: nowrap;
+    }
+
+    .cat-tab {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .cat-tab:hover, .cat-tab.active {
+      background: linear-gradient(135deg, #06b6d4 0%, #0284c7 100%);
+      color: #ffffff;
+      border-color: transparent;
+      box-shadow: 0 4px 12px var(--cyan-glow);
+    }
+
+    /* News Grid Content */
+    .news-main {
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+      flex: 1;
+    }
+
+    .news-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: var(--card-shadow);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .news-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px -4px var(--cyan-glow);
+      border-color: var(--cyan-primary);
+    }
+
+    .news-img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      background: #e2e8f0;
+    }
+
+    .news-body {
+      padding: 1.25rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .news-source-tag {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--cyan-primary);
+      letter-spacing: 0.5px;
+      margin-bottom: 0.5rem;
+    }
+
+    .news-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      line-height: 1.4;
+    }
+
+    .news-title a {
+      color: var(--text-main);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .news-title a:hover {
+      color: var(--cyan-primary);
+    }
+
+    .news-desc {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 1rem;
+      flex: 1;
+    }
+
+    .news-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border-color);
+      padding-top: 0.75rem;
+      margin-top: auto;
+    }
+
+    .news-link-btn {
+      color: var(--cyan-primary);
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .news-link-btn:hover {
+      text-decoration: underline;
+    }
+
+    /* Live Feed Widget Container */
+    .rss-container {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-top: 2rem;
+      box-shadow: var(--card-shadow);
+    }
+
+    /* Footer */
+    .footer-container {
+      padding: 1.75rem 1rem;
+      text-align: center;
+      border-top: 1px solid var(--border-color);
+      background: var(--card-bg);
+    }
+
+    .footer-brand {
+      font-weight: 700;
+      color: var(--text-main);
+      font-size: 0.95rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .footer-links {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+
+    .footer-links a:hover {
+      color: var(--cyan-primary);
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- News Header -->
+  <header class="news-header">
+    <div class="header-content">
+      <div class="brand-logo-area">
+        <a href="../Hind-main/index.html" class="cyan-logo">
+          <span class="cyan-badge"><i class="fa-solid fa-newspaper"></i></span>
+          <span>Cyan <span class="cyan-text">News</span></span>
+        </a>
+        <span class="hind-subtext d-none d-md-inline">by Hind.com</span>
+      </div>
+
+      <!-- Search Bar -->
+      <form method="get" action="../Hind-main/search.html" class="news-search-form">
+        <i class="fa-solid fa-magnifying-glass search-icon-pos"></i>
+        <input type="text" name="q" class="news-search-input" placeholder="Search news on Hind..." required />
+        <button type="submit" class="search-btn-pos" aria-label="Search">
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </form>
+
+      <div class="header-nav-right">
+        <button id="themeToggle" class="theme-toggle-btn">
+          <i class="fa-solid fa-moon" id="themeIcon"></i>
+          <span id="themeText" class="ms-1 d-none d-sm-inline">Dark Mode</span>
+        </button>
+        <a href="../Hind-main/index.html" class="nav-btn"><i class="fa-solid fa-house me-1"></i> Hind Home</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Category Nav Tabs -->
+  <nav class="category-bar">
+    <div class="category-container">
+      <button class="cat-tab active" onclick="filterCategory('all', this)"><i class="fa-solid fa-fire me-1"></i> Top Stories</button>
+      <button class="cat-tab" onclick="filterCategory('india', this)"><i class="fa-solid fa-flag me-1"></i> India</button>
+      <button class="cat-tab" onclick="filterCategory('tech', this)"><i class="fa-solid fa-microchip me-1"></i> Technology</button>
+      <button class="cat-tab" onclick="filterCategory('world', this)"><i class="fa-solid fa-globe me-1"></i> World</button>
+      <button class="cat-tab" onclick="filterCategory('business', this)"><i class="fa-solid fa-chart-line me-1"></i> Business</button>
+      <button class="cat-tab" onclick="filterCategory('sports', this)"><i class="fa-solid fa-trophy me-1"></i> Sports</button>
+    </div>
+  </nav>
+
+  <!-- Main News Content -->
+  <main class="news-main">
+    <div id="newsLoader" class="text-center py-5">
+      <div class="spinner-border text-info" role="status">
+        <span class="visually-hidden">Loading news...</span>
+      </div>
+      <p class="mt-3 text-muted">Fetching live updates for Cyan News...</p>
+    </div>
+
+    <!-- News Grid Container -->
+    <div class="row g-4" id="newsGrid" style="display: none;"></div>
+
+    <!-- RSS Feed Integration Widget -->
+    <div class="rss-container mt-5">
+      <h5 class="fw-bold mb-3"><i class="fa-solid fa-rss text-info me-2"></i> Live World RSS Feed</h5>
+      <script type="text/javascript">
+        rssfeed_url = new Array();
+        rssfeed_url[0]="https://surfing-waves.com/newsrss.xml";
+        rssfeed_url[1]="http://rss.cnn.com/rss/edition.rss/";
+        rssfeed_frame_width="100%";
+        rssfeed_frame_height="400";
+        rssfeed_scroll="on";
+        rssfeed_scroll_step="6";
+        rssfeed_scroll_bar="on";
+        rssfeed_target="_blank";
+        rssfeed_font_size="14";
+        rssfeed_font_face="Plus Jakarta Sans";
+        rssfeed_border="off";
+        rssfeed_css_url="https://feed.surfing-waves.com/css/style1.css";
+        rssfeed_title="off";
+        rssfeed_footer="off";
+        rssfeed_item_title_length="70";
+        rssfeed_item_title_color="#0891b2";
+        rssfeed_item_bgcolor="transparent";
+        rssfeed_item_border_bottom="on";
+        rssfeed_item_source_icon="on";
+        rssfeed_item_date="off";
+        rssfeed_item_description="on";
+        rssfeed_item_description_length="150";
+        rssfeed_no_items="10";
+        rssfeed_cache = "9ca8b7eae69f97d764d290245e751730";
+      </script>
+      <script type="text/javascript" src="//feed.surfing-waves.com/js/rss-feed.js"></script>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer-container">
+    <div class="footer-brand">© 2026 Lemon India Inc.</div>
+    <p class="footer-links">
+      <a href="../Hind-main/about.html">About &amp; Privacy Policy</a>
+      <span>•</span>
+      <a href="https://cse.google.com/cse.js?cx=c04bc7b605f41d47f" target="_blank">Open Source License</a>
+      <span>•</span>
+      <span>Copyright 2026 all rights reserved</span>
+    </p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script>
+    // Live News Mock & Fetch Data
+    const newsData = [
+      {
+        category: 'india',
+        source: 'Hind Newsroom',
+        title: 'India Advances Tech Innovation & Digital Infrastructure Growth',
+        desc: 'New initiatives in technology, AI development, and digital public infrastructure boost national progress.',
+        time: '10 mins ago',
+        image: 'https://images.unsplash.com/photo-1532375810709-75b1da00537c?auto=format&fit=crop&w=600&q=80',
+        url: '../Hind-main/search.html?q=India+Tech+News'
+      },
+      {
+        category: 'tech',
+        source: 'Cyan Tech',
+        title: 'Supercomputing & AI Advancements Transform Indian Tech Ecosystem',
+        desc: 'Breakthroughs in artificial intelligence models and high-performance computing empower research institutes.',
+        time: '30 mins ago',
+        image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80',
+        url: '../Hind-main/search.html?q=AI+Supercomputing'
+      },
+      {
+        category: 'world',
+        source: 'Global Dispatch',
+        title: 'International Climate Conference Reaches Key Clean Energy Milestone',
+        desc: 'Global leaders unite on clean energy transitions and sustainable technology adoption.',
+        time: '1 hour ago',
+        image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=600&q=80',
+        url: '../Hind-main/search.html?q=Clean+Energy'
+      },
+      {
+        category: 'business',
+        source: 'Markets Today',
+        title: 'Markets Surge as Emerging Economies Report Strong GDP Expansion',
+        desc: 'Economic indicators signal sustained expansion across technology and manufacturing sectors.',
+        time: '2 hours ago',
+        image: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=600&q=80',
+        url: '../Hind-main/search.html?q=Markets+Economy'
+      },
+      {
+        category: 'sports',
+        source: 'Sports Central',
+        title: 'India Champions Triumph in Thrilling Championship Victory',
+        desc: 'An inspiring performance seals a memorable win for the national team on the international stage.',
+        time: '3 hours ago',
+        image: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=600&q=80',
+        url: '../Hind-main/search.html?q=India+Sports'
+      },
+      {
+        category: 'tech',
+        source: 'IIT Madras Research',
+        title: 'Unified Bharati Script Innovation Expands Cross-Lingual Accessibility',
+        desc: 'Innovative scripts created for Indian languages enhance digital communication and cross-regional literacy.',
+        time: '4 hours ago',
+        image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=600&q=80',
+        url: '../Hind-main/search.html?q=Bharati+Script+IIT+Madras'
+      }
+    ];
+
+    function renderNews(filter = 'all') {
+      const grid = document.getElementById('newsGrid');
+      const loader = document.getElementById('newsLoader');
+      
+      const filtered = filter === 'all' ? newsData : newsData.filter(item => item.category === filter);
+      
+      grid.innerHTML = filtered.map(item => `
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="news-card">
+            <img src="${item.image}" alt="${item.title}" class="news-img" loading="lazy" />
+            <div class="news-body">
+              <span class="news-source-tag"><i class="fa-solid fa-bolt me-1"></i> ${item.source}</span>
+              <h3 class="news-title"><a href="${item.url}">${item.title}</a></h3>
+              <p class="news-desc">${item.desc}</p>
+              <div class="news-footer">
+                <span><i class="fa-regular fa-clock me-1"></i> ${item.time}</span>
+                <a href="${item.url}" class="news-link-btn">Read More <i class="fa-solid fa-arrow-right ms-1"></i></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      loader.style.display = 'none';
+      grid.style.display = 'flex';
+    }
+
+    function filterCategory(category, element) {
+      document.querySelectorAll('.cat-tab').forEach(el => el.classList.remove('active'));
+      element.classList.add('active');
+      renderNews(category);
+    }
+
+    // Initialize
+    setTimeout(() => {
+      renderNews('all');
+    }, 300);
+
+    // Dark Mode Script
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const themeText = document.getElementById('themeText');
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('hind_theme', theme);
+      if (theme === 'dark') {
+        themeIcon.className = 'fa-solid fa-sun';
+        themeIcon.style.color = '#f59e0b';
+        if (themeText) themeText.textContent = 'Light Mode';
+      } else {
+        themeIcon.className = 'fa-solid fa-moon';
+        themeIcon.style.color = '';
+        if (themeText) themeText.textContent = 'Dark Mode';
+      }
+    }
+
+    const savedTheme = localStorage.getItem('hind_theme') || 
+      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+    setTheme(savedTheme);
+
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+    });
+  </script>
+</body>
+</html>

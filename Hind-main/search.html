@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search Results - Hind.com</title>
+  <link rel="icon" type="image/x-icon" href="icon.jpg">
+  <link rel="apple-touch-icon" href="icon.jpg">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,600;0,700;0,800;1,700&display=swap" rel="stylesheet">
+  <!-- Bootstrap & FontAwesome -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-color: #f8fafc;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --nav-link-color: #475569;
+      --nav-link-hover-bg: rgba(37, 99, 235, 0.08);
+      --chip-bg: #ffffff;
+      --chip-border: #e2e8f0;
+      --chip-color: #475569;
+      --input-bg: #ffffff;
+      --input-border: #e2e8f0;
+      --input-text: #1e293b;
+      --input-shadow: 0 4px 15px -2px rgba(0, 0, 0, 0.05);
+      --footer-bg: #ffffff;
+      --footer-border: #e2e8f0;
+      --search-btn-bg: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      --card-bg: #ffffff;
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #0f172a;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+      --nav-link-color: #cbd5e1;
+      --nav-link-hover-bg: rgba(255, 255, 255, 0.08);
+      --chip-bg: #1e293b;
+      --chip-border: #334155;
+      --chip-color: #cbd5e1;
+      --input-bg: #1e293b;
+      --input-border: #334155;
+      --input-text: #f8fafc;
+      --input-shadow: 0 4px 15px -2px rgba(0, 0, 0, 0.4);
+      --footer-bg: #0f172a;
+      --footer-border: #1e293b;
+      --search-btn-bg: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      --card-bg: #1e293b;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-color);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 4px;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      margin: 0;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* Header Bar */
+    .search-header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      background: var(--card-bg);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    }
+
+    .header-brand-group {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex: 1;
+      max-width: 750px;
+    }
+
+    .header-logo-link {
+      display: inline-block;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+
+    .header-logo-img {
+      height: 48px;
+      width: auto;
+      mix-blend-mode: multiply;
+      transition: transform 0.2s ease;
+    }
+
+    [data-theme="dark"] .header-logo-link {
+      background: rgba(255, 255, 255, 0.96);
+      padding: 6px 14px;
+      border-radius: 16px;
+    }
+
+    .header-logo-link:hover .header-logo-img {
+      transform: scale(1.05);
+    }
+
+    /* Header Search Form */
+    .header-search-form {
+      position: relative;
+      width: 100%;
+      max-width: 550px;
+    }
+
+    .header-search-group {
+      position: relative;
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+
+    .header-search-input {
+      width: 100%;
+      height: 46px;
+      padding: 0 3.25rem 0 2.75rem;
+      border-radius: 24px;
+      border: 1px solid var(--input-border);
+      background: var(--input-bg);
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--input-text);
+      box-shadow: var(--input-shadow);
+      transition: all 0.2s ease;
+    }
+
+    .header-search-input:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 4px 20px -2px rgba(37, 99, 235, 0.25);
+    }
+
+    .header-search-icon {
+      position: absolute;
+      left: 1rem;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      pointer-events: none;
+    }
+
+    .header-search-btn {
+      position: absolute;
+      right: 0.35rem;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: none;
+      background: var(--search-btn-bg);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+    }
+
+    .header-search-btn:hover {
+      transform: scale(1.06);
+    }
+
+    /* Header Controls Right */
+    .header-right-controls {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-shrink: 0;
+    }
+
+    .theme-toggle-btn {
+      background: var(--chip-bg);
+      border: 1px solid var(--chip-border);
+      color: var(--nav-link-color);
+      padding: 0.4rem 0.85rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      transition: all 0.2s ease;
+    }
+
+    .theme-toggle-btn:hover {
+      color: #2563eb;
+      border-color: #2563eb;
+    }
+
+    .nav-link-custom {
+      color: var(--nav-link-color);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+      padding: 0.35rem 0.75rem;
+      border-radius: 8px;
+    }
+
+    .nav-link-custom:hover {
+      color: #2563eb;
+      background: var(--nav-link-hover-bg);
+    }
+
+    /* Results Section */
+    .results-main {
+      flex: 1;
+      padding: 2rem 1.5rem;
+      max-width: 1050px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .results-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04);
+      min-height: 450px;
+    }
+
+    /* Google CSE Custom Styling Overrides */
+    .gsc-control-cse {
+      background-color: transparent !important;
+      border: none !important;
+      padding: 0 !important;
+      font-family: 'Plus Jakarta Sans', sans-serif !important;
+    }
+
+    .gsc-search-button-v2 {
+      background-color: #2563eb !important;
+      border-radius: 8px !important;
+    }
+
+    .gsc-webResult.gsc-result, 
+    .gsc-results .gsc-imageResult {
+      background-color: transparent !important;
+      border-color: var(--border-color) !important;
+      padding: 0.75rem 0 !important;
+    }
+
+    .gs-title, .gs-title b {
+      color: #2563eb !important;
+      text-decoration: none !important;
+      font-size: 1.1rem !important;
+      font-weight: 600 !important;
+    }
+
+    .gs-title:hover {
+      text-decoration: underline !important;
+    }
+
+    .gs-snippet {
+      color: var(--text-main) !important;
+      font-size: 0.95rem !important;
+      line-height: 1.5 !important;
+    }
+
+    .gs-visibleUrl {
+      color: #059669 !important;
+      font-size: 0.85rem !important;
+    }
+
+    /* Footer Styling */
+    .footer-container {
+      padding: 1.75rem 1rem;
+      text-align: center;
+      border-top: 1px solid var(--footer-border);
+      background: var(--footer-bg);
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+
+    .footer-brand {
+      font-weight: 700;
+      color: var(--text-main);
+      font-size: 0.95rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .footer-links {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .footer-links a:hover {
+      color: #2563eb;
+      text-decoration: underline;
+    }
+
+    .v-divider {
+      color: var(--border-color);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Search Results Header Bar -->
+  <header class="search-header">
+    <div class="header-brand-group">
+      <a href="index.html" class="header-logo-link" title="Hind - Home">
+        <img src="download.png" alt="Hind logo" class="header-logo-img" />
+      </a>
+      <form method="get" action="search.html" class="header-search-form">
+        <div class="header-search-group">
+          <i class="fa-solid fa-magnifying-glass header-search-icon"></i>
+          <input 
+            type="text" 
+            name="q" 
+            id="searchInputHeader"
+            class="header-search-input" 
+            placeholder="Search Hind..." 
+            aria-label="Search query" 
+            required 
+          />
+          <button type="submit" class="header-search-btn" aria-label="Submit Search">
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div class="header-right-controls">
+      <button id="themeToggle" class="theme-toggle-btn" aria-label="Toggle dark mode">
+        <i class="fa-solid fa-moon" id="themeIcon"></i>
+        <span id="themeText" class="ms-1 d-none d-sm-inline">Dark Mode</span>
+      </button>
+      <a href="about.html" class="nav-link-custom"><i class="fa-solid fa-circle-info me-1"></i> About &amp; Privacy</a>
+      <a href="apps/apps.html" class="nav-link-custom"><i class="fa-solid fa-border-all me-1"></i> Apps</a>
+    </div>
+  </header>
+
+  <!-- Main Search Results Container -->
+  <main class="results-main">
+    <div class="results-card">
+      <!-- Google Custom Search Engine Integration -->
+      <script async src="https://cse.google.com/cse.js?cx=c04bc7b605f41d47f"></script>
+      <div class="gcse-search"></div>
+    </div>
+  </main>
+
+  <!-- Clean Footer -->
+  <footer class="footer-container">
+    <div class="footer-brand">© 2026 Lemon India Inc.</div>
+    <p class="footer-links">
+      <a href="about.html" rel="noopener">About &amp; Privacy Policy</a>
+      <span class="v-divider">•</span>
+      <a href="https://cse.google.com/cse.js?cx=c04bc7b605f41d47f" target="_blank" rel="noopener">Open Source License</a>
+      <span class="v-divider">•</span>
+      <span>Copyright 2026 all rights reserved</span>
+    </p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script>
+    // Extract query parameter from URL and fill input box
+    const urlParams = new URLSearchParams(window.location.search);
+    const query = urlParams.get('q');
+    if (query) {
+      document.getElementById('searchInputHeader').value = query;
+      document.title = `${query} - Hind Search`;
+    }
+
+    // Dark Mode Toggle Logic
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const themeText = document.getElementById('themeText');
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('hind_theme', theme);
+      if (theme === 'dark') {
+        themeIcon.className = 'fa-solid fa-sun';
+        themeIcon.style.color = '#f59e0b';
+        if (themeText) themeText.textContent = 'Light Mode';
+      } else {
+        themeIcon.className = 'fa-solid fa-moon';
+        themeIcon.style.color = '';
+        if (themeText) themeText.textContent = 'Dark Mode';
+      }
+    }
+
+    const savedTheme = localStorage.getItem('hind_theme') || 
+      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+    setTheme(savedTheme);
+
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+    });
+  </script>
+</body>
+</html>
