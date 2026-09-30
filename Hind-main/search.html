@@ -166,6 +166,38 @@
 
     .header-search-btn:hover { transform: scale(1.08); }
 
+    /* Mic button in search bar */
+    .voice-mic-btn {
+      position: absolute;
+      right: 2.7rem;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      color: var(--ink-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+      z-index: 2;
+    }
+
+    .voice-mic-btn:hover { color: var(--blue); background: rgba(37,99,235,0.08); }
+
+    .voice-mic-btn.listening {
+      color: #dc2626;
+      background: rgba(220,38,38,0.1);
+      animation: micPulse 1.2s ease-in-out infinite;
+    }
+
+    @keyframes micPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(220,38,38,0.35); }
+      50% { box-shadow: 0 0 0 7px rgba(220,38,38,0); }
+    }
+
     /* Header right */
     .header-right {
       display: flex;
@@ -728,7 +760,11 @@
             placeholder="Search Hind..."
             aria-label="Search"
             autocomplete="off"
+            style="padding-right: 4.8rem;"
           />
+          <button type="button" class="voice-mic-btn" id="voiceMicBtn" title="Voice search" aria-label="Voice search">
+            <i class="fa-solid fa-microphone" id="voiceMicIcon"></i>
+          </button>
           <button type="submit" class="header-search-btn" aria-label="Search">
             <i class="fa-solid fa-arrow-right"></i>
           </button>
@@ -1074,6 +1110,59 @@
       }
       aiBody.scrollTop = aiBody.scrollHeight;
     }
+
+    // ── Voice Search ──
+    (function() {
+      const micBtn    = document.getElementById('voiceMicBtn');
+      const micIcon   = document.getElementById('voiceMicIcon');
+      const searchInp = document.getElementById('searchInputHeader');
+      if (!micBtn) return;
+
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        micBtn.style.display = 'none';
+        return;
+      }
+
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'hi-IN';
+      recognition.continuous = false;
+      recognition.interimResults = true;
+
+      let listening = false;
+
+      micBtn.addEventListener('click', () => {
+        if (listening) { recognition.stop(); return; }
+        recognition.start();
+      });
+
+      recognition.onstart = () => {
+        listening = true;
+        micBtn.classList.add('listening');
+        micIcon.className = 'fa-solid fa-microphone-lines';
+        micBtn.title = 'Listening... click to stop';
+      };
+
+      recognition.onresult = (event) => {
+        let interim = '', final = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          if (event.results[i].isFinal) final += event.results[i][0].transcript;
+          else interim += event.results[i][0].transcript;
+        }
+        if (interim) searchInp.value = interim;
+        if (final) {
+          searchInp.value = final;
+          window.location.href = 'search.html?q=' + encodeURIComponent(final.trim());
+        }
+      };
+
+      recognition.onerror = recognition.onend = () => {
+        listening = false;
+        micBtn.classList.remove('listening');
+        micIcon.className = 'fa-solid fa-microphone';
+        micBtn.title = 'Voice search';
+      };
+    })();
   </script>
 </body>
 </html>
