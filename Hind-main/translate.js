@@ -1,156 +1,174 @@
 /**
- * Hind Auto-Translate
- * Detects visitor country from IP → maps to language → auto-triggers Google Translate
- * Stored in localStorage so it only runs the IP lookup once per session.
+ * Hind Auto-Translate (powered by Cyan Translate / MyMemory API)
+ * Detects visitor country from IP → maps to language → translates all text nodes via MyMemory API
+ * Stores result in localStorage so IP is only called once ever.
  */
 (function () {
   'use strict';
 
-  // Country code → Google Translate language code
+  // Country code → ISO 639-1 language code (matches MyMemory format)
   const COUNTRY_LANG = {
     // South Asia
-    IN: 'hi', PK: 'ur', BD: 'bn', LK: 'si', NP: 'ne', BT: 'dz', MV: 'en',
+    IN: 'hi', PK: 'ur', BD: 'bn', LK: 'si', NP: 'ne',
     // East Asia
-    CN: 'zh-CN', TW: 'zh-TW', JP: 'ja', KR: 'ko', HK: 'zh-TW', MO: 'zh-TW',
+    CN: 'zh', TW: 'zh', JP: 'ja', KR: 'ko', HK: 'zh', MO: 'zh',
     // South-East Asia
     ID: 'id', MY: 'ms', TH: 'th', VN: 'vi', PH: 'tl', MM: 'my', KH: 'km',
-    LA: 'lo', SG: 'ms', BN: 'ms',
+    SG: 'ms',
     // Middle East / Arab world
     SA: 'ar', AE: 'ar', EG: 'ar', IQ: 'ar', JO: 'ar', KW: 'ar', LB: 'ar',
     LY: 'ar', MA: 'ar', OM: 'ar', QA: 'ar', SY: 'ar', TN: 'ar', YE: 'ar',
-    IL: 'iw', TR: 'tr', IR: 'fa', AF: 'ps',
+    IL: 'iw', TR: 'tr', IR: 'fa',
     // Europe
     RU: 'ru', UA: 'uk', PL: 'pl', DE: 'de', FR: 'fr', IT: 'it', ES: 'es',
-    PT: 'pt', NL: 'nl', BE: 'nl', GR: 'el', RO: 'ro', CZ: 'cs', SK: 'sk',
-    HU: 'hu', BG: 'bg', HR: 'hr', RS: 'sr', SI: 'sl', FI: 'fi', SE: 'sv',
+    PT: 'pt', NL: 'nl', GR: 'el', RO: 'ro', CZ: 'cs', SK: 'sk',
+    HU: 'hu', BG: 'bg', HR: 'hr', RS: 'sr', FI: 'fi', SE: 'sv',
     NO: 'no', DK: 'da', AT: 'de', CH: 'de',
     // Americas
     BR: 'pt', MX: 'es', AR: 'es', CO: 'es', CL: 'es', PE: 'es', VE: 'es',
-    EC: 'es', BO: 'es', PY: 'es', UY: 'es',
     // Africa
-    NG: 'yo', ZA: 'zu', KE: 'sw', TZ: 'sw', ET: 'am', GH: 'en', CI: 'fr',
-    CM: 'fr', SN: 'fr', ML: 'fr', BJ: 'fr', TG: 'fr', GA: 'fr', MG: 'mg',
-    // English-default countries (no translation needed)
-    US: 'en', GB: 'en', AU: 'en', CA: 'en', NZ: 'en', IE: 'en', ZW: 'en',
+    NG: 'yo', KE: 'sw', TZ: 'sw', ET: 'am',
+    // English countries — skip translation
+    US: 'en', GB: 'en', AU: 'en', CA: 'en', NZ: 'en', IE: 'en',
   };
 
-  const STORAGE_KEY  = 'hind_user_lang';
-  const COUNTRY_KEY  = 'hind_user_country';
-  const SKIP_LANGS   = ['en']; // Don't translate if user is already English
+  const LANG_NAMES = {
+    hi:'हिंदी', ur:'اردو', bn:'বাংলা', si:'සිංහල', ne:'नेपाली',
+    zh:'中文', ja:'日本語', ko:'한국어',
+    id:'Bahasa', ms:'Melayu', th:'ไทย', vi:'Tiếng Việt', tl:'Filipino',
+    ar:'العربية', tr:'Türkçe', fa:'فارسی', iw:'עברית',
+    ru:'Русский', uk:'Українська', pl:'Polski', de:'Deutsch', fr:'Français',
+    it:'Italiano', es:'Español', pt:'Português', nl:'Nederlands',
+    el:'Ελληνικά', ro:'Română', cs:'Čeština', hu:'Magyar', sv:'Svenska',
+    fi:'Suomi', no:'Norsk', da:'Dansk', bg:'Български', hr:'Hrvatski',
+    sr:'Srpski', yo:'Yorùbá', sw:'Kiswahili', am:'አማርኛ',
+  };
 
-  // Called by Google Translate widget loader
-  window.googleTranslateElementInit = function () {
-    new google.translate.TranslateElement(
-      { pageLanguage: 'en', autoDisplay: false },
-      'hind_translate_root'
+  const HIST_KEY    = 'hind_user_lang';
+  const COUNTRY_KEY = 'hind_user_country';
+  const DONE_KEY    = 'hind_translated_' + location.pathname;
+
+  // MyMemory translate API (same as Cyan Translate app)
+  async function myMemoryTranslate(text, targetLang) {
+    if (!text || !text.trim() || text.trim().length < 2) return text;
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text.trim())}&langpair=en|${targetLang}`;
+    const res  = await fetch(url);
+    const data = await res.json();
+    return (data.responseData && data.responseData.translatedText) || text;
+  }
+
+  // Collect translatable text nodes (skip scripts, styles, inputs)
+  function getTextNodes(root) {
+    const skip = new Set(['SCRIPT','STYLE','NOSCRIPT','TEXTAREA','INPUT','SELECT','CODE','PRE','KBD','SAMP']);
+    const walker = document.createTreeWalker(
+      root,
+      NodeFilter.SHOW_TEXT,
+      {
+        acceptNode(node) {
+          if (!node.textContent.trim()) return NodeFilter.FILTER_REJECT;
+          if (skip.has(node.parentElement && node.parentElement.tagName)) return NodeFilter.FILTER_REJECT;
+          // Skip things already marked as translated
+          if (node.parentElement && node.parentElement.dataset.hindTranslated) return NodeFilter.FILTER_REJECT;
+          return NodeFilter.FILTER_ACCEPT;
+        }
+      }
     );
-    // After widget is ready, apply language
-    setTimeout(applyLang, 600);
-  };
-
-  function applyLang() {
-    const lang = localStorage.getItem(STORAGE_KEY);
-    if (!lang || SKIP_LANGS.includes(lang)) return;
-    const sel = document.querySelector('.goog-te-combo');
-    if (!sel) return;
-    sel.value = lang;
-    sel.dispatchEvent(new Event('change'));
-    updatePill(lang);
+    const nodes = [];
+    let n;
+    while ((n = walker.nextNode())) nodes.push(n);
+    return nodes;
   }
 
-  function updatePill(lang) {
-    const pill = document.getElementById('hind_lang_pill');
-    if (!pill) return;
-    const label = langLabel(lang);
-    pill.innerHTML = `<span style="opacity:.6;font-size:.7rem;">🌐</span> ${label} <span style="opacity:.5;font-size:.7rem;margin-left:2px;">▾</span>`;
-    pill.style.display = 'flex';
-  }
+  // Batch translate all visible text on page (chunked to respect rate limits)
+  async function translatePage(lang) {
+    if (sessionStorage.getItem(DONE_KEY)) return; // already done this session
 
-  function langLabel(code) {
-    const map = {
-      hi:'हिंदी', ur:'اردو', bn:'বাংলা', si:'සිංහල', ne:'नेपाली',
-      'zh-CN':'中文', 'zh-TW':'繁體', ja:'日本語', ko:'한국어',
-      id:'Bahasa', ms:'Melayu', th:'ไทย', vi:'Tiếng Việt', tl:'Filipino',
-      ar:'العربية', tr:'Türkçe', fa:'فارسی', ps:'پښتو',
-      ru:'Русский', uk:'Українська', pl:'Polski', de:'Deutsch', fr:'Français',
-      it:'Italiano', es:'Español', pt:'Português', nl:'Nederlands',
-      el:'Ελληνικά', ro:'Română', cs:'Čeština', hu:'Magyar', sv:'Svenska',
-      fi:'Suomi', no:'Norsk', da:'Dansk', bg:'Български', hr:'Hrvatski',
-      sr:'Srpski', iw:'עברית',
-      yo:'Yorùbá', sw:'Kiswahili', am:'አማርኛ', zu:'Zulu', mg:'Malagasy',
-    };
-    return map[code] || code.toUpperCase();
-  }
+    const nodes = getTextNodes(document.body);
+    if (!nodes.length) return;
 
-  async function detectAndStore() {
-    // Already have a stored preference?
-    if (localStorage.getItem(STORAGE_KEY)) return;
-
-    try {
-      const res  = await fetch('https://ipapi.co/json/');
-      const data = await res.json();
-      const cc   = (data.country_code || '').toUpperCase();
-      localStorage.setItem(COUNTRY_KEY, cc);
-      const lang = COUNTRY_LANG[cc] || 'en';
-      localStorage.setItem(STORAGE_KEY, lang);
-    } catch (_) {
-      localStorage.setItem(STORAGE_KEY, 'en');
+    // Process in small batches to avoid rate-limiting (MyMemory free = ~1000 chars/req)
+    const BATCH_SIZE = 5;
+    for (let i = 0; i < nodes.length; i += BATCH_SIZE) {
+      const batch = nodes.slice(i, i + BATCH_SIZE);
+      await Promise.all(batch.map(async (node) => {
+        const original = node.textContent.trim();
+        if (!original || original.length < 3) return;
+        try {
+          const translated = await myMemoryTranslate(original, lang);
+          if (translated && translated !== original) {
+            node.textContent = node.textContent.replace(original, translated);
+            if (node.parentElement) node.parentElement.dataset.hindTranslated = '1';
+          }
+        } catch (_) { /* silently ignore per-node errors */ }
+      }));
+      // Small delay between batches to be kind to the free API
+      await new Promise(r => setTimeout(r, 80));
     }
+
+    // Also translate placeholder attributes
+    document.querySelectorAll('[placeholder]').forEach(async el => {
+      const orig = el.getAttribute('placeholder');
+      if (!orig || orig.length < 3) return;
+      try {
+        const t = await myMemoryTranslate(orig, lang);
+        if (t) el.setAttribute('placeholder', t);
+      } catch (_) {}
+    });
+
+    sessionStorage.setItem(DONE_KEY, '1');
   }
 
-  // Inject the hidden translate widget root
-  function injectRoot() {
-    if (document.getElementById('hind_translate_root')) return;
-    const root = document.createElement('div');
-    root.id = 'hind_translate_root';
-    root.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none;';
-    document.body.appendChild(root);
-  }
-
-  // Inject language pill (bottom-left floating chip)
-  function injectPill() {
+  // Show a subtle pill in bottom-left
+  function showPill(lang) {
     if (document.getElementById('hind_lang_pill')) return;
-    const pill = document.createElement('button');
+    const label = LANG_NAMES[lang] || lang.toUpperCase();
+    const pill = document.createElement('div');
     pill.id = 'hind_lang_pill';
-    pill.title = 'Change language';
-    pill.setAttribute('aria-label', 'Change language');
+    pill.title = 'Page auto-translated by Cyan Translate. Click to reset.';
+    pill.innerHTML = `<span>🌐</span> <span>${label}</span>`;
     pill.style.cssText = [
       'position:fixed', 'bottom:1rem', 'left:1rem', 'z-index:99999',
-      'display:none', 'align-items:center', 'gap:4px',
-      'background:rgba(30,41,59,0.88)', 'backdrop-filter:blur(8px)',
-      'color:#f1f5f9', 'border:1px solid rgba(255,255,255,0.12)',
-      'border-radius:20px', 'padding:0.3rem 0.75rem',
-      'font-size:0.8rem', 'font-weight:600', 'cursor:pointer',
-      'box-shadow:0 4px 16px rgba(0,0,0,0.25)',
-      'font-family:inherit', 'transition:opacity 0.2s',
+      'display:flex', 'align-items:center', 'gap:5px',
+      'background:rgba(8,145,178,0.9)', 'backdrop-filter:blur(8px)',
+      'color:#ffffff', 'border:1px solid rgba(255,255,255,0.2)',
+      'border-radius:20px', 'padding:0.3rem 0.8rem',
+      'font-size:0.78rem', 'font-weight:700', 'cursor:pointer',
+      'box-shadow:0 4px 16px rgba(8,145,178,0.35)',
+      'font-family:inherit', 'user-select:none',
+      'transition:opacity 0.2s',
     ].join(';');
     pill.addEventListener('click', () => {
-      // Show the Google Translate widget temporarily
-      const sel = document.querySelector('.goog-te-combo');
-      if (sel) { sel.style.cssText = 'position:fixed;bottom:3rem;left:1rem;z-index:99999;font-size:0.85rem;padding:4px 8px;border-radius:6px;'; sel.focus(); }
+      localStorage.removeItem(HIST_KEY);
+      localStorage.removeItem(COUNTRY_KEY);
+      sessionStorage.removeItem(DONE_KEY);
+      location.reload();
     });
     document.body.appendChild(pill);
   }
 
-  // Load Google Translate script
-  function loadGT() {
-    if (document.getElementById('hind_gt_script')) return;
-    const s = document.createElement('script');
-    s.id  = 'hind_gt_script';
-    s.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-    s.async = true;
-    document.head.appendChild(s);
+  async function detectCountry() {
+    if (localStorage.getItem(HIST_KEY)) return;
+    try {
+      const res  = await fetch('https://ipapi.co/json/');
+      const data = await res.json();
+      const cc   = (data.country_code || 'US').toUpperCase();
+      localStorage.setItem(COUNTRY_KEY, cc);
+      const lang = COUNTRY_LANG[cc] || 'en';
+      localStorage.setItem(HIST_KEY, lang);
+    } catch (_) {
+      localStorage.setItem(HIST_KEY, 'en');
+    }
   }
 
-  // Main init
   async function init() {
-    await detectAndStore();
-    const lang = localStorage.getItem(STORAGE_KEY) || 'en';
-    if (SKIP_LANGS.includes(lang)) return; // English — no translation needed
-    injectRoot();
-    injectPill();
-    loadGT();
-    updatePill(lang);
+    await detectCountry();
+    const lang = localStorage.getItem(HIST_KEY) || 'en';
+    if (lang === 'en') return; // English — nothing to do
+
+    showPill(lang);
+    // Wait for DOM to fully settle then translate
+    await new Promise(r => setTimeout(r, 400));
+    await translatePage(lang);
   }
 
   if (document.readyState === 'loading') {
@@ -159,9 +177,9 @@
     init();
   }
 
-  // Expose reset function for dev/debug
+  // Dev reset helper
   window.hindLangReset = function () {
-    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(HIST_KEY);
     localStorage.removeItem(COUNTRY_KEY);
     location.reload();
   };
