@@ -433,39 +433,21 @@
     </div>
   </header>
 
-  <!-- Category Nav Tabs -->
-  <nav class="category-bar">
-    <div class="category-container">
-      <button class="cat-tab active" onclick="filterCategory('all', this)"><i class="fa-solid fa-fire me-1"></i> Top Stories</button>
-      <button class="cat-tab" onclick="filterCategory('india', this)"><i class="fa-solid fa-flag me-1"></i> India</button>
-      <button class="cat-tab" onclick="filterCategory('tech', this)"><i class="fa-solid fa-microchip me-1"></i> Technology</button>
-      <button class="cat-tab" onclick="filterCategory('world', this)"><i class="fa-solid fa-globe me-1"></i> World</button>
-      <button class="cat-tab" onclick="filterCategory('business', this)"><i class="fa-solid fa-chart-line me-1"></i> Business</button>
-      <button class="cat-tab" onclick="filterCategory('sports', this)"><i class="fa-solid fa-trophy me-1"></i> Sports</button>
-    </div>
-  </nav>
+  
 
   <!-- Main News Content -->
   <main class="news-main">
-    <div id="newsLoader" class="text-center py-5">
-      <div class="spinner-border text-info" role="status">
-        <span class="visually-hidden">Loading news...</span>
-      </div>
-      <p class="mt-3 text-muted">Fetching live updates for Cyan News...</p>
-    </div>
-
-    <!-- News Grid Container -->
-    <div class="row g-4" id="newsGrid" style="display: none;"></div>
+    
 
     <!-- RSS Feed Integration Widget -->
-    <div class="rss-container mt-5">
+    <div class="rss-container">
       <h5 class="fw-bold mb-3"><i class="fa-solid fa-rss text-info me-2"></i> Live World RSS Feed</h5>
       <script type="text/javascript">
         rssfeed_url = new Array();
         rssfeed_url[0]="https://surfing-waves.com/newsrss.xml";
         rssfeed_url[1]="http://rss.cnn.com/rss/edition.rss/";
         rssfeed_frame_width="100%";
-        rssfeed_frame_height="400";
+        rssfeed_frame_height="800";
         rssfeed_scroll="on";
         rssfeed_scroll_step="6";
         rssfeed_scroll_bar="on";
@@ -484,7 +466,7 @@
         rssfeed_item_date="off";
         rssfeed_item_description="on";
         rssfeed_item_description_length="150";
-        rssfeed_no_items="10";
+        rssfeed_no_items="20";
         rssfeed_cache = "9ca8b7eae69f97d764d290245e751730";
       </script>
       <script type="text/javascript" src="//feed.surfing-waves.com/js/rss-feed.js"></script>
@@ -505,101 +487,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script>
-    // Live News Mock & Fetch Data
-    const newsData = [
-      {
-        category: 'india',
-        source: 'Hind Newsroom',
-        title: 'India Advances Tech Innovation & Digital Infrastructure Growth',
-        desc: 'New initiatives in technology, AI development, and digital public infrastructure boost national progress.',
-        time: '10 mins ago',
-        image: 'https://images.unsplash.com/photo-1532375810709-75b1da00537c?auto=format&fit=crop&w=600&q=80',
-        url: '../../../search.html?q=India+Tech+News'
-      },
-      {
-        category: 'tech',
-        source: 'Cyan Tech',
-        title: 'Supercomputing & AI Advancements Transform Indian Tech Ecosystem',
-        desc: 'Breakthroughs in artificial intelligence models and high-performance computing empower research institutes.',
-        time: '30 mins ago',
-        image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80',
-        url: '../../../search.html?q=AI+Supercomputing'
-      },
-      {
-        category: 'world',
-        source: 'Global Dispatch',
-        title: 'International Climate Conference Reaches Key Clean Energy Milestone',
-        desc: 'Global leaders unite on clean energy transitions and sustainable technology adoption.',
-        time: '1 hour ago',
-        image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=600&q=80',
-        url: '../../../search.html?q=Clean+Energy'
-      },
-      {
-        category: 'business',
-        source: 'Markets Today',
-        title: 'Markets Surge as Emerging Economies Report Strong GDP Expansion',
-        desc: 'Economic indicators signal sustained expansion across technology and manufacturing sectors.',
-        time: '2 hours ago',
-        image: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=600&q=80',
-        url: '../../../search.html?q=Markets+Economy'
-      },
-      {
-        category: 'sports',
-        source: 'Sports Central',
-        title: 'India Champions Triumph in Thrilling Championship Victory',
-        desc: 'An inspiring performance seals a memorable win for the national team on the international stage.',
-        time: '3 hours ago',
-        image: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=600&q=80',
-        url: '../../../search.html?q=India+Sports'
-      },
-      {
-        category: 'tech',
-        source: 'IIT Madras Research',
-        title: 'Unified Bharati Script Innovation Expands Cross-Lingual Accessibility',
-        desc: 'Innovative scripts created for Indian languages enhance digital communication and cross-regional literacy.',
-        time: '4 hours ago',
-        image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=600&q=80',
-        url: '../../../search.html?q=Bharati+Script+IIT+Madras'
-      }
-    ];
-
-    function renderNews(filter = 'all') {
-      const grid = document.getElementById('newsGrid');
-      const loader = document.getElementById('newsLoader');
-      
-      const filtered = filter === 'all' ? newsData : newsData.filter(item => item.category === filter);
-      
-      grid.innerHTML = filtered.map(item => `
-        <div class="col-12 col-md-6 col-lg-4">
-          <div class="news-card">
-            <img src="${item.image}" alt="${item.title}" class="news-img" loading="lazy" />
-            <div class="news-body">
-              <span class="news-source-tag"><i class="fa-solid fa-bolt me-1"></i> ${item.source}</span>
-              <h3 class="news-title"><a href="${item.url}">${item.title}</a></h3>
-              <p class="news-desc">${item.desc}</p>
-              <div class="news-footer">
-                <span><i class="fa-regular fa-clock me-1"></i> ${item.time}</span>
-                <a href="${item.url}" class="news-link-btn">Read More <i class="fa-solid fa-arrow-right ms-1"></i></a>
-              </div>
-            </div>
-          </div>
-        </div>
-      `).join('');
-
-      loader.style.display = 'none';
-      grid.style.display = 'flex';
-    }
-
-    function filterCategory(category, element) {
-      document.querySelectorAll('.cat-tab').forEach(el => el.classList.remove('active'));
-      element.classList.add('active');
-      renderNews(category);
-    }
-
-    // Initialize
-    setTimeout(() => {
-      renderNews('all');
-    }, 300);
+    
 
     // Dark Mode Script
     const themeToggle = document.getElementById('themeToggle');
