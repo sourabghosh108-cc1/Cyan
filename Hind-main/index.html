@@ -1563,14 +1563,21 @@
       aiBody.appendChild(loadingDiv);
       aiBody.scrollTop = aiBody.scrollHeight;
 
-      setTimeout(() => {
+      try {
+        const response = await fetch('https://text.pollinations.ai/' + encodeURIComponent('You are Shrishti AI, a helpful Indian assistant by Hind.com. Answer concisely: ' + text));
+        const dataText = await response.text();
         loadingDiv.remove();
         const botDiv = document.createElement('div');
         botDiv.className = 'ai-msg bot';
-        botDiv.innerHTML = 'Namaste! My live API is currently under maintenance. I am Shrishti AI, an advanced assistant by Hind.com. Please try again later.';
+        botDiv.innerHTML = dataText.replace(/\n/g, '<br>');
         aiBody.appendChild(botDiv);
-        aiBody.scrollTop = aiBody.scrollHeight;
-      }, 1500);
+      } catch (err) {
+        loadingDiv.remove();
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'ai-msg bot';
+        errorDiv.textContent = 'Network error. Please try again later.';
+        aiBody.appendChild(errorDiv);
+      }
       aiBody.scrollTop = aiBody.scrollHeight;
     }
 
