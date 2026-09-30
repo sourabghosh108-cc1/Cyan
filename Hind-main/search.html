@@ -543,11 +543,168 @@
 
     .footer-links a:hover { color: var(--blue); text-decoration: underline; }
 
+    /* ── HISTORY PANEL ── */
+    .hist-panel {
+      position: fixed;
+      top: 0; right: 0; bottom: 0;
+      width: 340px;
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      box-shadow: -8px 0 40px rgba(0,0,0,0.15);
+      z-index: 9997;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    .hist-panel.open { transform: translateX(0); }
+
+    .hist-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.3);
+      z-index: 9996;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .hist-backdrop.open { opacity: 1; pointer-events: all; }
+
+    .hist-header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface);
+    }
+
+    .hist-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .hist-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .hist-clear-btn {
+      background: rgba(220,38,38,0.08);
+      border: 1px solid rgba(220,38,38,0.25);
+      color: #dc2626;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 0.3rem 0.7rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      transition: all 0.2s;
+    }
+
+    .hist-clear-btn:hover { background: #dc2626; color: #fff; }
+
+    .hist-close-btn {
+      background: none;
+      border: none;
+      color: var(--ink-muted);
+      font-size: 1.1rem;
+      cursor: pointer;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .hist-close-btn:hover { background: var(--border); color: var(--ink); }
+
+    .hist-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.75rem 0;
+    }
+
+    .hist-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--ink-muted);
+      font-size: 0.9rem;
+      gap: 0.5rem;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .hist-empty i { font-size: 2rem; opacity: 0.3; }
+
+    .hist-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.65rem 1.25rem;
+      cursor: pointer;
+      transition: background 0.15s;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hist-item:hover { background: rgba(37,99,235,0.05); }
+
+    .hist-item-icon {
+      color: var(--ink-muted);
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    .hist-item-text {
+      flex: 1;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .hist-item-time {
+      font-size: 0.72rem;
+      color: var(--ink-muted);
+      flex-shrink: 0;
+    }
+
+    .hist-item-del {
+      background: none;
+      border: none;
+      color: var(--ink-muted);
+      cursor: pointer;
+      font-size: 0.8rem;
+      padding: 0.2rem;
+      border-radius: 4px;
+      opacity: 0;
+      transition: opacity 0.15s, color 0.15s;
+      flex-shrink: 0;
+    }
+
+    .hist-item:hover .hist-item-del { opacity: 1; }
+    .hist-item-del:hover { color: #dc2626; }
+
     @media (max-width: 640px) {
       .search-header { padding: 0.75rem 1rem; }
       .header-search-form { max-width: 100%; }
       .results-main { padding: 1rem; }
       .ai-panel { width: calc(100vw - 2rem); right: 1rem; }
+      .hist-panel { width: 100vw; }
     }
   </style>
 </head>
@@ -584,8 +741,11 @@
         <i class="fa-solid fa-moon" id="themeIcon"></i>
         <span id="themeText" class="d-none d-sm-inline">Dark</span>
       </button>
+      <button id="historyBtn" class="theme-btn" aria-label="Search History" title="Search History">
+        <i class="fa-solid fa-clock-rotate-left"></i>
+        <span class="d-none d-sm-inline">History</span>
+      </button>
       <a href="about.html" class="nav-link-btn"><i class="fa-solid fa-circle-info me-1"></i>About</a>
-      <a href="apps/apps.html" class="nav-link-btn"><i class="fa-solid fa-border-all me-1"></i>Apps</a>
     </div>
   </header>
 
@@ -656,6 +816,19 @@
     </div>
   </footer>
 
+  <!-- ── HISTORY PANEL ── -->
+  <div class="hist-backdrop" id="histBackdrop"></div>
+  <aside class="hist-panel" id="histPanel" aria-label="Search History">
+    <div class="hist-header">
+      <span class="hist-title"><i class="fa-solid fa-clock-rotate-left" style="color:var(--blue);"></i> Search History</span>
+      <div class="hist-actions">
+        <button class="hist-clear-btn" id="histClearBtn"><i class="fa-solid fa-trash me-1"></i>Clear All</button>
+        <button class="hist-close-btn" id="histCloseBtn" aria-label="Close history"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+    </div>
+    <div class="hist-body" id="histBody"></div>
+  </aside>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script>
     // ── Dark Mode ──
@@ -685,13 +858,104 @@
       setTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
     });
 
-    // ── URL Query → Search Input + AI Answer ──
+    // ── Search History (localStorage) ──
+    const HIST_KEY = 'hind_search_history';
+
+    function getHistory() {
+      try { return JSON.parse(localStorage.getItem(HIST_KEY)) || []; }
+      catch { return []; }
+    }
+
+    function saveToHistory(q) {
+      if (!q || !q.trim()) return;
+      let hist = getHistory();
+      // Remove duplicate if exists
+      hist = hist.filter(h => h.q.toLowerCase() !== q.toLowerCase());
+      hist.unshift({ q: q.trim(), t: Date.now() });
+      // Keep max 50
+      if (hist.length > 50) hist = hist.slice(0, 50);
+      localStorage.setItem(HIST_KEY, JSON.stringify(hist));
+    }
+
+    function formatTime(ts) {
+      const diff = Date.now() - ts;
+      if (diff < 60000) return 'just now';
+      if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+      if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+      return new Date(ts).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+    }
+
+    function renderHistory() {
+      const histBody = document.getElementById('histBody');
+      const hist = getHistory();
+      if (!hist.length) {
+        histBody.innerHTML = `<div class="hist-empty"><i class="fa-solid fa-clock-rotate-left"></i><span>No search history yet.</span><small>Your searches will appear here.</small></div>`;
+        return;
+      }
+      histBody.innerHTML = hist.map((h, i) => `
+        <div class="hist-item" data-q="${h.q.replace(/"/g,'&quot;')}">
+          <i class="fa-solid fa-magnifying-glass hist-item-icon"></i>
+          <span class="hist-item-text">${h.q.replace(/</g,'&lt;')}</span>
+          <span class="hist-item-time">${formatTime(h.t)}</span>
+          <button class="hist-item-del" data-idx="${i}" title="Remove" onclick="event.stopPropagation(); removeHistItem(${i})">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      `).join('');
+      histBody.querySelectorAll('.hist-item').forEach(el => {
+        el.addEventListener('click', () => {
+          window.location.href = 'search.html?q=' + encodeURIComponent(el.dataset.q);
+        });
+      });
+    }
+
+    function removeHistItem(idx) {
+      const hist = getHistory();
+      hist.splice(idx, 1);
+      localStorage.setItem(HIST_KEY, JSON.stringify(hist));
+      renderHistory();
+    }
+
+    // History panel open/close
+    const histBtn      = document.getElementById('historyBtn');
+    const histPanel    = document.getElementById('histPanel');
+    const histBackdrop = document.getElementById('histBackdrop');
+    const histCloseBtn = document.getElementById('histCloseBtn');
+    const histClearBtn = document.getElementById('histClearBtn');
+
+    function openHistory() {
+      renderHistory();
+      histPanel.classList.add('open');
+      histBackdrop.classList.add('open');
+    }
+
+    function closeHistory() {
+      histPanel.classList.remove('open');
+      histBackdrop.classList.remove('open');
+    }
+
+    histBtn.addEventListener('click', () => {
+      histPanel.classList.contains('open') ? closeHistory() : openHistory();
+    });
+    histCloseBtn.addEventListener('click', closeHistory);
+    histBackdrop.addEventListener('click', closeHistory);
+    histClearBtn.addEventListener('click', () => {
+      if (confirm('Clear all search history? This cannot be undone.')) {
+        localStorage.removeItem(HIST_KEY);
+        renderHistory();
+      }
+    });
+
+    // ── URL Query → Search Input + AI Answer + Save History ──
     const urlParams = new URLSearchParams(window.location.search);
     const query = urlParams.get('q');
 
     if (query) {
       document.getElementById('searchInputHeader').value = query;
       document.title = `${query} - Hind Search`;
+
+      // Save to history
+      saveToHistory(query);
 
       // Show AI answer box and fetch answer
       const aiAnswerBox     = document.getElementById('aiSearchAnswer');
