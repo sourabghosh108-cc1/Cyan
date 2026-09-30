@@ -341,12 +341,35 @@
       chatMessages.scrollTop = chatMessages.scrollHeight;
 
       try {
-        const response = await fetch('https://text.pollinations.ai/' + encodeURIComponent('You are Shrishti AI, a helpful Indian assistant by Hind.com. Answer concisely: ' + text));
-        const dataText = await response.text();
+        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer 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',
+            'Content-Type': 'application/json',
+            'HTTP-Referer': 'https://hind.com',
+            'X-Title': 'Hind Search Engine'
+          },
+          body: JSON.stringify({
+            model: 'openrouter/free',
+            messages: [
+              { role: 'system', content: 'You are Shrishti AI, an advanced assistant by Hind.com. The current date is September 30, 2026. Please ensure all your responses are up to date.' },
+              { role: 'user', content: text }
+            ]
+          })
+        });
+        const data = await response.json();
         loadingDiv.remove();
+
         const botDiv = document.createElement('div');
         botDiv.className = 'msg-bubble bot';
-        botDiv.innerHTML = '<strong><i class="fa-solid fa-sparkles text-primary"></i> Shrishti AI:</strong><br><br>' + dataText.replace(/\n/g, '<br>');
+        if (data.choices && data.choices[0] && data.choices[0].message) {
+          botDiv.innerHTML = `<strong><i class="fa-solid fa-sparkles text-primary"></i> Shrishti AI:</strong><br><br>` + 
+                             data.choices[0].message.content.replace(/\n/g, '<br>');
+        } else if (data.error && data.error.message) {
+          botDiv.innerHTML = `<strong>Shrishti AI Error:</strong><br><br>${data.error.message}`;
+        } else {
+          botDiv.innerHTML = `<strong>Shrishti AI Error:</strong><br><br>${JSON.stringify(data)}`;
+        }
         chatMessages.appendChild(botDiv);
         chatMessages.scrollTop = chatMessages.scrollHeight;
       } catch (err) {
