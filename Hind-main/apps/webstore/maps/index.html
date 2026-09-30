@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cyan Maps - Explore India | Hind.com</title>
+  <meta name="description" content="Cyan Maps by Hind.com - High-resolution interactive satellite, street, and night maps of India and the world.">
+  <link rel="icon" type="image/x-icon" href="../../../icon.jpg">
+  <link rel="apple-touch-icon" href="../../../icon.jpg">
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  
+  <!-- Leaflet Map CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --primary: #059669;
+      --primary-dark: #047857;
+      --glow: rgba(5, 150, 105, 0.15);
+      --header-bg: #ffffff;
+      --card-bg: #ffffff;
+      --nav: #475569;
+    }
+
+    [data-theme="dark"] {
+      --bg: #0b1320;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --border: #1e293b;
+      --primary: #10b981;
+      --primary-dark: #059669;
+      --glow: rgba(16, 185, 129, 0.2);
+      --header-bg: #0f172a;
+      --card-bg: #1e293b;
+      --nav: #cbd5e1;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    /* ── Header Bar ── */
+    .maps-header {
+      height: 60px;
+      background: var(--header-bg);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1rem;
+      position: relative;
+      z-index: 1000;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      gap: 0.6rem;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-shrink: 0;
+    }
+
+    .back-btn {
+      color: var(--nav);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.85rem;
+      padding: 0.35rem 0.65rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .back-btn:hover {
+      color: var(--primary);
+      border-color: var(--primary);
+      background: var(--glow);
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 1.15rem;
+      color: var(--text);
+    }
+
+    .brand-badge {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.92rem;
+      box-shadow: 0 2px 8px rgba(5,150,105,0.3);
+    }
+
+    .brand-name span { color: var(--primary); }
+
+    /* ── Search Bar ── */
+    .map-search-form {
+      position: relative;
+      width: 100%;
+      max-width: 280px;
+    }
+
+    .map-search-input {
+      width: 100%;
+      height: 36px;
+      padding: 0 2.2rem 0 2.2rem;
+      font-size: 0.84rem;
+      font-weight: 500;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      border-radius: 18px;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .map-search-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--glow);
+      background: var(--card-bg);
+    }
+
+    .search-icon-pos {
+      position: absolute;
+      left: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 0.85rem;
+      pointer-events: none;
+    }
+
+    .search-clear-btn {
+      position: absolute;
+      right: 0.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: none;
+    }
+
+    /* ── Regions Scroll Pills ── */
+    .regions-scroll {
+      display: flex;
+      gap: 0.35rem;
+      overflow-x: auto;
+      scrollbar-width: none;
+      align-items: center;
+      padding: 0 0.25rem;
+    }
+    .regions-scroll::-webkit-scrollbar { display: none; }
+
+    .region-pill {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--nav);
+      padding: 0.25rem 0.65rem;
+      border-radius: 14px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.18s;
+      font-family: inherit;
+    }
+    .region-pill:hover {
+      background: var(--glow);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    .region-pill.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+
+    /* ── Controls Right ── */
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      flex-shrink: 0;
+    }
+
+    .icon-ctrl-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--nav);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+    .icon-ctrl-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--glow);
+    }
+
+    /* ── Country Border Toggle Pill ── */
+    .border-toggle-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: rgba(245, 158, 11, 0.12);
+      border: 1.5px solid #f59e0b;
+      color: #d97706;
+      font-weight: 700;
+      font-size: 0.78rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: 14px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .border-toggle-pill.active {
+      background: #f59e0b;
+      color: #ffffff;
+    }
+
+    /* ── Layer Selector Dropdown ── */
+    .layer-selector {
+      position: relative;
+    }
+
+    .layer-dropdown-menu {
+      position: absolute;
+      top: 44px;
+      right: 0;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      width: 215px;
+      padding: 0.4rem;
+      display: none;
+      z-index: 1010;
+    }
+    .layer-dropdown-menu.show { display: block; }
+
+    .layer-option {
+      width: 100%;
+      text-align: left;
+      padding: 0.55rem 0.75rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text);
+      background: transparent;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      transition: all 0.15s;
+    }
+    .layer-option:hover {
+      background: var(--glow);
+      color: var(--primary);
+    }
+    .layer-option.active {
+      background: var(--glow);
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    /* ── Map Canvas Wrapper ── */
+    .map-container-wrap {
+      height: calc(100vh - 60px);
+      width: 100%;
+      position: relative;
+    }
+
+    #cyanMap {
+      width: 100%;
+      height: 100%;
+      background: #0b1320;
+    }
+
+    /* ── Watermark Branding ── */
+    .maps-watermark {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      z-index: 999;
+      background: rgba(5, 150, 105, 0.92);
+      color: #ffffff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+      pointer-events: none;
+    }
+
+    /* ── Coordinates & Status Bar ── */
+    .maps-coords-bar {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      z-index: 999;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.3rem 0.75rem;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    /* ── Floating Action Buttons (on-screen map controls) ── */
+    .floating-map-actions {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .fab-btn {
+      width: 38px;
+      height: 38px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--nav);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.95rem;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+      transition: all 0.2s ease;
+    }
+    .fab-btn:hover {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+      transform: translateY(-1px);
+    }
+
+    /* ── Search Toast Notification ── */
+    .search-toast {
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+      z-index: 1010;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s ease;
+    }
+    .search-toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    @media (max-width: 900px) {
+      .brand-name { display: none; }
+      .map-search-form { max-width: 190px; }
+      .maps-coords-bar { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Top Header Navigation Bar ── -->
+  <header class="maps-header">
+    <div class="header-left">
+      <a href="../../../index.html" class="back-btn" title="Back to Hind Search">
+        <i class="fa-solid fa-arrow-left"></i>
+        <span>Hind</span>
+      </a>
+      <a href="index.html" class="brand-logo" title="Cyan Maps">
+        <span class="brand-badge"><i class="fa-solid fa-map-location-dot"></i></span>
+        <span class="brand-name">Cyan <span>Maps</span></span>
+      </a>
+    </div>
+
+    <!-- Live Place Search Box -->
+    <form class="map-search-form" id="mapSearchForm" onsubmit="handleSearch(event)">
+      <i class="fa-solid fa-magnifying-glass search-icon-pos"></i>
+      <input 
+        type="text" 
+        id="mapSearchInput" 
+        class="map-search-input" 
+        placeholder="Search India or cities..." 
+        aria-label="Search map location"
+      />
+      <button type="button" class="search-clear-btn" id="searchClearBtn" onclick="clearSearch()" aria-label="Clear search">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </form>
+
+    <!-- Official India Outer Border Toggle -->
+    <button type="button" class="border-toggle-pill active" id="borderToggleBtn" onclick="toggleIndiaBorder()" title="Toggle Official Survey of India Boundary">
+      <i class="fa-solid fa-shield-halved"></i> <span>India Border</span>
+    </button>
+
+    <!-- Quick Region Jump Pills -->
+    <div class="regions-scroll">
+      <button type="button" class="region-pill active" onclick="flyToCity('india')">🇮🇳 India</button>
+      <button type="button" class="region-pill" onclick="flyToCity('kashmir')">Kashmir &amp; Ladakh</button>
+      <button type="button" class="region-pill" onclick="flyToCity('delhi')">Delhi</button>
+      <button type="button" class="region-pill" onclick="flyToCity('mumbai')">Mumbai</button>
+      <button type="button" class="region-pill" onclick="flyToCity('bengaluru')">Bengaluru</button>
+      <button type="button" class="region-pill" onclick="flyToCity('chennai')">Chennai</button>
+      <button type="button" class="region-pill" onclick="flyToCity('kolkata')">Kolkata</button>
+      <button type="button" class="region-pill" onclick="flyToCity('hyderabad')">Hyderabad</button>
+    </div>
+
+    <!-- Right Controls -->
+    <div class="header-right">
+      <!-- Layer Selector Button -->
+      <div class="layer-selector">
+        <button type="button" class="icon-ctrl-btn" id="layerBtn" title="Change Map Layer" onclick="toggleLayerMenu()">
+          <i class="fa-solid fa-layer-group"></i>
+        </button>
+        <div class="layer-dropdown-menu" id="layerMenu">
+          <button type="button" class="layer-option active" onclick="switchLayer('googleHybrid')">
+            <i class="fa-solid fa-satellite" style="color: #059669;"></i> Satellites.pro (Google HD)
+          </button>
+          <button type="button" class="layer-option" onclick="switchLayer('esriSatellite')">
+            <i class="fa-solid fa-earth-asia" style="color: #0284c7;"></i> Esri Satellite View
+          </button>
+          <button type="button" class="layer-option" onclick="switchLayer('googleStreets')">
+            <i class="fa-solid fa-road" style="color: #d97706;"></i> Google Street Map
+          </button>
+
+        </div>
+      </div>
+
+      <!-- Satellites.pro external portal link -->
+      <a href="https://satellites.pro/plan/India_map#O28.536275,77.629395,6" target="_blank" rel="noopener" class="icon-ctrl-btn" title="Open Satellites.pro in New Tab">
+        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+      </a>
+
+      <!-- Theme Toggle -->
+      <button type="button" class="icon-ctrl-btn" id="themeToggle" title="Toggle dark mode">
+        <i class="fa-solid fa-moon" id="themeIcon"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- ── Interactive Map Container ── -->
+  <div class="map-container-wrap">
+    <div id="cyanMap"></div>
+
+    <!-- On-screen Floating Action Buttons -->
+    <div class="floating-map-actions">
+      <button type="button" class="fab-btn" title="Locate Me (GPS)" onclick="locateUser()">
+        <i class="fa-solid fa-crosshairs" id="gpsIcon"></i>
+      </button>
+      <button type="button" class="fab-btn" title="Toggle Fullscreen" onclick="toggleFullscreen()">
+        <i class="fa-solid fa-expand" id="fullscreenIcon"></i>
+      </button>
+      <button type="button" class="fab-btn" title="Reset View to India" onclick="flyToCity('india')">
+        <i class="fa-solid fa-rotate-left"></i>
+      </button>
+    </div>
+
+    <!-- Watermark Badge -->
+    <div class="maps-watermark">
+      <i class="fa-solid fa-map-location-dot"></i> Cyan Maps by Hind.com
+    </div>
+
+    <!-- Live Coordinates Bar -->
+    <div class="maps-coords-bar" id="coordsBar">
+      <span id="coordsDisplay">Lat: 22.8000° N | Lng: 79.5000° E</span>
+      <span id="zoomDisplay">Zoom: 5</span>
+    </div>
+
+    <!-- Search Toast Notification -->
+    <div class="search-toast" id="searchToast">
+      <i class="fa-solid fa-location-dot text-success"></i>
+      <span id="toastMsg">Location found</span>
+    </div>
+  </div>
+
+  <!-- Leaflet Map JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <!-- Official India Composite Boundary Vector Data -->
+  <script src="india-boundary.js"></script>
+
+  <script>
+    // ── Pre-configured Indian City Coordinates ──
+    const CITIES = {
+      india:      { lat: 22.8000, lng: 79.5000, zoom: 5,  label: "Republic of India" },
+      kashmir:    { lat: 34.0837, lng: 75.8000, zoom: 8,  label: "Jammu, Kashmir & Ladakh" },
+      delhi:      { lat: 28.6139, lng: 77.2090, zoom: 12, label: "New Delhi, NCR" },
+      mumbai:     { lat: 19.0760, lng: 72.8777, zoom: 12, label: "Mumbai, Maharashtra" },
+      bengaluru:  { lat: 12.9716, lng: 77.5946, zoom: 12, label: "Bengaluru, Karnataka" },
+      chennai:    { lat: 13.0827, lng: 80.2707, zoom: 12, label: "Chennai, Tamil Nadu" },
+      kolkata:    { lat: 22.5726, lng: 88.3639, zoom: 12, label: "Kolkata, West Bengal" },
+      hyderabad:  { lat: 17.3850, lng: 78.4867, zoom: 12, label: "Hyderabad, Telangana" }
+    };
+
+    // ── High-Resolution Map Tile Layers (Zero Iframe, 100% Reliable, Working Across All Browsers) ──
+    const layers = {
+      // 1. Google Satellite Hybrid (Exact tiles used by Satellites.pro)
+      googleHybrid: L.tileLayer('https://mt{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+        subdomains: ['0', '1', '2', '3'],
+        maxZoom: 20,
+        attribution: '&copy; Satellites.pro &copy; Google Maps'
+      }),
+      // 2. High-Resolution Esri World Imagery (Satellite)
+      esriSatellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: '&copy; Esri, Maxar',
+        maxZoom: 19
+      }),
+      // 3. Google Street Map (Reliable, fast, high-res roads and city plans)
+      googleStreets: L.tileLayer('https://mt{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+        subdomains: ['0', '1', '2', '3'],
+        maxZoom: 20,
+        attribution: '&copy; Google Maps'
+      }),
+    };
+
+    // ── Initialize Map Centered on India ──
+    const map = L.map('cyanMap', {
+      center: [CITIES.india.lat, CITIES.india.lng],
+      zoom: CITIES.india.zoom,
+      zoomControl: true,
+      layers: [layers.googleHybrid] // Default to satellites.pro Google Satellite Hybrid!
+    });
+
+    let currentLayerKey = 'googleHybrid';
+    let activeMarker = null;
+    let borderLayer = null;
+    let isBorderVisible = true;
+
+    // ── Official India Country Outer Boundary Layer ──
+    function initIndiaBorder() {
+      if (window.INDIA_BORDER) {
+        borderLayer = L.geoJSON(window.INDIA_BORDER, {
+          style: {
+            color: '#f59e0b',       // Saffron / golden border
+            weight: 3.0,
+            opacity: 0.95,
+            fillColor: '#059669',
+            fillOpacity: 0.02
+          }
+        }).addTo(map);
+      }
+    }
+    initIndiaBorder();
+
+    function toggleIndiaBorder() {
+      const btn = document.getElementById('borderToggleBtn');
+      if (!borderLayer) return;
+
+      if (isBorderVisible) {
+        map.removeLayer(borderLayer);
+        isBorderVisible = false;
+        btn.classList.remove('active');
+        showToast("India boundary hidden");
+      } else {
+        map.addLayer(borderLayer);
+        isBorderVisible = true;
+        btn.classList.add('active');
+        showToast("Official India boundary enabled");
+      }
+    }
+
+    // ── Layer Switching ──
+    function switchLayer(key) {
+      if (!layers[key]) return;
+      currentLayerKey = key;
+
+      // Remove all tile layers
+      Object.values(layers).forEach(l => {
+        if (map.hasLayer(l)) map.removeLayer(l);
+      });
+
+      // Add selected layer to map
+      map.addLayer(layers[key]);
+
+      // Ensure India border stays on top
+      if (borderLayer && isBorderVisible && map.hasLayer(borderLayer)) {
+        borderLayer.bringToFront();
+      }
+
+      // Update dropdown UI
+      document.querySelectorAll('.layer-option').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      const activeOption = document.querySelector(`.layer-option[onclick="switchLayer('${key}')"]`);
+      if (activeOption) activeOption.classList.add('active');
+
+      const menu = document.getElementById('layerMenu');
+      if (menu) menu.classList.remove('show');
+
+      const names = {
+        googleHybrid: 'Satellites.pro (Google HD)',
+        esriSatellite: 'Esri Satellite View',
+        googleStreets: 'Google Street Map'
+      };
+      showToast(`Layer switched to ${names[key] || key}`);
+    }
+
+    function toggleLayerMenu() {
+      const menu = document.getElementById('layerMenu');
+      if (menu) menu.classList.toggle('show');
+    }
+
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+      const btn = document.getElementById('layerBtn');
+      const menu = document.getElementById('layerMenu');
+      if (btn && menu && !btn.contains(e.target) && !menu.contains(e.target)) {
+        menu.classList.remove('show');
+      }
+    });
+
+    // ── Fly to City / Region ──
+    function flyToCity(key) {
+      const city = CITIES[key];
+      if (!city) return;
+
+      // Update pills
+      document.querySelectorAll('.region-pill').forEach(p => p.classList.remove('active'));
+      const activePill = document.querySelector(`.region-pill[onclick="flyToCity('${key}')"]`);
+      if (activePill) activePill.classList.add('active');
+
+      map.flyTo([city.lat, city.lng], city.zoom, {
+        duration: 1.5,
+        easeLinearity: 0.25
+      });
+
+      if (key !== 'india') {
+        if (activeMarker) map.removeLayer(activeMarker);
+        activeMarker = L.marker([city.lat, city.lng]).addTo(map)
+          .bindPopup(`<strong>${city.label}</strong><br><small>Cyan Maps • India</small>`)
+          .openPopup();
+      } else if (activeMarker) {
+        map.removeLayer(activeMarker);
+        activeMarker = null;
+      }
+    }
+
+    // ── Live Coordinates Bar ──
+    function updateCoords() {
+      const center = map.getCenter();
+      const zoom = map.getZoom();
+      const latStr = `${Math.abs(center.lat).toFixed(4)}° ${center.lat >= 0 ? 'N' : 'S'}`;
+      const lngStr = `${Math.abs(center.lng).toFixed(4)}° ${center.lng >= 0 ? 'E' : 'W'}`;
+      document.getElementById('coordsDisplay').textContent = `Lat: ${latStr} | Lng: ${lngStr}`;
+      document.getElementById('zoomDisplay').textContent = `Zoom: ${zoom}`;
+    }
+
+    map.on('move', updateCoords);
+    map.on('zoomend', updateCoords);
+    updateCoords();
+
+    // ── Place Search (Nominatim Open Geocoder) ──
+    async function handleSearch(e) {
+      e.preventDefault();
+      const input = document.getElementById('mapSearchInput');
+      const query = input.value.trim();
+      if (!query) return;
+
+      showToast(`Searching for "${query}"...`);
+
+      // 1. Check local city presets first
+      const lower = query.toLowerCase();
+      if (CITIES[lower]) {
+        flyToCity(lower);
+        showToast(`Navigated to ${CITIES[lower].label}`);
+        return;
+      }
+
+      // 2. Query geocoding API
+      try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`);
+        const data = await response.json();
+        if (data && data.length > 0) {
+          const lat = parseFloat(data[0].lat);
+          const lon = parseFloat(data[0].lon);
+          const displayName = data[0].display_name.split(',').slice(0, 2).join(',');
+
+          map.flyTo([lat, lon], 13, { duration: 1.5 });
+          if (activeMarker) map.removeLayer(activeMarker);
+          activeMarker = L.marker([lat, lon]).addTo(map)
+            .bindPopup(`<strong>${displayName}</strong><br><small>Cyan Maps</small>`)
+            .openPopup();
+
+          showToast(`Found: ${displayName}`);
+        } else {
+          showToast(`No locations found for "${query}"`);
+        }
+      } catch (err) {
+        showToast(`Search error. Please try again.`);
+      }
+    }
+
+    function clearSearch() {
+      const input = document.getElementById('mapSearchInput');
+      input.value = '';
+      document.getElementById('searchClearBtn').style.display = 'none';
+      input.focus();
+    }
+
+    document.getElementById('mapSearchInput').addEventListener('input', (e) => {
+      document.getElementById('searchClearBtn').style.display = e.target.value ? 'block' : 'none';
+    });
+
+    // ── User Geolocation (GPS) ──
+    let userLocMarker = null;
+    let userLocCircle = null;
+
+    function locateUser() {
+      const icon = document.getElementById('gpsIcon');
+      if (!navigator.geolocation) {
+        showToast("Geolocation is not supported by your browser");
+        return;
+      }
+
+      icon.className = 'fa-solid fa-spinner fa-spin';
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          icon.className = 'fa-solid fa-crosshairs';
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          const acc = pos.coords.accuracy;
+
+          map.flyTo([lat, lng], 14, { duration: 1.5 });
+
+          if (userLocMarker) map.removeLayer(userLocMarker);
+          if (userLocCircle) map.removeLayer(userLocCircle);
+
+          userLocCircle = L.circle([lat, lng], { radius: acc, color: '#059669', fillOpacity: 0.15 }).addTo(map);
+          userLocMarker = L.marker([lat, lng]).addTo(map)
+            .bindPopup(`<strong>Your Location</strong><br><small>Accuracy: ~${Math.round(acc)}m</small>`)
+            .openPopup();
+
+          showToast("Centered on your current location");
+        },
+        (err) => {
+          icon.className = 'fa-solid fa-crosshairs';
+          showToast("Could not access your location. Permission denied.");
+        },
+        { enableHighAccuracy: true, timeout: 8000 }
+      );
+    }
+
+    // ── Fullscreen Toggle ──
+    function toggleFullscreen() {
+      const fsIcon = document.getElementById('fullscreenIcon');
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().then(() => {
+          fsIcon.className = 'fa-solid fa-compress';
+        }).catch(() => {});
+      } else {
+        document.exitFullscreen().then(() => {
+          fsIcon.className = 'fa-solid fa-expand';
+        }).catch(() => {});
+      }
+    }
+
+    // ── Toast Notification Helper ──
+    let toastTimeout = null;
+    function showToast(msg) {
+      const toast = document.getElementById('searchToast');
+      const text = document.getElementById('toastMsg');
+      if (!toast || !text) return;
+
+      text.textContent = msg;
+      toast.classList.add('show');
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    // ── Dark Mode Toggle ──
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon   = document.getElementById('themeIcon');
+
+    function setTheme(t) {
+      document.documentElement.setAttribute('data-theme', t);
+      localStorage.setItem('hind_theme', t);
+      if (t === 'dark') {
+        themeIcon.className = 'fa-solid fa-sun';
+        themeIcon.style.color = '#f59e0b';
+      } else {
+        themeIcon.className = 'fa-solid fa-moon';
+        themeIcon.style.color = '';
+      }
+    }
+
+    const savedTheme = localStorage.getItem('hind_theme') ||
+      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    setTheme(savedTheme);
+
+    themeToggle.addEventListener('click', () => {
+      const cur = document.documentElement.getAttribute('data-theme');
+      setTheme(cur === 'dark' ? 'light' : 'dark');
+    });
+  </script>
+</body>
+</html>

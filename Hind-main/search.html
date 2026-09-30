@@ -146,7 +146,7 @@
     .header-search-input {
       width: 100%;
       height: 46px;
-      padding: 0 3.25rem 0 2.75rem;
+      padding: 0 5.4rem 0 2.75rem;
       border-radius: 24px;
       border: 1px solid var(--input-border);
       background: var(--input-bg);
@@ -171,6 +171,33 @@
       pointer-events: none;
     }
 
+    .header-voice-btn {
+      position: absolute;
+      right: 2.85rem;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+      z-index: 2;
+    }
+
+    .header-voice-btn:hover {
+      color: #2563eb;
+      background: rgba(37, 99, 235, 0.08);
+    }
+
+    .header-voice-btn:active {
+      transform: scale(0.92);
+    }
+
     .header-search-btn {
       position: absolute;
       right: 0.35rem;
@@ -186,6 +213,7 @@
       cursor: pointer;
       font-size: 0.9rem;
       transition: all 0.2s ease;
+      z-index: 2;
     }
 
     .header-search-btn:hover {
@@ -233,6 +261,140 @@
       color: #2563eb;
       background: var(--nav-link-hover-bg);
     }
+    
+    /* Shrishti AI Styles */
+    .ai-fab {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 9999;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: none;
+      background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+      color: #fff;
+      font-size: 1.5rem;
+      cursor: pointer;
+      box-shadow: 0 8px 25px rgba(139, 92, 246, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .ai-fab:hover {
+      transform: scale(1.12) rotate(-10deg);
+      box-shadow: 0 12px 30px rgba(139, 92, 246, 0.55);
+    }
+
+    .ai-fab.active {
+      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+      box-shadow: 0 8px 25px rgba(220, 38, 38, 0.45);
+      transform: rotate(45deg);
+    }
+
+    .ai-panel {
+      position: fixed;
+      bottom: 6.5rem;
+      right: 2rem;
+      z-index: 9998;
+      width: 340px;
+      height: 480px;
+      background: var(--card-bg, var(--input-bg));
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      transform: scale(0.85) translateY(20px);
+      transform-origin: bottom right;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      overflow: hidden;
+    }
+
+    .ai-panel.open {
+      opacity: 1;
+      pointer-events: all;
+      transform: scale(1) translateY(0);
+    }
+
+    .ai-header {
+      background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+      color: white;
+      padding: 1rem 1.25rem;
+      font-weight: 700;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .ai-body {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      font-size: 0.95rem;
+    }
+
+    .ai-msg {
+      max-width: 85%;
+      padding: 0.75rem 1rem;
+      border-radius: 16px;
+      line-height: 1.4;
+    }
+
+    .ai-msg.bot {
+      background: var(--bg-color);
+      border: 1px solid var(--border-color);
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+    }
+
+    .ai-msg.user {
+      background: rgba(139, 92, 246, 0.15);
+      color: var(--text-main);
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
+
+    .ai-input-area {
+      padding: 1rem;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .ai-input {
+      flex: 1;
+      border: 1px solid var(--input-border);
+      background: var(--input-bg);
+      color: var(--input-text);
+      border-radius: 20px;
+      padding: 0.5rem 1rem;
+      outline: none;
+    }
+    .ai-input:focus { border-color: #8b5cf6; }
+    
+    .ai-send-btn {
+      background: #8b5cf6;
+      border: none;
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ai-send-btn:hover { background: #7c3aed; }
 
     /* Results Section */
     .results-main {
@@ -335,6 +497,441 @@
     .v-divider {
       color: var(--border-color);
     }
+
+    /* ============ 2020-Era Search Engine Voice Search Overlay ============ */
+    .voice-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.18s ease, visibility 0.18s ease;
+    }
+
+    .voice-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .voice-backdrop {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.45);
+      cursor: default;
+    }
+
+    .voice-modal {
+      position: relative;
+      z-index: 10001;
+      width: calc(100% - 2rem);
+      max-width: 440px;
+      background: #ffffff;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+      color: #1e293b;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow: hidden;
+      animation: voiceModalIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes voiceModalIn {
+      from {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    [data-theme="dark"] .voice-modal {
+      background: #1e293b;
+      border-color: #334155;
+      color: #f8fafc;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .voice-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.85rem 1.25rem;
+      border-bottom: 1px solid #e5e7eb;
+      background: #f8fafc;
+    }
+
+    [data-theme="dark"] .voice-modal-header {
+      background: #0f172a;
+      border-color: #334155;
+    }
+
+    .voice-modal-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+    }
+
+    .voice-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .voice-lang-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .voice-lang-icon {
+      position: absolute;
+      left: 0.55rem;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .voice-lang-select {
+      appearance: none;
+      -webkit-appearance: none;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.3rem 1.6rem 0.3rem 1.7rem;
+      background-color: var(--input-bg);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='%2364748b'%3E%3Cpath d='M0 0l5 5 5-5z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.55rem center;
+      transition: border-color 0.2s;
+    }
+
+    .voice-lang-select:focus {
+      outline: none;
+      border-color: #2563eb;
+    }
+
+    .voice-close-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .voice-close-btn:hover {
+      background: rgba(0, 0, 0, 0.06);
+      color: var(--text-main);
+    }
+
+    [data-theme="dark"] .voice-close-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+    }
+
+    .voice-modal-body {
+      padding: 1.75rem 1.5rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .voice-mic-container {
+      position: relative;
+      width: 76px;
+      height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.1rem;
+    }
+
+    .voice-mic-circle {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      border: none;
+      background: #2563eb;
+      color: #ffffff;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      z-index: 2;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+      transition: transform 0.15s ease, background-color 0.2s ease;
+    }
+
+    .voice-mic-circle:hover {
+      transform: scale(1.04);
+    }
+
+    .voice-mic-circle.error {
+      background: #dc2626;
+      box-shadow: 0 2px 8px rgba(220, 38, 38, 0.35);
+    }
+
+    .voice-mic-circle.finished {
+      background: #16a34a;
+      box-shadow: 0 2px 8px rgba(22, 163, 74, 0.35);
+    }
+
+    .voice-pulse-ring {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      border: 2px solid rgba(37, 99, 235, 0.5);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .voice-overlay.listening .voice-pulse-ring {
+      animation: voiceSubtlePulse 1.6s cubic-bezier(0.25, 0.8, 0.25, 1) infinite;
+    }
+
+    @keyframes voiceSubtlePulse {
+      0% {
+        transform: scale(0.95);
+        opacity: 0.8;
+      }
+      70% {
+        transform: scale(1.35);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1.35);
+        opacity: 0;
+      }
+    }
+
+    .voice-status-text {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 0.25rem;
+    }
+
+    .voice-sub-status {
+      font-size: 0.83rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    /* ── 2020 Bing Sea Wave & Search Forwarding Animations ── */
+    .voice-sea-wave {
+      width: 100%;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0.2rem 0 0.85rem;
+      overflow: hidden;
+    }
+
+    .wave-track {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      height: 100%;
+    }
+
+    .wave-bar {
+      width: 4px;
+      height: 6px;
+      border-radius: 4px;
+      background: linear-gradient(180deg, #38bdf8 0%, #2563eb 100%);
+      transition: height 0.08s ease;
+      opacity: 0.35;
+    }
+
+    .voice-overlay.listening .wave-bar {
+      opacity: 0.95;
+      animation: bingSeaWave 1.4s ease-in-out infinite;
+    }
+
+    .voice-overlay.listening .wave-bar.w-1  { animation-delay: 0.00s; }
+    .voice-overlay.listening .wave-bar.w-2  { animation-delay: 0.11s; }
+    .voice-overlay.listening .wave-bar.w-3  { animation-delay: 0.22s; }
+    .voice-overlay.listening .wave-bar.w-4  { animation-delay: 0.33s; }
+    .voice-overlay.listening .wave-bar.w-5  { animation-delay: 0.44s; }
+    .voice-overlay.listening .wave-bar.w-6  { animation-delay: 0.55s; }
+    .voice-overlay.listening .wave-bar.w-7  { animation-delay: 0.66s; }
+    .voice-overlay.listening .wave-bar.w-8  { animation-delay: 0.77s; }
+    .voice-overlay.listening .wave-bar.w-9  { animation-delay: 0.88s; }
+    .voice-overlay.listening .wave-bar.w-10 { animation-delay: 0.99s; }
+    .voice-overlay.listening .wave-bar.w-11 { animation-delay: 1.10s; }
+    .voice-overlay.listening .wave-bar.w-12 { animation-delay: 1.21s; }
+
+    @keyframes bingSeaWave {
+      0%, 100% {
+        height: 6px;
+        background: linear-gradient(180deg, #38bdf8 0%, #2563eb 100%);
+      }
+      50% {
+        height: 34px;
+        background: linear-gradient(180deg, #67e8f9 0%, #0284c7 100%);
+      }
+    }
+
+    .search-input-group.search-forwarded,
+    .header-search-group.search-forwarded {
+      animation: searchForwardPulse 0.9s ease-out;
+    }
+
+    @keyframes searchForwardPulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4);
+      }
+      40% {
+        box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.2);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
+      }
+    }
+
+    .voice-transcript-box {
+      width: 100%;
+      min-height: 52px;
+      padding: 0.65rem 0.85rem;
+      background: var(--input-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      text-align: left;
+      font-size: 0.98rem;
+      color: var(--text-main);
+      line-height: 1.45;
+      display: flex;
+      align-items: center;
+      word-break: break-word;
+    }
+
+    .voice-transcript-text {
+      font-weight: 600;
+      flex: 1;
+    }
+
+    .voice-transcript-text:empty::before {
+      content: "Waiting for speech...";
+      font-weight: 400;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .voice-cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1.1rem;
+      background-color: #2563eb;
+      margin-left: 3px;
+      animation: voiceCursorBlink 0.8s infinite;
+    }
+
+    @keyframes voiceCursorBlink {
+      0%, 100% { opacity: 0; }
+      50% { opacity: 1; }
+    }
+
+    .voice-error-notice {
+      width: 100%;
+      margin-top: 0.75rem;
+      padding: 0.6rem 0.85rem;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 6px;
+      color: #991b1b;
+      font-size: 0.82rem;
+      text-align: left;
+      line-height: 1.4;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    [data-theme="dark"] .voice-error-notice {
+      background: rgba(220, 38, 38, 0.15);
+      border-color: rgba(220, 38, 38, 0.35);
+      color: #fca5a5;
+    }
+
+    .voice-modal-footer {
+      padding: 0.75rem 1.25rem;
+      border-top: 1px solid #e5e7eb;
+      background: #f8fafc;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.6rem;
+    }
+
+    [data-theme="dark"] .voice-modal-footer {
+      background: #0f172a;
+      border-color: #334155;
+    }
+
+    .voice-btn {
+      padding: 0.45rem 1.1rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+      font-family: inherit;
+    }
+
+    .voice-btn-secondary {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+    }
+
+    .voice-btn-secondary:hover {
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    [data-theme="dark"] .voice-btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .voice-btn-primary {
+      background: #2563eb;
+      border: 1px solid #2563eb;
+      color: #ffffff;
+    }
+
+    .voice-btn-primary:hover {
+      background: #1d4ed8;
+      border-color: #1d4ed8;
+    }
   </style>
 </head>
 <body>
@@ -345,7 +942,7 @@
       <a href="index.html" class="header-logo-link" title="Hind - Home">
         <img src="download.png" alt="Hind logo" class="header-logo-img" />
       </a>
-      <form method="get" action="search.html" class="header-search-form">
+      <form method="get" action="search.html" id="searchHeaderForm" class="header-search-form">
         <div class="header-search-group">
           <i class="fa-solid fa-magnifying-glass header-search-icon"></i>
           <input 
@@ -357,6 +954,9 @@
             aria-label="Search query" 
             required 
           />
+          <button type="button" class="header-voice-btn" id="voiceSearchBtn" title="Search by voice" aria-label="Search by voice">
+            <i class="fa-solid fa-microphone"></i>
+          </button>
           <button type="submit" class="header-search-btn" aria-label="Submit Search">
             <i class="fa-solid fa-arrow-right"></i>
           </button>
@@ -376,12 +976,51 @@
 
   <!-- Main Search Results Container -->
   <main class="results-main">
+    <div id="aiSearchAnswer" class="results-card mb-4" style="display: none; border-left: 4px solid #8b5cf6; padding: 1.25rem; min-height: auto;">
+      <h5 style="color: #8b5cf6; font-weight: 700; font-size: 1.1rem; margin-bottom: 0.5rem;">
+        <i class="fa-solid fa-sparkles"></i> Shrishti AI Answer
+      </h5>
+      <div id="aiSearchAnswerContent" style="font-size: 0.95rem; line-height: 1.5; color: var(--text-main);">
+        <i class="fa-solid fa-spinner fa-spin"></i> Generating answer...
+      </div>
+    </div>
+    
     <div class="results-card">
       <!-- Google Custom Search Engine Integration -->
       <script async src="https://cse.google.com/cse.js?cx=c04bc7b605f41d47f"></script>
       <div class="gcse-search"></div>
     </div>
   </main>
+
+  <!-- Shrishti AI Floating Chatbot -->
+  <button class="ai-fab" id="aiFab" aria-label="Open Shrishti AI" title="Shrishti AI Assistant">
+    <i class="fa-solid fa-robot" id="aiFabIcon"></i>
+  </button>
+
+  <div class="ai-panel" id="aiPanel" role="dialog" aria-label="Shrishti AI Chatbot" style="position: fixed;">
+    <!-- Disclaimer Overlay -->
+    <div id="aiDisclaimer" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: var(--card-bg, var(--input-bg)); z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; text-align: center; border-radius: 24px;">
+      <i class="fa-solid fa-triangle-exclamation text-warning mb-3" style="font-size: 2.5rem;"></i>
+      <p style="font-size: 0.95rem; margin-bottom: 1.5rem; color: var(--text-main);">AI model is in development stage so data it has is of till July 2024. We will update it soon.</p>
+      <button onclick="document.getElementById('aiDisclaimer').style.display='none'; document.getElementById('aiInput').focus();" style="background: #8b5cf6; color: white; border: none; padding: 0.6rem 2rem; border-radius: 20px; font-weight: 600; cursor: pointer;">OK</button>
+    </div>
+
+    <div class="ai-header">
+      <span><i class="fa-solid fa-sparkles"></i> Shrishti AI</span>
+    </div>
+    <div class="ai-body" id="aiBody">
+      <div class="ai-msg bot">Namaste! I am Shrishti AI. How can I help you today?</div>
+    </div>
+    <div class="ai-input-area">
+      <input type="text" id="aiInput" class="ai-input" placeholder="Ask Shrishti..." onkeypress="if(event.key === 'Enter') sendAiMessage()" />
+      <button class="ai-send-btn" onclick="sendAiMessage()">
+        <i class="fa-solid fa-paper-plane"></i>
+      </button>
+    </div>
+    <div style="text-align: center; font-size: 0.75rem; color: var(--text-muted); padding-bottom: 0.75rem; background: var(--card-bg, var(--input-bg));">
+      AI model can make mistakes.
+    </div>
+  </div>
 
   <!-- Clean Footer -->
   <footer class="footer-container">
@@ -403,6 +1042,41 @@
     if (query) {
       document.getElementById('searchInputHeader').value = query;
       document.title = `${query} - Hind Search`;
+      
+      // Fetch AI Answer for the search query
+      const aiContainer = document.getElementById('aiSearchAnswer');
+      const aiContent = document.getElementById('aiSearchAnswerContent');
+      aiContainer.style.display = 'block';
+      
+      fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer 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',
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'https://hind.com',
+          'X-Title': 'Hind Search Engine'
+        },
+        body: JSON.stringify({
+          model: 'openrouter/free',
+          messages: [
+            { role: 'system', content: 'You are Shrishti AI. The current date is September 30, 2026. Provide up to date information.' },
+            { role: 'user', content: `Please provide a concise and helpful answer to this search query: ${query}` }
+          ]
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+         if (data.choices && data.choices[0] && data.choices[0].message) {
+             aiContent.innerHTML = data.choices[0].message.content.replace(/\n/g, '<br>');
+         } else if (data.error && data.error.message) {
+             aiContent.textContent = 'Error: ' + data.error.message;
+         } else {
+             aiContent.textContent = "Could not generate an answer: " + JSON.stringify(data);
+         }
+      })
+      .catch(err => {
+         aiContent.textContent = "Error fetching AI response.";
+      });
     }
 
     // Dark Mode Toggle Logic
@@ -433,6 +1107,593 @@
       const currentTheme = document.documentElement.getAttribute('data-theme');
       setTheme(currentTheme === 'dark' ? 'light' : 'dark');
     });
+
+    // Shrishti AI Chatbot Logic
+    const aiFab = document.getElementById('aiFab');
+    const aiPanel = document.getElementById('aiPanel');
+    const aiFabIcon = document.getElementById('aiFabIcon');
+    const aiBody = document.getElementById('aiBody');
+    const aiInput = document.getElementById('aiInput');
+
+    aiFab.addEventListener('click', () => {
+      const isOpen = aiPanel.classList.contains('open');
+      aiPanel.classList.toggle('open');
+      aiFab.classList.toggle('active');
+      aiFabIcon.className = isOpen ? 'fa-solid fa-robot' : 'fa-solid fa-xmark';
+      if (!isOpen) {
+        aiInput.focus();
+      }
+    });
+
+    // Close panels when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!aiFab.contains(e.target) && !aiPanel.contains(e.target)) {
+        aiPanel.classList.remove('open');
+        aiFab.classList.remove('active');
+        aiFabIcon.className = 'fa-solid fa-robot';
+      }
+    });
+
+    async function sendAiMessage() {
+      const text = aiInput.value.trim();
+      if (!text) return;
+      
+      const userDiv = document.createElement('div');
+      userDiv.className = 'ai-msg user';
+      userDiv.textContent = text;
+      aiBody.appendChild(userDiv);
+      
+      aiInput.value = '';
+      aiBody.scrollTop = aiBody.scrollHeight;
+
+      const loadingDiv = document.createElement('div');
+      loadingDiv.className = 'ai-msg bot';
+      loadingDiv.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Thinking...';
+      aiBody.appendChild(loadingDiv);
+      aiBody.scrollTop = aiBody.scrollHeight;
+
+      try {
+        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer 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',
+            'Content-Type': 'application/json',
+            'HTTP-Referer': 'https://hind.com',
+            'X-Title': 'Hind Search Engine'
+          },
+          body: JSON.stringify({
+            model: 'openrouter/free',
+            messages: [
+              { role: 'system', content: 'You are Shrishti AI, an advanced assistant by Hind.com. The current date is September 30, 2026. Please ensure all your responses are up to date.' },
+              { role: 'user', content: text }
+            ]
+          })
+        });
+        const data = await response.json();
+        loadingDiv.remove();
+
+        const botDiv = document.createElement('div');
+        botDiv.className = 'ai-msg bot';
+        if (data.choices && data.choices[0] && data.choices[0].message) {
+          botDiv.innerHTML = data.choices[0].message.content.replace(/\n/g, '<br>');
+        } else if (data.error && data.error.message) {
+          botDiv.textContent = 'Error: ' + data.error.message;
+        } else {
+          botDiv.textContent = 'Oops, I encountered an error: ' + JSON.stringify(data);
+        }
+        aiBody.appendChild(botDiv);
+      } catch (err) {
+        loadingDiv.remove();
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'ai-msg bot';
+        errorDiv.textContent = 'Failed to reach Shrishti AI.';
+        aiBody.appendChild(errorDiv);
+      }
+      aiBody.scrollTop = aiBody.scrollHeight;
+    }
+
+    // ─── 2020-Era Traditional Search Engine Voice Search ─────────────
+    (function initVoiceSearch() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const micBtn = document.getElementById('voiceSearchBtn');
+      const overlay = document.getElementById('voiceOverlay');
+      const backdrop = document.getElementById('voiceBackdrop');
+      const closeBtn = document.getElementById('voiceCloseBtn');
+      const cancelBtn = document.getElementById('voiceCancelBtn');
+      const retryBtn = document.getElementById('voiceRetryBtn');
+      const langSelect = document.getElementById('voiceLangSelect');
+      const statusText = document.getElementById('voiceStatusText');
+      const subStatus = document.getElementById('voiceSubStatus');
+      const transcriptText = document.getElementById('voiceTranscriptText');
+      const cursor = document.getElementById('voiceCursor');
+      const errorNotice = document.getElementById('voiceErrorNotice');
+      const errorMsg = document.getElementById('voiceErrorMsg');
+      const micCircle = document.getElementById('voiceMicCircle');
+      const searchInput = document.getElementById('searchInputHeader') || document.getElementById('searchInput') || document.querySelector('input[name="q"]');
+      const searchForm = document.getElementById('searchHeaderForm') || document.getElementById('ddgSearch') || document.querySelector('form.header-search-form');
+
+      if (!micBtn || !overlay) return;
+
+      const savedLang = localStorage.getItem('hind_voice_lang') || 'en-IN';
+      if (langSelect) {
+        langSelect.value = savedLang;
+        langSelect.addEventListener('change', () => {
+          localStorage.setItem('hind_voice_lang', langSelect.value);
+          if (recognition && isListening) {
+            restartRecognition();
+          }
+        });
+      }
+
+      let recognition = null;
+      let isListening = false;
+      let isCancelled = false;
+      let finalQuery = '';
+      let finishTimer = null;
+      let activeStream = null;
+      let audioCtx = null;
+      let analyser = null;
+      let animFrameId = null;
+
+      function setOverlayState(state, details) {
+        if (!overlay) return;
+        overlay.classList.remove('listening');
+        micCircle.classList.remove('error', 'finished');
+        if (cursor) cursor.style.display = 'none';
+        if (errorNotice) errorNotice.style.display = 'none';
+        if (retryBtn) retryBtn.style.display = 'none';
+
+        switch (state) {
+          case 'permission':
+            micCircle.innerHTML = '<i class="fa-solid fa-microphone"></i>';
+            statusText.textContent = 'Requesting Microphone...';
+            subStatus.textContent = 'Please allow microphone access in your browser prompt';
+            transcriptText.textContent = '';
+            break;
+
+          case 'listening':
+            overlay.classList.add('listening');
+            micCircle.innerHTML = '<i class="fa-solid fa-microphone"></i>';
+            statusText.textContent = 'Listening...';
+            subStatus.textContent = 'Speak clearly into your microphone';
+            if (cursor) cursor.style.display = 'inline-block';
+            transcriptText.textContent = '';
+            break;
+
+          case 'recognizing':
+            overlay.classList.add('listening');
+            micCircle.innerHTML = '<i class="fa-solid fa-microphone"></i>';
+            statusText.textContent = 'Listening...';
+            subStatus.textContent = 'Speak clearly into your microphone';
+            if (cursor) cursor.style.display = 'inline-block';
+            if (details && details.text) {
+              transcriptText.textContent = details.text;
+            }
+            break;
+
+          case 'finished':
+            micCircle.classList.add('finished');
+            micCircle.innerHTML = '<i class="fa-solid fa-check"></i>';
+            statusText.textContent = 'Recognized';
+            subStatus.textContent = 'Forwarding query to search bar...';
+            if (details && details.text) {
+              transcriptText.textContent = details.text;
+            }
+            break;
+
+          case 'error':
+            micCircle.classList.add('error');
+            micCircle.innerHTML = '<i class="fa-solid fa-microphone-slash"></i>';
+            statusText.textContent = details?.title || 'Voice search error';
+            subStatus.textContent = details?.sub || 'Please try again';
+            if (details?.error && errorNotice && errorMsg) {
+              errorMsg.textContent = details.error;
+              errorNotice.style.display = 'flex';
+            }
+            if (retryBtn) retryBtn.style.display = 'inline-block';
+            break;
+
+          case 'unsupported':
+            micCircle.classList.add('error');
+            micCircle.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+            statusText.textContent = 'Voice Search Not Supported';
+            subStatus.textContent = 'Browser SpeechRecognition unavailable';
+            if (errorNotice && errorMsg) {
+              errorMsg.textContent = 'Voice search is not supported in this browser. Please use Chrome, Edge, or a compatible browser.';
+              errorNotice.style.display = 'flex';
+            }
+            break;
+        }
+      }
+
+      function setupAudioVisualizer(stream) {
+        try {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (!AudioContext) return;
+          audioCtx = new AudioContext();
+          const source = audioCtx.createMediaStreamSource(stream);
+          analyser = audioCtx.createAnalyser();
+          analyser.fftSize = 64;
+          source.connect(analyser);
+
+          const waveBars = document.querySelectorAll('.voice-sea-wave .wave-bar');
+          const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+          function updateSeaWave() {
+            if (!isListening || !analyser) return;
+            analyser.getByteFrequencyData(dataArray);
+
+            let sum = 0;
+            for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
+            const avg = sum / dataArray.length;
+            const boost = Math.min(2.0, Math.max(0.4, avg / 28));
+
+            waveBars.forEach((bar, idx) => {
+              const freqVal = dataArray[idx % dataArray.length] || 0;
+              const barHeight = Math.min(38, Math.max(6, (freqVal / 255) * 32 * boost + 6));
+              bar.style.height = `${barHeight}px`;
+            });
+
+            animFrameId = requestAnimationFrame(updateSeaWave);
+          }
+          updateSeaWave();
+        } catch (e) {
+          console.warn('Sea wave audio visualizer fallback to CSS animation:', e);
+        }
+      }
+
+      function cleanupAudio() {
+        if (animFrameId) {
+          cancelAnimationFrame(animFrameId);
+          animFrameId = null;
+        }
+        if (activeStream) {
+          activeStream.getTracks().forEach(track => track.stop());
+          activeStream = null;
+        }
+        if (audioCtx) {
+          try { audioCtx.close(); } catch (e) {}
+          audioCtx = null;
+        }
+        analyser = null;
+        const waveBars = document.querySelectorAll('.voice-sea-wave .wave-bar');
+        waveBars.forEach(bar => { bar.style.height = ''; });
+      }
+
+      async function openVoiceSearch() {
+        isCancelled = false;
+        finalQuery = '';
+        if (finishTimer) {
+          clearTimeout(finishTimer);
+          finishTimer = null;
+        }
+
+        overlay.classList.add('active');
+        overlay.setAttribute('aria-hidden', 'false');
+
+        if (!SpeechRecognition) {
+          setOverlayState('unsupported');
+          return;
+        }
+
+        // 1. Explicitly seek microphone permission & open microphone audio stream
+        setOverlayState('permission');
+
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            if (isCancelled) {
+              stream.getTracks().forEach(t => t.stop());
+              return;
+            }
+            activeStream = stream;
+            setupAudioVisualizer(stream);
+          } catch (err) {
+            if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+              setOverlayState('error', {
+                title: 'Microphone Permission Required',
+                sub: 'Please grant microphone access to use voice search.',
+                error: 'Microphone permission was denied. Click the microphone/lock icon in your browser address bar to allow access, then click "Try Again".'
+              });
+              return;
+            }
+            console.warn('getUserMedia non-fatal warning:', err);
+          }
+        }
+
+        startRecognition();
+      }
+
+      function closeVoiceSearch() {
+        isCancelled = true;
+        if (finishTimer) {
+          clearTimeout(finishTimer);
+          finishTimer = null;
+        }
+        cleanupAudio();
+        if (recognition && isListening) {
+          try {
+            recognition.abort();
+          } catch (e) {}
+        }
+        isListening = false;
+        overlay.classList.remove('active');
+        overlay.classList.remove('listening');
+        overlay.setAttribute('aria-hidden', 'true');
+      }
+
+      function startRecognition() {
+        if (isListening && recognition) {
+          try { recognition.abort(); } catch (e) {}
+        }
+
+        isListening = false;
+        finalQuery = '';
+
+        try {
+          recognition = new SpeechRecognition();
+          recognition.continuous = false;
+          recognition.interimResults = true;
+          recognition.maxAlternatives = 1;
+          recognition.lang = (langSelect && langSelect.value) || localStorage.getItem('hind_voice_lang') || 'en-IN';
+
+          setOverlayState('listening');
+
+          recognition.onstart = () => {
+            isListening = true;
+          };
+
+          recognition.onresult = (event) => {
+            let interimText = '';
+            let finalText = '';
+
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+              const transcript = event.results[i][0].transcript;
+              if (event.results[i].isFinal) {
+                finalText += transcript;
+              } else {
+                interimText += transcript;
+              }
+            }
+
+            const currentSpeech = finalText || interimText;
+            if (currentSpeech) {
+              setOverlayState('recognizing', { text: currentSpeech });
+            }
+
+            if (finalText) {
+              finalQuery = finalText.trim();
+            }
+          };
+
+          recognition.onerror = (event) => {
+            if (isCancelled) return;
+            isListening = false;
+            cleanupAudio();
+
+            switch (event.error) {
+              case 'not-allowed':
+              case 'service-not-allowed':
+                setOverlayState('error', {
+                  title: 'Microphone Access Denied',
+                  sub: 'Microphone permission is required for voice search.',
+                  error: 'Please click the microphone/lock icon in your browser address bar to allow microphone access, then click "Try Again".'
+                });
+                break;
+              case 'no-speech':
+                setOverlayState('error', {
+                  title: 'Didn\'t catch that',
+                  sub: 'No speech was detected.',
+                  error: 'Make sure your microphone is connected and unmuted, then click "Try Again".'
+                });
+                break;
+              case 'network':
+                setOverlayState('error', {
+                  title: 'Network Error',
+                  sub: 'Speech recognition network service unavailable.',
+                  error: 'Please check your internet connection and try again.'
+                });
+                break;
+              case 'audio-capture':
+                setOverlayState('error', {
+                  title: 'Microphone Unavailable',
+                  sub: 'No microphone was found or microphone is in use.',
+                  error: 'Please check your microphone connection and try again.'
+                });
+                break;
+              case 'aborted':
+                break;
+              default:
+                setOverlayState('error', {
+                  title: 'Voice Recognition Error',
+                  sub: 'Could not complete voice search.',
+                  error: 'Error: ' + (event.error || 'Unknown error occurred.')
+                });
+                break;
+            }
+          };
+
+          recognition.onend = () => {
+            isListening = false;
+            cleanupAudio();
+            if (isCancelled) return;
+
+            if (finalQuery) {
+              setOverlayState('finished', { text: finalQuery });
+              finishTimer = setTimeout(() => {
+                forwardResultAndSearch(finalQuery);
+              }, 400);
+            } else if (overlay.classList.contains('active') && retryBtn && retryBtn.style.display !== 'none') {
+              // Handled by onerror
+            } else if (overlay.classList.contains('active')) {
+              setOverlayState('error', {
+                title: 'Didn\'t catch that',
+                sub: 'No speech was detected. Please try again.'
+              });
+            }
+          };
+
+          recognition.start();
+        } catch (err) {
+          isListening = false;
+          cleanupAudio();
+          setOverlayState('error', {
+            title: 'Could Not Start Voice Search',
+            sub: 'An initialization error occurred.',
+            error: err.message || 'Please check microphone permissions and try again.'
+          });
+        }
+      }
+
+      // ─── 2020 Bing Forwarding Pattern: Forward result to search input/placeholder first, then search ───
+      function forwardResultAndSearch(query) {
+        closeVoiceSearch();
+
+        if (!searchInput) return;
+
+        // Focus search box and add visual pulse highlight
+        searchInput.focus();
+        searchInput.value = '';
+
+        const searchGroup = searchInput.closest('.search-input-group') || searchInput.closest('.header-search-group') || searchInput.parentElement;
+        if (searchGroup) {
+          searchGroup.classList.add('search-forwarded');
+        }
+
+        // Animate/type the voice result into the search bar placeholder/input
+        let charIndex = 0;
+        const typeSpeed = query.length > 30 ? 12 : 20;
+
+        const typeInterval = setInterval(() => {
+          charIndex++;
+          searchInput.value = query.slice(0, charIndex);
+
+          if (charIndex >= query.length) {
+            clearInterval(typeInterval);
+            searchInput.value = query;
+
+            // Brief pause so user clearly sees the forwarded query in the placeholder/input
+            setTimeout(() => {
+              if (searchGroup) {
+                searchGroup.classList.remove('search-forwarded');
+              }
+              if (searchForm) {
+                if (typeof searchForm.requestSubmit === 'function') {
+                  searchForm.requestSubmit();
+                } else {
+                  searchForm.submit();
+                }
+              }
+            }, 500);
+          }
+        }, typeSpeed);
+      }
+
+      function restartRecognition() {
+        if (recognition && isListening) {
+          try { recognition.abort(); } catch (e) {}
+        }
+        cleanupAudio();
+        startRecognition();
+      }
+
+      micBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        openVoiceSearch();
+      });
+
+      if (micCircle) {
+        micCircle.addEventListener('click', () => {
+          if (!isListening) {
+            openVoiceSearch();
+          }
+        });
+      }
+
+      if (closeBtn) closeBtn.addEventListener('click', closeVoiceSearch);
+      if (cancelBtn) cancelBtn.addEventListener('click', closeVoiceSearch);
+      if (backdrop) backdrop.addEventListener('click', closeVoiceSearch);
+      if (retryBtn) retryBtn.addEventListener('click', () => openVoiceSearch());
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && overlay.classList.contains('active')) {
+          closeVoiceSearch();
+        }
+      });
+    })();
   </script>
+
+  <!-- 2020-Era Search Engine Voice Search Overlay -->
+  <div id="voiceOverlay" class="voice-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="voiceDialogTitle">
+    <div class="voice-backdrop" id="voiceBackdrop"></div>
+    <div class="voice-modal">
+      <div class="voice-modal-header">
+        <div class="voice-modal-title" id="voiceDialogTitle">
+          <i class="fa-solid fa-microphone me-2" style="color: #2563eb;"></i>Voice Search
+        </div>
+        <div class="voice-header-actions">
+          <div class="voice-lang-wrapper" title="Speech Recognition Language">
+            <i class="fa-solid fa-globe voice-lang-icon"></i>
+            <select id="voiceLangSelect" class="voice-lang-select" aria-label="Speech recognition language">
+              <option value="en-IN">English (India)</option>
+              <option value="en-US">English (US)</option>
+              <option value="hi-IN">हिन्दी (India)</option>
+              <option value="bn-IN">বাংলা (India)</option>
+            </select>
+          </div>
+          <button type="button" class="voice-close-btn" id="voiceCloseBtn" aria-label="Close voice search" title="Close">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="voice-modal-body">
+        <div class="voice-mic-container">
+          <button type="button" class="voice-mic-circle" id="voiceMicCircle" aria-label="Microphone" title="Click to listen">
+            <i class="fa-solid fa-microphone" id="voiceMicIcon"></i>
+          </button>
+          <div class="voice-pulse-ring" id="voicePulseRing"></div>
+        </div>
+
+        <div class="voice-status-text" id="voiceStatusText">Listening...</div>
+        <div class="voice-sub-status" id="voiceSubStatus">Speak clearly into your microphone</div>
+
+        <!-- 2020 Bing-Style Undulating Sea Wave Visualizer -->
+        <div class="voice-sea-wave" id="voiceSeaWave" aria-hidden="true">
+          <div class="wave-track">
+            <span class="wave-bar w-1"></span>
+            <span class="wave-bar w-2"></span>
+            <span class="wave-bar w-3"></span>
+            <span class="wave-bar w-4"></span>
+            <span class="wave-bar w-5"></span>
+            <span class="wave-bar w-6"></span>
+            <span class="wave-bar w-7"></span>
+            <span class="wave-bar w-8"></span>
+            <span class="wave-bar w-9"></span>
+            <span class="wave-bar w-10"></span>
+            <span class="wave-bar w-11"></span>
+            <span class="wave-bar w-12"></span>
+          </div>
+        </div>
+
+        <!-- Live transcript box -->
+        <div class="voice-transcript-box" id="voiceTranscriptBox">
+          <span class="voice-transcript-text" id="voiceTranscriptText"></span>
+          <span class="voice-cursor" id="voiceCursor"></span>
+        </div>
+
+        <!-- Error & Alert Notice -->
+        <div class="voice-error-notice" id="voiceErrorNotice" style="display: none;">
+          <i class="fa-solid fa-circle-exclamation me-1" id="voiceErrorIcon"></i>
+          <span id="voiceErrorMsg"></span>
+        </div>
+      </div>
+
+      <div class="voice-modal-footer">
+        <button type="button" class="voice-btn voice-btn-secondary" id="voiceCancelBtn">Cancel</button>
+        <button type="button" class="voice-btn voice-btn-primary" id="voiceRetryBtn" style="display: none;">Try Again</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
