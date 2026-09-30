@@ -325,26 +325,110 @@
       white-space: nowrap;
     }
 
-    /* ── RSS FEED CONTAINER ── */
-    .rss-wrap {
+    /* ── NEWS GRID NATIVE ── */
+    .news-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .news-card {
       background: var(--paper);
       border: 1px solid var(--rule);
-      border-radius: 4px;
-      box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+      border-radius: 6px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .news-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+    }
+
+    [data-theme="dark"] .news-card:hover {
+      box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+    }
+
+    .news-thumb {
+      width: 100%;
+      height: 180px;
+      background-color: var(--rule);
+      background-size: cover;
+      background-position: center;
+      position: relative;
+    }
+    
+    .news-thumb::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.4), transparent);
+      opacity: 0.5;
+    }
+
+    .news-content {
+      padding: 1.25rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .news-source {
+      font-size: 0.65rem;
+      font-weight: 800;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 0.5rem;
+    }
+
+    .news-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1.35;
+      margin-bottom: 0.75rem;
+      text-decoration: none;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
       overflow: hidden;
     }
 
-    [data-theme="dark"] .rss-wrap {
-      box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+    .news-title:hover { color: var(--accent-light); }
+
+    .news-desc {
+      font-size: 0.85rem;
+      color: var(--ink-light);
+      line-height: 1.5;
+      margin-bottom: 1rem;
+      flex: 1;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
 
-    .rss-inner {
-      padding: 1.5rem 1.75rem;
+    .news-meta {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--ink-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--rule);
+      padding-top: 0.75rem;
     }
 
-    /* Override surfing-waves styles elegantly */
-    .rss-inner iframe, .rss-inner div[id^="rssfeed"] {
-      border: none !important;
+    .loading-grid {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 3rem;
+      font-size: 1.2rem;
+      color: var(--ink-muted);
     }
 
     /* ── FOOTER ── */
@@ -461,37 +545,10 @@
       <span class="section-badge"><i class="fa-solid fa-satellite-dish me-1"></i>Streaming</span>
     </div>
 
-    <!-- RSS Widget -->
-    <div class="rss-wrap">
-      <div class="rss-inner">
-        <script type="text/javascript">
-          rssfeed_url = new Array();
-          rssfeed_url[0]="https://surfing-waves.com/newsrss.xml";
-          rssfeed_url[1]="http://rss.cnn.com/rss/edition.rss/";
-          rssfeed_frame_width="100%";
-          rssfeed_frame_height="900";
-          rssfeed_scroll="on";
-          rssfeed_scroll_step="6";
-          rssfeed_scroll_bar="on";
-          rssfeed_target="_blank";
-          rssfeed_font_size="15";
-          rssfeed_font_face="Plus Jakarta Sans";
-          rssfeed_border="off";
-          rssfeed_css_url="https://feed.surfing-waves.com/css/style1.css";
-          rssfeed_title="off";
-          rssfeed_footer="off";
-          rssfeed_item_title_length="90";
-          rssfeed_item_title_color="#0a6b8a";
-          rssfeed_item_bgcolor="transparent";
-          rssfeed_item_border_bottom="on";
-          rssfeed_item_source_icon="on";
-          rssfeed_item_date="on";
-          rssfeed_item_description="on";
-          rssfeed_item_description_length="200";
-          rssfeed_no_items="25";
-          rssfeed_cache = "9ca8b7eae69f97d764d290245e751730";
-        </script>
-        <script type="text/javascript" src="//feed.surfing-waves.com/js/rss-feed.js"></script>
+    <!-- News Grid Container -->
+    <div class="news-grid" id="newsGrid">
+      <div class="loading-grid">
+        <i class="fa-solid fa-satellite-dish fa-beat me-2 text-info"></i> Fetching latest headlines...
       </div>
     </div>
 
@@ -551,6 +608,90 @@
       }, 30000);
       dateEl.innerHTML = `<i class="fa-solid fa-globe me-1"></i> ${fmt.format(new Date())} IST`;
     }
+
+    // Fetch and render RSS Native
+    async function loadNews() {
+      const grid = document.getElementById('newsGrid');
+      const feeds = [
+        'http://rss.cnn.com/rss/edition.rss',
+        'http://feeds.bbci.co.uk/news/world/rss.xml',
+        'https://timesofindia.indiatimes.com/rssfeedstopstories.cms'
+      ];
+      
+      let allItems = [];
+      
+      try {
+        await Promise.all(feeds.map(async (url) => {
+          const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`);
+          const data = await res.json();
+          if (data.status === 'ok' && data.items) {
+            // Tag items with source
+            const sourceName = data.feed.title || 'News';
+            data.items.forEach(item => item.sourceName = sourceName.split(' - ')[0]);
+            allItems.push(...data.items);
+          }
+        }));
+
+        // Sort by date descending
+        allItems.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+        
+        // Remove duplicates (sometimes happens across similar feeds)
+        const unique = [];
+        const titles = new Set();
+        for (let item of allItems) {
+          if (!titles.has(item.title)) {
+            titles.add(item.title);
+            unique.push(item);
+          }
+        }
+
+        renderGrid(unique.slice(0, 36)); // Render top 36
+      } catch (err) {
+        grid.innerHTML = `<div class="loading-grid text-danger">Failed to load news. Please try again later.</div>`;
+      }
+    }
+
+    function renderGrid(items) {
+      const grid = document.getElementById('newsGrid');
+      grid.innerHTML = '';
+      
+      items.forEach(item => {
+        // Strip HTML from description for clean text
+        const tmp = document.createElement('div');
+        tmp.innerHTML = item.description;
+        const cleanDesc = tmp.textContent || tmp.innerText || "";
+        
+        // Find an image (from enclosure, thumbnail, or content)
+        let imgUrl = item.thumbnail || (item.enclosure && item.enclosure.link);
+        if (!imgUrl) {
+          const imgMatch = item.content.match(/<img[^>]+src="([^">]+)"/);
+          if (imgMatch) imgUrl = imgMatch[1];
+        }
+        if (!imgUrl) imgUrl = 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'; // Fallback
+
+        // Format Date
+        const d = new Date(item.pubDate);
+        const timeStr = d.toLocaleTimeString('en-IN', { hour: '2-digit', minute:'2-digit' });
+
+        const card = document.createElement('article');
+        card.className = 'news-card';
+        card.innerHTML = `
+          <div class="news-thumb" style="background-image: url('${imgUrl}')"></div>
+          <div class="news-content">
+            <div class="news-source">${item.sourceName}</div>
+            <a href="${item.link}" target="_blank" rel="noopener" class="news-title">${item.title}</a>
+            <p class="news-desc">${cleanDesc.substring(0, 150)}...</p>
+            <div class="news-meta">
+              <span>${timeStr}</span>
+              <a href="${item.link}" target="_blank" style="color:inherit; text-decoration:none;"><i class="fa-solid fa-arrow-up-right-from-square"></i> Read</a>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    loadNews();
   </script>
 <script src="../../../translate.js"></script>
 </body>
