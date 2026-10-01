@@ -1994,6 +1994,14 @@
       return dateStr;
     }
 
+    // Utility: Duration seconds → MM:SS
+    function formatDuration(secs) {
+      if (!secs || isNaN(secs)) return 'HD';
+      const m = Math.floor(secs / 60);
+      const s = secs % 60;
+      return `${m}:${String(s).padStart(2, '0')}`;
+    }
+
     // Update Tab UI
     function setActiveTabUI(type) {
       document.querySelectorAll('.search-tab-btn').forEach(btn => {
@@ -2442,12 +2450,13 @@
       `;
     }
 
-    // Fallback Client-Side Direct Search (DDG Instant Answer + Wikipedia API + Wikimedia)
-    async function performFallbackSearch(trimmed, type) {
+    // Fallback Client-Side Direct Search (Invidious API for videos, Wikipedia for web/news/images)
+    async function performFallbackSearch(trimmed, type, page = 1) {
       const container = document.getElementById('searchResultsContainer');
       try {
         if (type === 'images') {
-          const wikiImgUrl = `https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(trimmed)}&gsrlimit=24&prop=pageimages|info&inprop=url&pithumbsize=500&format=json&origin=*`;
+          const offset = (page - 1) * 25;
+          const wikiImgUrl = `https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(trimmed)}&gsrlimit=25&gsroffset=${offset}&prop=pageimages|info&inprop=url&pithumbsize=500&format=json&origin=*`;
           const res = await fetch(wikiImgUrl);
           const data = await res.json();
           const items = [];
@@ -2464,7 +2473,9 @@
             });
           }
           if (items.length > 0) {
-            container.innerHTML = renderImageResults(items, trimmed);
+            const hasNext = items.length >= 25;
+            const paginHtml = renderPagination(page, hasNext ? page + 5 : page, hasNext);
+            container.innerHTML = renderImageResults(items, trimmed) + paginHtml;
           } else {
             container.innerHTML = renderEmptyState(trimmed);
           }
@@ -2472,34 +2483,63 @@
         }
 
         if (type === 'videos') {
-          // Generate rich real-time video search items for the exact query
-          const videoTopics = [
-            `${trimmed} - Full HD Video & Highlights`,
-            `${trimmed} - Complete In-Depth Guide`,
-            `${trimmed} - Latest News & Special Report`,
-            `Everything you need to know about ${trimmed}`,
-            `${trimmed} - Official Review & Analysis`,
-            `${trimmed} - Masterclass & Insights`,
-            `${trimmed} - Top 10 Facts & Overview`,
-            `${trimmed} - Live Discussion & Coverage`
+          // Use Invidious open-source YouTube API (CORS-enabled, no key needed)
+          const INVIDIOUS_INSTANCES = [
+            'https://inv.nadeko.net',
+            'https://invidious.nikkosphere.com',
+            'https://iv.ggtyler.dev',
+            'https://invidious.privacydev.net',
+            'https://invidious.slipfox.xyz'
           ];
-          const videoItems = videoTopics.map((title, i) => {
-            const queryParam = encodeURIComponent(title);
-            return {
-              title: title,
-              url: `https://www.youtube.com/results?search_query=${queryParam}`,
-              thumbnail: `https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=600&q=80`,
-              description: `Watch live video coverage, highlights, and full presentations on ${escapeHtml(trimmed)} on YouTube.`,
-              publisher: 'YouTube',
-              duration: 'HD'
-            };
-          });
-          container.innerHTML = renderVideoResults(videoItems, trimmed);
+          let videoItems = [];
+          for (const inst of INVIDIOUS_INSTANCES) {
+            try {
+              const res = await Promise.race([
+                fetch(`${inst}/api/v1/search?q=${encodeURIComponent(trimmed)}&type=video&page=${page}`, { mode: 'cors' }),
+                new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 5000))
+              ]);
+              if (!res.ok) continue;
+              const data = await res.json();
+              if (Array.isArray(data) && data.length > 0) {
+                videoItems = data.slice(0, 20).map(v => ({
+                  title: v.title || 'Video',
+                  url: `https://www.youtube.com/watch?v=${v.videoId}`,
+                  thumbnail: (v.videoThumbnails && v.videoThumbnails[0] && v.videoThumbnails[0].url)
+                    ? v.videoThumbnails[0].url
+                    : `https://i.ytimg.com/vi/${v.videoId}/hqdefault.jpg`,
+                  description: v.description ? v.description.substring(0, 180) : `${v.author || 'YouTube'} • Watch on YouTube`,
+                  publisher: v.author || 'YouTube',
+                  duration: formatDuration(v.lengthSeconds),
+                  videoId: v.videoId
+                }));
+                break;
+              }
+            } catch (e) {
+              continue;
+            }
+          }
+          if (videoItems.length > 0) {
+            const hasNext = videoItems.length >= 15 && page < 50;
+            const paginHtml = renderPagination(page, hasNext ? Math.min(50, page + 5) : page, hasNext);
+            container.innerHTML = renderVideoResults(videoItems, trimmed) + paginHtml;
+          } else {
+            // Last resort: link to YouTube search
+            container.innerHTML = `
+              <div class="status-card">
+                <div class="status-icon" style="color:#ff0000;"><i class="fa-brands fa-youtube"></i></div>
+                <div class="status-title">Search videos for "${escapeHtml(trimmed)}" on YouTube</div>
+                <div class="status-desc">The local search backend isn't running. Start it with <code>uvicorn lgks:app --reload</code> for full video results, or click below to search YouTube directly.</div>
+                <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(trimmed)}" target="_blank" rel="noopener noreferrer" class="video-watch-btn" style="display:inline-flex;margin-top:1rem;">
+                  <i class="fa-brands fa-youtube me-2"></i> Search on YouTube
+                </a>
+              </div>`;
+          }
           return;
         }
 
         if (type === 'news') {
-          const wikiNewsUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(trimmed + ' news')}&srlimit=20&utf8=&format=json&origin=*`;
+          const offset = (page - 1) * 20;
+          const wikiNewsUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(trimmed + ' news')}&srlimit=20&sroffset=${offset}&utf8=&format=json&origin=*`;
           const res = await fetch(wikiNewsUrl);
           const data = await res.json();
           const items = [];
@@ -2509,35 +2549,34 @@
                 title: s.title,
                 url: `https://en.wikipedia.org/wiki/${encodeURIComponent(s.title)}`,
                 snippet: s.snippet ? s.snippet.replace(/<[^>]+>/g, '') : '',
-                source: 'News & Current Affairs',
+                source: 'Wikipedia News',
                 date: s.timestamp
               });
             });
           }
           if (items.length > 0) {
-            container.innerHTML = renderNewsResults(items, trimmed);
+            const hasNext = items.length >= 20;
+            const paginHtml = renderPagination(page, hasNext ? page + 5 : page, hasNext);
+            container.innerHTML = renderNewsResults(items, trimmed) + paginHtml;
           } else {
             container.innerHTML = renderEmptyState(trimmed);
           }
           return;
         }
 
-        // Default: Web / All (25+ rich web results)
+        // Default: Web / All
+        const sroffset = (page - 1) * 25;
         const [wikiRes, ddgRes] = await Promise.allSettled([
-          fetch(`https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(trimmed)}&srlimit=25&utf8=&format=json&origin=*`).then(r => r.json()),
-          fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(trimmed)}&format=json&pretty=1`).then(r => r.json())
+          fetch(`https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(trimmed)}&srlimit=25&sroffset=${sroffset}&utf8=&format=json&origin=*`).then(r => r.json()),
+          page === 1 ? fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(trimmed)}&format=json&pretty=1`).then(r => r.json()) : Promise.resolve(null)
         ]);
 
         const webItems = [];
 
-        if (ddgRes.status === 'fulfilled' && ddgRes.value) {
+        if (page === 1 && ddgRes.status === 'fulfilled' && ddgRes.value) {
           const ddg = ddgRes.value;
           if (ddg.AbstractText && ddg.AbstractURL) {
-            webItems.push({
-              title: ddg.Heading || trimmed,
-              url: ddg.AbstractURL,
-              snippet: ddg.AbstractText
-            });
+            webItems.push({ title: ddg.Heading || trimmed, url: ddg.AbstractURL, snippet: ddg.AbstractText });
           }
           if (Array.isArray(ddg.RelatedTopics)) {
             ddg.RelatedTopics.forEach(t => {
@@ -2563,10 +2602,12 @@
         }
 
         if (webItems.length > 0) {
+          const hasNext = webItems.length >= 25;
+          const paginHtml = renderPagination(page, hasNext ? Math.min(50, page + 5) : page, hasNext);
           if (type === 'all') {
-            container.innerHTML = renderAllResults({ web: webItems, images: [], videos: [], news: [] }, trimmed);
+            container.innerHTML = renderAllResults({ web: webItems, images: [], videos: [], news: [] }, trimmed) + paginHtml;
           } else {
-            container.innerHTML = renderWebResults(webItems, trimmed);
+            container.innerHTML = renderWebResults(webItems, trimmed) + paginHtml;
           }
         } else {
           container.innerHTML = renderEmptyState(trimmed);
