@@ -1946,6 +1946,82 @@
         localStorage.removeItem(HIST_KEY);
       }
 
+      // Live autocomplete fetcher (Google Suggest with Wikipedia fallback)
+      let activeJsonpScript = null;
+      let debounceTimer = null;
+
+      function fetchLiveCompletions(query, callback) {
+        const q = (query || '').trim();
+        if (!q) {
+          callback([]);
+          return;
+        }
+
+        const cbName = '__hind_suggest_' + Math.floor(Math.random() * 1000000);
+        let done = false;
+
+        if (activeJsonpScript && activeJsonpScript.parentNode) {
+          activeJsonpScript.parentNode.removeChild(activeJsonpScript);
+          activeJsonpScript = null;
+        }
+
+        const timeout = setTimeout(function() {
+          if (done) return;
+          done = true;
+          cleanup();
+          fetch('https://en.wikipedia.org/w/api.php?action=opensearch&search=' + encodeURIComponent(q) + '&limit=8&namespace=0&format=json&origin=*')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+              if (Array.isArray(data) && Array.isArray(data[1])) {
+                callback(data[1]);
+              } else {
+                callback([]);
+              }
+            })
+            .catch(function() { callback([]); });
+        }, 800);
+
+        function cleanup() {
+          clearTimeout(timeout);
+          try { delete window[cbName]; } catch(_) {}
+          if (activeJsonpScript && activeJsonpScript.parentNode) {
+            activeJsonpScript.parentNode.removeChild(activeJsonpScript);
+            activeJsonpScript = null;
+          }
+        }
+
+        window[cbName] = function(data) {
+          if (done) return;
+          done = true;
+          cleanup();
+          if (Array.isArray(data) && Array.isArray(data[1])) {
+            callback(data[1]);
+          } else {
+            callback([]);
+          }
+        };
+
+        const script = document.createElement('script');
+        script.src = 'https://suggestqueries.google.com/complete/search?client=chrome&q=' + encodeURIComponent(q) + '&callback=' + cbName;
+        script.onerror = function() {
+          if (done) return;
+          done = true;
+          cleanup();
+          fetch('https://en.wikipedia.org/w/api.php?action=opensearch&search=' + encodeURIComponent(q) + '&limit=8&namespace=0&format=json&origin=*')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+              if (Array.isArray(data) && Array.isArray(data[1])) {
+                callback(data[1]);
+              } else {
+                callback([]);
+              }
+            })
+            .catch(function() { callback([]); });
+        };
+        activeJsonpScript = script;
+        document.head.appendChild(script);
+      }
+
       function setupSuggestionsForInput(inputEl, formEl) {
         if (!inputEl) return;
 
@@ -1961,140 +2037,218 @@
         }
 
         let activeIndex = -1;
+        let currentItems = [];
 
-        function renderDropdown() {
-          const q = inputEl.value.trim().toLowerCase();
-          const history = getHistory();
-          const matches = history.filter(item => !q || item.toLowerCase().includes(q));
+        function renderList(historyMatches, liveSuggestions, query) {
+          const q = (query || '').trim().toLowerCase();
 
-          if (matches.length === 0) {
+          const items = [];
+          const seen = new Set();
+
+          historyMatches.forEach(function(text) {
+            const lower = text.toLowerCase();
+            if (!seen.has(lower)) {
+              seen.add(lower);
+              items.push({ text: text, isHistory: true });
+            }
+          });
+
+          liveSuggestions.forEach(function(text) {
+            const lower = text.toLowerCase();
+            if (!seen.has(lower)) {
+              seen.add(lower);
+              items.push({ text: text, isHistory: false });
+            }
+          });
+
+          currentItems = items.slice(0, 10);
+
+          if (currentItems.length === 0) {
             dropdown.classList.remove('open');
             dropdown.innerHTML = '';
             activeIndex = -1;
             return;
           }
 
-          let html = `
-            <div class="suggest-header">
-              <span><i class="fa-regular fa-clock me-1"></i> Recent Searches</span>
-              <button type="button" class="suggest-clear-all" title="Clear all recent searches">
-                <i class="fa-solid fa-trash-can me-1"></i> Clear All
-              </button>
-            </div>
-            <ul class="suggest-list">
-          `;
+          let hasHistory = currentItems.some(function(it) { return it.isHistory; });
 
-          matches.forEach((item, idx) => {
-            let displayHtml = escapeHtml(item);
+          let html = '';
+          if (hasHistory && !q) {
+            html += `
+              <div class="suggest-header">
+                <span><i class="fa-regular fa-clock me-1"></i> Recent Searches</span>
+                <button type="button" class="suggest-clear-all" title="Clear all recent searches">
+                  <i class="fa-solid fa-trash-can me-1"></i> Clear All
+                </button>
+              </div>
+            `;
+          } else if (hasHistory && q) {
+            html += `
+              <div class="suggest-header">
+                <span><i class="fa-solid fa-clock-rotate-left me-1"></i> Recent &amp; Suggestions</span>
+                <button type="button" class="suggest-clear-all" title="Clear all recent searches">
+                  <i class="fa-solid fa-trash-can me-1"></i> Clear History
+                </button>
+              </div>
+            `;
+          }
+
+          html += '<ul class="suggest-list">';
+
+          currentItems.forEach(function(item, idx) {
+            let displayHtml = escapeHtml(item.text);
             if (q) {
-              const reg = new RegExp(`(${escapeRegExp(q)})`, 'gi');
-              displayHtml = escapeHtml(item).replace(reg, '<span class="suggest-match-hl">$1</span>');
+              const reg = new RegExp('(' + escapeRegExp(q) + ')', 'gi');
+              displayHtml = escapeHtml(item.text).replace(reg, '<span class="suggest-match-hl">$1</span>');
             }
 
+            const iconClass = item.isHistory ? 'fa-regular fa-clock' : 'fa-solid fa-magnifying-glass';
+            const deleteBtn = item.isHistory ? `
+              <button type="button" class="suggest-delete-btn" title="Remove from history" data-query="${escapeHtml(item.text)}">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            ` : `
+              <i class="fa-solid fa-arrow-turn-up suggest-arrow-icon" style="opacity:0.35; font-size:0.75rem; transform: rotate(90deg); margin-right: 4px;"></i>
+            `;
+
             html += `
-              <li class="suggest-item ${idx === activeIndex ? 'active' : ''}" data-query="${escapeHtml(item)}">
+              <li class="suggest-item ${idx === activeIndex ? 'active' : ''}" data-query="${escapeHtml(item.text)}" data-idx="${idx}">
                 <div class="suggest-item-left">
-                  <i class="fa-regular fa-clock suggest-item-icon"></i>
+                  <i class="${iconClass} suggest-item-icon"></i>
                   <span>${displayHtml}</span>
                 </div>
-                <button type="button" class="suggest-delete-btn" title="Remove from history" data-query="${escapeHtml(item)}">
-                  <i class="fa-solid fa-xmark"></i>
-                </button>
+                ${deleteBtn}
               </li>
             `;
           });
 
-          html += `</ul>`;
+          html += '</ul>';
           dropdown.innerHTML = html;
           dropdown.classList.add('open');
 
-          // Clear All button click listener with animation
           const clearBtn = dropdown.querySelector('.suggest-clear-all');
           if (clearBtn) {
-            clearBtn.addEventListener('click', (e) => {
+            clearBtn.addEventListener('click', function(e) {
               e.stopPropagation();
-              const items = dropdown.querySelectorAll('.suggest-item');
-              items.forEach(el => el.classList.add('removing'));
-              setTimeout(() => {
+              const liElements = dropdown.querySelectorAll('.suggest-item');
+              liElements.forEach(function(el) { el.classList.add('removing'); });
+              setTimeout(function() {
                 clearAllHistory();
-                dropdown.classList.remove('open');
-                dropdown.innerHTML = '';
-              }, 220);
+                updateSuggestions();
+              }, 200);
             });
           }
 
-          // Individual Delete button click listeners with animation
-          dropdown.querySelectorAll('.suggest-delete-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
+          dropdown.querySelectorAll('.suggest-delete-btn').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
               e.stopPropagation();
               const queryToDelete = btn.dataset.query;
               const li = btn.closest('.suggest-item');
               if (li) {
                 li.classList.add('removing');
-                setTimeout(() => {
+                setTimeout(function() {
                   deleteHistoryItem(queryToDelete);
-                  renderDropdown();
-                }, 220);
+                  updateSuggestions();
+                }, 200);
               }
             });
           });
 
-          // Click item to search
-          dropdown.querySelectorAll('.suggest-item').forEach(itemEl => {
-            itemEl.addEventListener('click', (e) => {
+          dropdown.querySelectorAll('.suggest-item').forEach(function(itemEl) {
+            itemEl.addEventListener('click', function(e) {
               if (e.target.closest('.suggest-delete-btn')) return;
-              const query = itemEl.dataset.query;
-              inputEl.value = query;
-              saveHistory(query);
+              const selectedQuery = itemEl.dataset.query;
+              inputEl.value = selectedQuery;
+              saveHistory(selectedQuery);
               dropdown.classList.remove('open');
-              if (formEl) formEl.submit();
-              else window.location.href = 'search.html?q=' + encodeURIComponent(query);
+              if (formEl) {
+                formEl.submit();
+              } else {
+                window.location.href = 'search.html?q=' + encodeURIComponent(selectedQuery);
+              }
             });
           });
         }
 
-        // Input listeners
-        inputEl.addEventListener('focus', () => renderDropdown());
-        inputEl.addEventListener('input', () => renderDropdown());
+        function updateSuggestions() {
+          const rawQ = inputEl.value;
+          const q = rawQ.trim().toLowerCase();
+          const history = getHistory();
+          const historyMatches = history.filter(function(item) {
+            return !q || item.toLowerCase().includes(q);
+          });
 
-        // Keyboard navigation
-        inputEl.addEventListener('keydown', (e) => {
+          if (!q) {
+            renderList(historyMatches, [], '');
+            return;
+          }
+
+          renderList(historyMatches, [], rawQ);
+
+          clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(function() {
+            fetchLiveCompletions(rawQ, function(liveSuggestions) {
+              if (inputEl.value.trim().toLowerCase() === q) {
+                renderList(historyMatches, liveSuggestions, rawQ);
+              }
+            });
+          }, 120);
+        }
+
+        inputEl.addEventListener('focus', updateSuggestions);
+        inputEl.addEventListener('input', updateSuggestions);
+
+        inputEl.addEventListener('keydown', function(e) {
           const items = dropdown.querySelectorAll('.suggest-item');
           if (!dropdown.classList.contains('open') || !items.length) return;
 
           if (e.key === 'ArrowDown') {
             e.preventDefault();
             activeIndex = (activeIndex + 1) % items.length;
-            renderDropdown();
+            updateActiveItemClass();
           } else if (e.key === 'ArrowUp') {
             e.preventDefault();
             activeIndex = (activeIndex - 1 + items.length) % items.length;
-            renderDropdown();
+            updateActiveItemClass();
           } else if (e.key === 'Enter' && activeIndex >= 0) {
             e.preventDefault();
             const selected = items[activeIndex];
             if (selected) {
-              const query = selected.dataset.query;
-              inputEl.value = query;
-              saveHistory(query);
+              const selectedQuery = selected.dataset.query;
+              inputEl.value = selectedQuery;
+              saveHistory(selectedQuery);
               dropdown.classList.remove('open');
-              if (formEl) formEl.submit();
-              else window.location.href = 'search.html?q=' + encodeURIComponent(query);
+              if (formEl) {
+                formEl.submit();
+              } else {
+                window.location.href = 'search.html?q=' + encodeURIComponent(selectedQuery);
+              }
             }
           } else if (e.key === 'Escape') {
             dropdown.classList.remove('open');
           }
         });
 
+        function updateActiveItemClass() {
+          const items = dropdown.querySelectorAll('.suggest-item');
+          items.forEach(function(el, idx) {
+            if (idx === activeIndex) {
+              el.classList.add('active');
+            } else {
+              el.classList.remove('active');
+            }
+          });
+        }
+
         if (formEl) {
-          formEl.addEventListener('submit', () => {
+          formEl.addEventListener('submit', function() {
             if (inputEl.value.trim()) {
               saveHistory(inputEl.value.trim());
             }
           });
         }
 
-        document.addEventListener('click', (e) => {
+        document.addEventListener('click', function(e) {
           if (!wrapper.contains(e.target)) {
             dropdown.classList.remove('open');
           }
