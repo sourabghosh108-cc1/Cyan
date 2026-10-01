@@ -594,33 +594,54 @@
       statusText.innerText = "Translating...";
       toText.setAttribute("placeholder", "Translating...");
 
-      // Extract 2-letter ISO 639-1 language codes for MyMemory API (e.g. ja-JP -> ja, ur-PK -> ur)
+      // Extract 2-letter ISO 639-1 language codes (e.g. ja-JP -> ja, ur-PK -> ur)
       let langFromCode = langFrom.split('-')[0];
       let langToCode = langTo.split('-')[0];
       if (langFrom === 'zh-CN') langFromCode = 'zh';
       if (langTo === 'zh-CN') langToCode = 'zh';
 
+      let translatedText = '';
+
+      // Primary: MyMemory API
       try {
         let apiUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${langFromCode}|${langToCode}`;
         let res = await fetch(apiUrl);
-        let data = await res.json();
-        
-        let translatedText = data.responseData ? data.responseData.translatedText : '';
-        if (data.matches && data.matches.length > 0) {
-          const zeroMatch = data.matches.find(m => m.id === 0 && m.translation);
-          if (zeroMatch) translatedText = zeroMatch.translation;
-        }
-
-        if (translatedText) {
-          toText.value = translatedText;
-          statusText.innerText = "Translated";
-        } else {
-          statusText.innerText = "No result";
+        if (res.ok) {
+          let data = await res.json();
+          if (data && data.responseStatus === 200 && data.responseData && data.responseData.translatedText) {
+            translatedText = data.responseData.translatedText;
+            if (data.matches && data.matches.length > 0) {
+              const zeroMatch = data.matches.find(m => m.id === 0 && m.translation);
+              if (zeroMatch) translatedText = zeroMatch.translation;
+            }
+          }
         }
       } catch (err) {
-        console.error(err);
+        console.log("MyMemory API limit/error, trying Google Translate cushion...");
+      }
+
+      // Cushion Fallback: Google Translate API (if MyMemory failed, erroring, or exhausted)
+      if (!translatedText) {
+        try {
+          let gUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${langFromCode}&tl=${langToCode}&dt=t&q=${encodeURIComponent(text)}`;
+          let res = await fetch(gUrl);
+          if (res.ok) {
+            let gData = await res.json();
+            if (gData && gData[0]) {
+              translatedText = gData[0].map(x => x[0]).filter(Boolean).join('');
+            }
+          }
+        } catch (err) {
+          console.error("Google Translate API error:", err);
+        }
+      }
+
+      if (translatedText) {
+        toText.value = translatedText;
+        statusText.innerText = "Translated";
+      } else {
         statusText.innerText = "Error translating";
-        toText.value = "Translation error. Please check connection.";
+        toText.value = "Translation error. Please try again.";
       }
     }
 
