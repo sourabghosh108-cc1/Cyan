@@ -1,10 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Search Results - Hind.com</title>
-  <meta name="description" content="Search the web with Hind — powered by Google Custom Search with Shrishti AI answers.">
+  <meta name="description" content="Search the web with Hind — Bharat's Fast &amp; Secure Search Engine with Shrishti AI answers.">
   <link rel="icon" type="image/x-icon" href="icon.jpg">
   <link rel="apple-touch-icon" href="icon.jpg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -290,59 +290,506 @@
       40% { transform: translateY(-6px); opacity: 1; }
     }
 
+    /* ── SEARCH TABS NAV ── */
+    .search-tabs-nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 65px;
+      z-index: 190;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    .search-tabs-container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .search-tabs-container::-webkit-scrollbar {
+      display: none;
+    }
+
+    .search-tab-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      border: none;
+      background: transparent;
+      color: var(--ink-muted);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      position: relative;
+      white-space: nowrap;
+      transition: color 0.15s ease;
+      border-bottom: 3px solid transparent;
+    }
+
+    .search-tab-btn i {
+      font-size: 0.88rem;
+    }
+
+    .search-tab-btn:hover {
+      color: var(--blue);
+    }
+
+    .search-tab-btn.active {
+      color: var(--blue);
+      border-bottom-color: var(--blue);
+    }
+
+    [data-theme="dark"] .search-tab-btn.active {
+      color: #60a5fa;
+      border-bottom-color: #60a5fa;
+    }
+
     /* ── RESULTS AREA ── */
     .results-main {
       flex: 1;
-      padding: 1.5rem 1.5rem 2rem;
-      max-width: 900px;
+      padding: 1.5rem 1.5rem 2.5rem;
+      max-width: 960px;
       width: 100%;
       margin: 0 auto;
     }
 
-    .results-card {
+    .results-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1.15rem;
+    }
+
+    .search-meta-bar {
+      font-size: 0.84rem;
+      color: var(--ink-muted);
+      margin-bottom: 0.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .search-meta-query {
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    /* Web Result Card */
+    .web-result-card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 1.5rem;
+      padding: 1.25rem 1.4rem;
       box-shadow: var(--shadow-sm);
-      min-height: 400px;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
     }
 
-    /* Google CSE overrides */
-    .gsc-control-cse {
-      background: transparent !important;
-      border: none !important;
-      padding: 0 !important;
-      font-family: 'Plus Jakarta Sans', sans-serif !important;
+    .web-result-card:hover {
+      border-color: rgba(37, 99, 235, 0.4);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
     }
 
-    .gsc-search-box { display: none !important; }
-
-    .gsc-webResult.gsc-result,
-    .gsc-results .gsc-imageResult {
-      background: transparent !important;
-      border-color: var(--border) !important;
-      padding: 0.85rem 0 !important;
+    .result-cite-row {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.78rem;
+      color: #059669;
+      margin-bottom: 0.35rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
-    .gs-title, .gs-title b {
-      color: var(--blue) !important;
-      font-size: 1.05rem !important;
-      font-weight: 600 !important;
-      text-decoration: none !important;
+    [data-theme="dark"] .result-cite-row {
+      color: #34d399;
     }
 
-    .gs-title:hover { text-decoration: underline !important; }
-
-    .gs-snippet {
-      color: var(--ink) !important;
-      font-size: 0.92rem !important;
-      line-height: 1.55 !important;
+    .result-domain {
+      font-weight: 700;
+      color: var(--ink-muted);
     }
 
-    .gs-visibleUrl { color: #059669 !important; font-size: 0.82rem !important; }
+    .result-title {
+      font-size: 1.12rem;
+      font-weight: 700;
+      line-height: 1.4;
+      margin-bottom: 0.4rem;
+    }
 
-    .gsst_b { display: none !important; }
+    .result-title a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    [data-theme="dark"] .result-title a {
+      color: #60a5fa;
+    }
+
+    .result-title a:hover {
+      text-decoration: underline;
+    }
+
+    .result-snippet {
+      font-size: 0.92rem;
+      line-height: 1.6;
+      color: var(--ink);
+      word-break: break-word;
+    }
+
+    /* Images Grid */
+    .images-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1rem;
+    }
+
+    .image-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .image-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--blue);
+    }
+
+    .image-thumb-wrap {
+      width: 100%;
+      height: 160px;
+      background: rgba(0,0,0,0.04);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    [data-theme="dark"] .image-thumb-wrap {
+      background: rgba(255,255,255,0.04);
+    }
+
+    .image-thumb-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.25s ease;
+    }
+
+    .image-card:hover .image-thumb-wrap img {
+      transform: scale(1.05);
+    }
+
+    .image-meta {
+      padding: 0.65rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .image-title {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--ink);
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      line-height: 1.35;
+      text-decoration: none;
+    }
+
+    .image-title:hover {
+      color: var(--blue);
+      text-decoration: underline;
+    }
+
+    .image-source {
+      font-size: 0.72rem;
+      color: var(--ink-muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Video Cards */
+    .videos-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .video-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      display: flex;
+      gap: 1.25rem;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    }
+
+    .video-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: rgba(37,99,235,0.4);
+    }
+
+    .video-thumb-link {
+      flex-shrink: 0;
+      width: 180px;
+      height: 105px;
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+      background: #0f172a;
+      display: block;
+    }
+
+    .video-thumb-link img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.9;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+
+    .video-thumb-link:hover img {
+      transform: scale(1.04);
+      opacity: 1;
+    }
+
+    .video-play-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.3);
+      color: #ffffff;
+      font-size: 1.3rem;
+      pointer-events: none;
+    }
+
+    .video-info {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .video-publisher {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--blue);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    [data-theme="dark"] .video-publisher {
+      color: #60a5fa;
+    }
+
+    /* News Cards */
+    .news-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .news-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.2rem 1.4rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    }
+
+    .news-card:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+      border-color: rgba(37,99,235,0.4);
+    }
+
+    .news-meta-top {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.78rem;
+    }
+
+    .news-source-badge {
+      background: rgba(37,99,235,0.1);
+      color: var(--blue);
+      font-weight: 700;
+      padding: 0.15rem 0.55rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+    }
+
+    [data-theme="dark"] .news-source-badge {
+      background: rgba(96,165,250,0.15);
+      color: #60a5fa;
+    }
+
+    .news-date {
+      color: var(--ink-muted);
+    }
+
+    /* Multi-category "All" section styles */
+    .section-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem 1.4rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.65rem;
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    .section-header a {
+      font-size: 0.82rem;
+      color: var(--blue);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .section-header a:hover {
+      text-decoration: underline;
+    }
+
+    /* Skeleton Loading State */
+    .skeleton-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem 1.4rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .skeleton-line {
+      height: 14px;
+      border-radius: 6px;
+      background: linear-gradient(90deg, rgba(148,163,184,0.12) 25%, rgba(148,163,184,0.28) 50%, rgba(148,163,184,0.12) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+
+    .skeleton-line.short { width: 30%; height: 12px; }
+    .skeleton-line.title { width: 65%; height: 20px; }
+    .skeleton-line.snippet-1 { width: 95%; }
+    .skeleton-line.snippet-2 { width: 80%; }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    /* Empty and Error states */
+    .status-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .status-icon {
+      font-size: 2.5rem;
+      color: var(--ink-muted);
+      opacity: 0.7;
+      margin-bottom: 0.25rem;
+    }
+
+    .status-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    .status-desc {
+      font-size: 0.92rem;
+      color: var(--ink-muted);
+      max-width: 520px;
+      line-height: 1.6;
+    }
+
+    .status-code-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.6rem 1rem;
+      font-family: monospace;
+      font-size: 0.82rem;
+      color: var(--ink);
+      margin: 0.5rem 0;
+      text-align: left;
+    }
+
+    .retry-btn {
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 0.55rem 1.4rem;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .retry-btn:hover {
+      background: var(--blue-dark);
+      transform: translateY(-1px);
+    }
 
     /* ── SHRISHTI AI FAB ── */
     .ai-fab {
@@ -785,6 +1232,28 @@
     </div>
   </header>
 
+  <!-- ── SEARCH TABS NAV ── -->
+  <nav class="search-tabs-nav" aria-label="Search Categories">
+    <div class="search-tabs-container">
+      <button type="button" class="search-tab-btn active" data-type="all" id="tabAll">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <span>All</span>
+      </button>
+      <button type="button" class="search-tab-btn" data-type="images" id="tabImages">
+        <i class="fa-regular fa-image"></i>
+        <span>Images</span>
+      </button>
+      <button type="button" class="search-tab-btn" data-type="videos" id="tabVideos">
+        <i class="fa-solid fa-play"></i>
+        <span>Videos</span>
+      </button>
+      <button type="button" class="search-tab-btn" data-type="news" id="tabNews">
+        <i class="fa-regular fa-newspaper"></i>
+        <span>News</span>
+      </button>
+    </div>
+  </nav>
+
   <!-- ── MAIN ── -->
   <main class="results-main">
 
@@ -799,10 +1268,9 @@
       </div>
     </div>
 
-    <!-- Google CSE Results -->
-    <div class="results-card">
-      <script async src="https://cse.google.com/cse.js?cx=c04bc7b605f41d47f"></script>
-      <div class="gcse-search"></div>
+    <!-- Hind Search Results Container -->
+    <div id="searchResultsContainer" class="results-container" aria-live="polite">
+      <!-- Injected by JavaScript -->
     </div>
 
   </main>
@@ -846,7 +1314,7 @@
     <div class="footer-links">
       <a href="about.html">About &amp; Privacy Policy</a>
       <span>•</span>
-      <a href="https://cse.google.com/cse.js?cx=c04bc7b605f41d47f" target="_blank" rel="noopener">Open Source License</a>
+      <a href="LICENSE" target="_blank" rel="noopener">Open Source License</a>
       <span>•</span>
       <span>Copyright 2026 all rights reserved</span>
     </div>
@@ -982,21 +1450,521 @@
       }
     });
 
-    // ── URL Query → Search Input + AI Answer + Save History ──
-    const urlParams = new URLSearchParams(window.location.search);
-    const query = urlParams.get('q');
+    // ── HIND PYTHON SEARCH API INTEGRATION ──
+    const API_BASE_URL = "http://127.0.0.1:8000";
 
-    if (query) {
-      document.getElementById('searchInputHeader').value = query;
-      document.title = `${query} - Hind Search`;
+    let currentQuery = '';
+    let currentType = 'web';
+    let searchAbortController = null;
 
-      // Save to history
-      saveToHistory(query);
+    // Utility: HTML Escaping
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
 
-      // Show AI answer box and fetch answer
+    // Utility: URL Sanitization
+    function sanitizeUrl(url) {
+      if (!url) return '#';
+      try {
+        const parsed = new URL(url, window.location.href);
+        if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+          return parsed.href;
+        }
+      } catch (e) {}
+      return '#';
+    }
+
+    // Utility: Domain extraction
+    function getDomain(url) {
+      try {
+        const parsed = new URL(url);
+        return parsed.hostname.replace(/^www\./, '');
+      } catch (e) {
+        return 'web';
+      }
+    }
+
+    // Utility: URL Truncate
+    function truncateUrl(url, maxLen = 65) {
+      if (!url) return '';
+      return url.length <= maxLen ? url : url.substring(0, maxLen) + '...';
+    }
+
+    // Utility: Date formatter
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      try {
+        const d = new Date(dateStr);
+        if (!isNaN(d.getTime())) {
+          return d.toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+      } catch (e) {}
+      return dateStr;
+    }
+
+    // Update Tab UI
+    function setActiveTabUI(type) {
+      document.querySelectorAll('.search-tab-btn').forEach(btn => {
+        const btnType = btn.dataset.type;
+        if ((type === 'web' || type === 'all') && btnType === 'all') {
+          btn.classList.add('active');
+        } else if (btnType === type) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+    }
+
+    // Render Skeletons during Loading
+    function renderLoadingSkeletons(query, type) {
+      const container = document.getElementById('searchResultsContainer');
+      let skeletonsHtml = `
+        <div class="search-meta-bar">
+          <span><i class="fa-solid fa-spinner fa-spin me-2" style="color:var(--blue);"></i>Searching Hind for <strong class="search-meta-query">${escapeHtml(query)}</strong>...</span>
+        </div>
+      `;
+
+      if (type === 'images') {
+        skeletonsHtml += `<div class="images-grid">`;
+        for (let i = 0; i < 8; i++) {
+          skeletonsHtml += `
+            <div class="image-card">
+              <div class="image-thumb-wrap" style="height:150px;">
+                <div class="skeleton-line" style="width:100%;height:100%;"></div>
+              </div>
+              <div class="image-meta">
+                <div class="skeleton-line title" style="width:85%;height:14px;"></div>
+                <div class="skeleton-line short" style="width:50%;height:10px;"></div>
+              </div>
+            </div>
+          `;
+        }
+        skeletonsHtml += `</div>`;
+      } else {
+        for (let i = 0; i < 4; i++) {
+          skeletonsHtml += `
+            <div class="skeleton-card">
+              <div class="skeleton-line short"></div>
+              <div class="skeleton-line title"></div>
+              <div class="skeleton-line snippet-1"></div>
+              <div class="skeleton-line snippet-2"></div>
+            </div>
+          `;
+        }
+      }
+
+      container.innerHTML = skeletonsHtml;
+    }
+
+    // Render Web Results
+    function renderWebResults(items, query) {
+      let html = `
+        <div class="search-meta-bar">
+          <span>About ${items.length} results for <strong class="search-meta-query">${escapeHtml(query)}</strong></span>
+        </div>
+      `;
+      items.forEach(item => {
+        const safeUrl = sanitizeUrl(item.url);
+        const domain = getDomain(item.url);
+        html += `
+          <article class="web-result-card">
+            <div class="result-cite-row">
+              <i class="fa-solid fa-globe" style="font-size: 0.75rem; opacity: 0.7;"></i>
+              <span class="result-domain">${escapeHtml(domain)}</span>
+              <span class="result-url-path">${escapeHtml(truncateUrl(item.url))}</span>
+            </div>
+            <h2 class="result-title">
+              <a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.title || 'Untitled Result')}</a>
+            </h2>
+            <p class="result-snippet">${escapeHtml(item.snippet || 'No description available.')}</p>
+          </article>
+        `;
+      });
+      return html;
+    }
+
+    // Render Image Results
+    function renderImageResults(items, query) {
+      let html = `
+        <div class="search-meta-bar">
+          <span>Found ${items.length} images for <strong class="search-meta-query">${escapeHtml(query)}</strong></span>
+        </div>
+        <div class="images-grid">
+      `;
+      items.forEach(item => {
+        const safeImg = sanitizeUrl(item.image || item.thumbnail);
+        const safeThumb = sanitizeUrl(item.thumbnail || item.image);
+        const safeSource = sanitizeUrl(item.source || item.image);
+        const domain = getDomain(item.source || item.image);
+        html += `
+          <div class="image-card">
+            <a href="${safeImg}" target="_blank" rel="noopener noreferrer" class="image-thumb-wrap" title="${escapeHtml(item.title || 'Image')}">
+              <img src="${safeThumb}" alt="${escapeHtml(item.title || 'Image')}" loading="lazy" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 100 100\\'%3E%3Crect width=\\'100\\' height=\\'100\\' fill=\\'%23eee\\'/%3E%3Ctext x=\\'50\\' y=\\'55\\' font-family=\\'sans-serif\\' font-size=\\'12\\' text-anchor=\\'middle\\' fill=\\'%23999\\'%3EImage%3C/text%3E%3C/svg%3E'" />
+            </a>
+            <div class="image-meta">
+              <a href="${safeSource}" target="_blank" rel="noopener noreferrer" class="image-title">${escapeHtml(item.title || 'View image source')}</a>
+              <span class="image-source">${escapeHtml(domain)}</span>
+            </div>
+          </div>
+        `;
+      });
+      html += `</div>`;
+      return html;
+    }
+
+    // Render Video Results
+    function renderVideoResults(items, query) {
+      let html = `
+        <div class="search-meta-bar">
+          <span>Found ${items.length} videos for <strong class="search-meta-query">${escapeHtml(query)}</strong></span>
+        </div>
+        <div class="videos-list">
+      `;
+      items.forEach(item => {
+        const safeUrl = sanitizeUrl(item.url);
+        const safeThumb = sanitizeUrl(item.thumbnail);
+        html += `
+          <article class="video-card">
+            <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="video-thumb-link">
+              ${safeThumb !== '#' ? `<img src="${safeThumb}" alt="${escapeHtml(item.title || 'Video')}" loading="lazy" onerror="this.style.display='none'" />` : ''}
+              <div class="video-play-overlay"><i class="fa-solid fa-play"></i></div>
+            </a>
+            <div class="video-info">
+              <div class="video-publisher">
+                <i class="fa-solid fa-circle-play"></i>
+                <span>${escapeHtml(item.publisher || 'Video')}</span>
+              </div>
+              <h2 class="result-title">
+                <a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.title || 'Untitled Video')}</a>
+              </h2>
+              <p class="result-snippet">${escapeHtml(item.description || '')}</p>
+            </div>
+          </article>
+        `;
+      });
+      html += `</div>`;
+      return html;
+    }
+
+    // Render News Results
+    function renderNewsResults(items, query) {
+      let html = `
+        <div class="search-meta-bar">
+          <span>Found ${items.length} news stories for <strong class="search-meta-query">${escapeHtml(query)}</strong></span>
+        </div>
+        <div class="news-list">
+      `;
+      items.forEach(item => {
+        const safeUrl = sanitizeUrl(item.url);
+        const dateStr = formatDate(item.date);
+        html += `
+          <article class="news-card">
+            <div class="news-meta-top">
+              <span class="news-source-badge">${escapeHtml(item.source || 'News')}</span>
+              ${dateStr ? `<span class="news-date">• ${escapeHtml(dateStr)}</span>` : ''}
+            </div>
+            <h2 class="result-title">
+              <a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.title || 'News story')}</a>
+            </h2>
+            <p class="result-snippet">${escapeHtml(item.snippet || '')}</p>
+          </article>
+        `;
+      });
+      html += `</div>`;
+      return html;
+    }
+
+    // Render Multi-Category (Universal / All) Results
+    function renderAllResults(data, query) {
+      let html = `
+        <div class="search-meta-bar">
+          <span>Universal search results for <strong class="search-meta-query">${escapeHtml(query)}</strong></span>
+        </div>
+      `;
+
+      const webItems = Array.isArray(data.web) ? data.web : [];
+      const imageItems = Array.isArray(data.images) ? data.images : [];
+      const videoItems = Array.isArray(data.videos) ? data.videos : [];
+      const newsItems = Array.isArray(data.news) ? data.news : [];
+
+      // Top 3 Web Results
+      if (webItems.length > 0) {
+        webItems.slice(0, 3).forEach(item => {
+          const safeUrl = sanitizeUrl(item.url);
+          const domain = getDomain(item.url);
+          html += `
+            <article class="web-result-card">
+              <div class="result-cite-row">
+                <i class="fa-solid fa-globe" style="font-size: 0.75rem; opacity: 0.7;"></i>
+                <span class="result-domain">${escapeHtml(domain)}</span>
+                <span class="result-url-path">${escapeHtml(truncateUrl(item.url))}</span>
+              </div>
+              <h2 class="result-title">
+                <a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.title || 'Untitled')}</a>
+              </h2>
+              <p class="result-snippet">${escapeHtml(item.snippet || '')}</p>
+            </article>
+          `;
+        });
+      }
+
+      // Images preview strip
+      if (imageItems.length > 0) {
+        html += `
+          <section class="section-block">
+            <div class="section-header">
+              <span><i class="fa-regular fa-image me-2 text-primary"></i>Images for ${escapeHtml(query)}</span>
+              <a href="#" onclick="event.preventDefault(); navigateToSearch('${escapeHtml(query)}', 'images')">View all images <i class="fa-solid fa-arrow-right ms-1"></i></a>
+            </div>
+            <div class="images-strip" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 0.65rem;">
+        `;
+        imageItems.slice(0, 6).forEach(item => {
+          const safeImg = sanitizeUrl(item.image || item.thumbnail);
+          const safeThumb = sanitizeUrl(item.thumbnail || item.image);
+          html += `
+            <a href="${safeImg}" target="_blank" rel="noopener noreferrer" class="image-strip-thumb" style="border-radius: 8px; overflow: hidden; height: 100px; display: block; background: rgba(0,0,0,0.05);" title="${escapeHtml(item.title)}">
+              <img src="${safeThumb}" alt="${escapeHtml(item.title || 'Image')}" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy" onerror="this.style.display='none'" />
+            </a>
+          `;
+        });
+        html += `</div></section>`;
+      }
+
+      // Videos preview
+      if (videoItems.length > 0) {
+        html += `
+          <section class="section-block">
+            <div class="section-header">
+              <span><i class="fa-solid fa-play me-2 text-danger"></i>Videos for ${escapeHtml(query)}</span>
+              <a href="#" onclick="event.preventDefault(); navigateToSearch('${escapeHtml(query)}', 'videos')">View all videos <i class="fa-solid fa-arrow-right ms-1"></i></a>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+        `;
+        videoItems.slice(0, 2).forEach(item => {
+          const safeUrl = sanitizeUrl(item.url);
+          const safeThumb = sanitizeUrl(item.thumbnail);
+          html += `
+            <div class="video-card" style="padding: 0.75rem;">
+              <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="video-thumb-link" style="width: 140px; height: 85px;">
+                ${safeThumb !== '#' ? `<img src="${safeThumb}" alt="${escapeHtml(item.title || 'Video')}" loading="lazy" />` : ''}
+                <div class="video-play-overlay"><i class="fa-solid fa-play" style="font-size: 1rem;"></i></div>
+              </a>
+              <div class="video-info">
+                <div class="video-publisher"><i class="fa-solid fa-circle-play"></i>${escapeHtml(item.publisher || 'Video')}</div>
+                <h3 class="result-title" style="font-size: 0.98rem; margin-bottom: 0.2rem;">
+                  <a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.title || 'Video')}</a>
+                </h3>
+                <p class="result-snippet" style="font-size: 0.84rem;">${escapeHtml(item.description || '')}</p>
+              </div>
+            </div>
+          `;
+        });
+        html += `</div></section>`;
+      }
+
+      // News preview
+      if (newsItems.length > 0) {
+        html += `
+          <section class="section-block">
+            <div class="section-header">
+              <span><i class="fa-regular fa-newspaper me-2 text-success"></i>Latest News for ${escapeHtml(query)}</span>
+              <a href="#" onclick="event.preventDefault(); navigateToSearch('${escapeHtml(query)}', 'news')">View all news <i class="fa-solid fa-arrow-right ms-1"></i></a>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+        `;
+        newsItems.slice(0, 2).forEach(item => {
+          const safeUrl = sanitizeUrl(item.url);
+          const dateStr = formatDate(item.date);
+          html += `
+            <div class="news-card" style="padding: 0.85rem 1rem;">
+              <div class="news-meta-top">
+                <span class="news-source-badge">${escapeHtml(item.source || 'News')}</span>
+                ${dateStr ? `<span class="news-date">• ${escapeHtml(dateStr)}</span>` : ''}
+              </div>
+              <h3 class="result-title" style="font-size: 1rem; margin-bottom: 0.2rem;">
+                <a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.title || 'News')}</a>
+              </h3>
+              <p class="result-snippet" style="font-size: 0.86rem;">${escapeHtml(item.snippet || '')}</p>
+            </div>
+          `;
+        });
+        html += `</div></section>`;
+      }
+
+      // Remaining Web Results
+      if (webItems.length > 3) {
+        webItems.slice(3).forEach(item => {
+          const safeUrl = sanitizeUrl(item.url);
+          const domain = getDomain(item.url);
+          html += `
+            <article class="web-result-card">
+              <div class="result-cite-row">
+                <i class="fa-solid fa-globe" style="font-size: 0.75rem; opacity: 0.7;"></i>
+                <span class="result-domain">${escapeHtml(domain)}</span>
+                <span class="result-url-path">${escapeHtml(truncateUrl(item.url))}</span>
+              </div>
+              <h2 class="result-title">
+                <a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.title || 'Untitled')}</a>
+              </h2>
+              <p class="result-snippet">${escapeHtml(item.snippet || '')}</p>
+            </article>
+          `;
+        });
+      }
+
+      return html;
+    }
+
+    // Render Empty State
+    function renderEmptyState(query) {
+      return `
+        <div class="status-card">
+          <div class="status-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
+          <div class="status-title">No results found for "${escapeHtml(query)}"</div>
+          <div class="status-desc">
+            Try checking your spelling, using more general search terms, or exploring different categories like Images, Videos, or News.
+          </div>
+        </div>
+      `;
+    }
+
+    // Render Empty Query Prompt
+    function renderEmptyPrompt() {
+      return `
+        <div class="status-card">
+          <div class="status-icon" style="color: var(--blue);"><i class="fa-solid fa-compass"></i></div>
+          <div class="status-title">Search Bharat &amp; the Web</div>
+          <div class="status-desc">
+            Enter a search topic, question, or keyword in the search box above to explore web results, images, videos, and news.
+          </div>
+        </div>
+      `;
+    }
+
+    // Render Connection Error
+    function renderConnectionError(query, type) {
+      return `
+        <div class="status-card" style="border-left: 4px solid #ef4444;">
+          <div class="status-icon" style="color: #ef4444;"><i class="fa-solid fa-triangle-exclamation"></i></div>
+          <div class="status-title">Hind Search Service Unavailable</div>
+          <div class="status-desc">
+            Unable to connect to the Python search API at <code>${escapeHtml(API_BASE_URL)}</code>. Please ensure the backend is running:
+          </div>
+          <div class="status-code-box">
+            py -m uvicorn lgks:app --host 127.0.0.1 --port 8000
+          </div>
+          <button type="button" class="retry-btn" onclick="performSearch('${escapeHtml(query)}', '${escapeHtml(type)}')">
+            <i class="fa-solid fa-rotate-right"></i> Retry Search
+          </button>
+        </div>
+      `;
+    }
+
+    // Perform Search API Request
+    async function performSearch(query, type = 'web') {
+      const trimmed = (query || '').trim();
+      currentQuery = trimmed;
+      currentType = type;
+      setActiveTabUI(type);
+
+      const container = document.getElementById('searchResultsContainer');
+
+      if (!trimmed) {
+        document.title = 'Search - Hind';
+        container.innerHTML = renderEmptyPrompt();
+        return;
+      }
+
+      document.title = `${trimmed} - Hind Search`;
+
+      if (searchAbortController) {
+        searchAbortController.abort();
+      }
+      searchAbortController = new AbortController();
+
+      renderLoadingSkeletons(trimmed, type);
+
+      const endpoint = `${API_BASE_URL}/api/search?q=${encodeURIComponent(trimmed)}&type=${encodeURIComponent(type)}&limit=15`;
+
+      try {
+        const response = await fetch(endpoint, { signal: searchAbortController.signal });
+
+        if (!response.ok) {
+          throw new Error(`Server returned HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.error) {
+          container.innerHTML = `
+            <div class="status-card">
+              <div class="status-icon" style="color: #ef4444;"><i class="fa-solid fa-circle-exclamation"></i></div>
+              <div class="status-title">Search Notice</div>
+              <div class="status-desc">${escapeHtml(data.error)}</div>
+            </div>
+          `;
+          return;
+        }
+
+        let hasResults = false;
+        let renderedHtml = '';
+
+        if (type === 'images') {
+          const items = Array.isArray(data.images) ? data.images : [];
+          hasResults = items.length > 0;
+          if (hasResults) renderedHtml = renderImageResults(items, trimmed);
+        } else if (type === 'videos') {
+          const items = Array.isArray(data.videos) ? data.videos : [];
+          hasResults = items.length > 0;
+          if (hasResults) renderedHtml = renderVideoResults(items, trimmed);
+        } else if (type === 'news') {
+          const items = Array.isArray(data.news) ? data.news : [];
+          hasResults = items.length > 0;
+          if (hasResults) renderedHtml = renderNewsResults(items, trimmed);
+        } else if (type === 'all') {
+          const hasWeb = Array.isArray(data.web) && data.web.length > 0;
+          const hasImg = Array.isArray(data.images) && data.images.length > 0;
+          const hasVid = Array.isArray(data.videos) && data.videos.length > 0;
+          const hasNews = Array.isArray(data.news) && data.news.length > 0;
+          hasResults = hasWeb || hasImg || hasVid || hasNews;
+          if (hasResults) renderedHtml = renderAllResults(data, trimmed);
+        } else {
+          // Default: web
+          const items = Array.isArray(data.web) ? data.web : [];
+          hasResults = items.length > 0;
+          if (hasResults) renderedHtml = renderWebResults(items, trimmed);
+        }
+
+        if (hasResults) {
+          container.innerHTML = renderedHtml;
+        } else {
+          container.innerHTML = renderEmptyState(trimmed);
+        }
+
+      } catch (err) {
+        if (err.name === 'AbortError') return;
+        console.error('Hind Search API Error:', err);
+        container.innerHTML = renderConnectionError(trimmed, type);
+      }
+    }
+
+    // Trigger Shrishti AI Answer Box
+    function triggerAiAnswer(query) {
       const aiAnswerBox     = document.getElementById('aiSearchAnswer');
       const aiAnswerContent = document.getElementById('aiSearchAnswerContent');
+      if (!query || !query.trim()) {
+        aiAnswerBox.style.display = 'none';
+        return;
+      }
       aiAnswerBox.style.display = 'block';
+      aiAnswerContent.innerHTML = `<div class="ai-typing-dots"><span></span><span></span><span></span></div>&nbsp;Generating answer...`;
 
       fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
@@ -1028,6 +1996,70 @@
         aiAnswerContent.textContent = 'AI answer unavailable right now.';
       });
     }
+
+    // Navigate to Search with URL update
+    function navigateToSearch(query, type) {
+      const trimmed = (query || '').trim();
+      const currentParamType = (type === 'all' || type === 'images' || type === 'videos' || type === 'news') ? type : 'web';
+      const searchUrl = `search.html?q=${encodeURIComponent(trimmed)}${currentParamType !== 'web' ? '&type=' + encodeURIComponent(currentParamType) : ''}`;
+      window.history.pushState({ q: trimmed, type: currentParamType }, '', searchUrl);
+      if (trimmed) saveToHistory(trimmed);
+      triggerAiAnswer(trimmed);
+      performSearch(trimmed, currentParamType);
+    }
+
+    // Tab buttons event listeners
+    document.querySelectorAll('.search-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tabType = btn.dataset.type; // 'all', 'images', 'videos', 'news'
+        const q = document.getElementById('searchInputHeader').value.trim() || currentQuery;
+        if (!q) {
+          currentType = tabType;
+          setActiveTabUI(tabType);
+          return;
+        }
+        navigateToSearch(q, tabType);
+      });
+    });
+
+    // Header search form submit
+    const searchHeaderForm = document.getElementById('searchHeaderForm');
+    searchHeaderForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const q = document.getElementById('searchInputHeader').value.trim();
+      if (!q) return;
+      // Normal search defaults to 'web' unless already browsing images, videos, or news
+      const targetType = (currentType === 'images' || currentType === 'videos' || currentType === 'news') ? currentType : 'web';
+      navigateToSearch(q, targetType);
+    });
+
+    // Handle browser Back / Forward buttons
+    window.addEventListener('popstate', () => {
+      initFromUrl();
+    });
+
+    // Initialize from URL parameters
+    function initFromUrl() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const q = urlParams.get('q') || '';
+      const rawType = (urlParams.get('type') || '').toLowerCase();
+      // Valid types: web, images, videos, news, all
+      const type = (rawType === 'images' || rawType === 'videos' || rawType === 'news' || rawType === 'all') ? rawType : 'web';
+
+      document.getElementById('searchInputHeader').value = q;
+      setActiveTabUI(type);
+
+      if (q) {
+        saveToHistory(q);
+        triggerAiAnswer(q);
+        performSearch(q, type);
+      } else {
+        performSearch('', type);
+      }
+    }
+
+    // Run on page load
+    initFromUrl();
 
     // ── AI Chatbot FAB ──
     const aiFab      = document.getElementById('aiFab');
