@@ -106,7 +106,7 @@ def image_search(query, page=1, limit=25):
     return []
 
 
-def fetch_youtube_videos(query, page=1, limit=20):
+def fetch_youtube_videos(query, page=1, limit=25):
     encoded_q = urllib.parse.quote(query)
     url = f"https://www.youtube.com/results?search_query={encoded_q}"
     headers = {
@@ -165,10 +165,10 @@ def fetch_youtube_videos(query, page=1, limit=20):
     return []
 
 
-def video_search(query, page=1, limit=20):
+def video_search(query, page=1, limit=25):
     yt_results = fetch_youtube_videos(query, page=page, limit=limit)
-    if yt_results and len(yt_results) >= 5:
-        return yt_results
+    if yt_results and len(yt_results) >= limit:
+        return yt_results[:limit]
 
     items = list(yt_results) if yt_results else []
     seen_urls = {item["url"] for item in items}
@@ -337,7 +337,7 @@ async def search(
 
     elif type == "videos":
         videos = await run_search(video_search, query, page, limit)
-        has_next = isinstance(videos, list) and len(videos) >= limit and page < 50
+        has_next = isinstance(videos, list) and len(videos) > 0 and page < 50
         response = {
             "query": q,
             "type": "videos",
