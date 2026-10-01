@@ -321,6 +321,30 @@ async def search(
     return response
 
 
+@app.get("/api/autocomplete")
+def autocomplete(q: str = Query(..., min_length=1)):
+    query = q.strip()
+    if not query:
+        return []
+    try:
+        url = f"https://duckduckgo.com/ac/?q={urllib.parse.quote(query)}"
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=3) as res:
+            data = json.loads(res.read().decode('utf-8'))
+            return [x.get("phrase") for x in data if "phrase" in x]
+    except Exception:
+        pass
+    try:
+        url = f"https://suggestqueries.google.com/complete/search?client=chrome&q={urllib.parse.quote(query)}"
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=3) as res:
+            data = json.loads(res.read().decode('utf-8'))
+            return data[1] if isinstance(data, list) and len(data) > 1 else []
+    except Exception:
+        pass
+    return []
+
+
 @app.get("/")
 def health():
     return {

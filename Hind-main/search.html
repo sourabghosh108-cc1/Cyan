@@ -686,53 +686,65 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-
-    /* Video Cards */
+    /* Classy Video Cards & Grid Design */
     .videos-list {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 1.35rem;
+    }
+
+    @media (max-width: 640px) {
+      .videos-list {
+        grid-template-columns: 1fr;
+      }
     }
 
     .video-card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1rem;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.04);
       display: flex;
-      gap: 1.25rem;
-      box-shadow: var(--shadow-sm);
-      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+      flex-direction: column;
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+      position: relative;
     }
 
     .video-card:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-md);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.12);
       border-color: rgba(37,99,235,0.4);
     }
 
-    .video-thumb-link {
-      flex-shrink: 0;
-      width: 180px;
-      height: 105px;
-      border-radius: 8px;
-      overflow: hidden;
+    [data-theme="dark"] .video-card {
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+
+    [data-theme="dark"] .video-card:hover {
+      box-shadow: 0 12px 30px rgba(0,0,0,0.6);
+      border-color: rgba(96,165,250,0.4);
+    }
+
+        .video-thumb-link {
+      width: 100%;
+      height: 195px;
       position: relative;
-      background: #0f172a;
+      background: #090d16;
       display: block;
+      overflow: hidden;
+      cursor: pointer;
     }
 
     .video-thumb-link img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      opacity: 0.9;
-      transition: transform 0.2s, opacity 0.2s;
+      transition: transform 0.35s ease, opacity 0.3s ease;
     }
 
-    .video-thumb-link:hover img {
-      transform: scale(1.04);
-      opacity: 1;
+    .video-card:hover .video-thumb-link img {
+      transform: scale(1.05);
     }
 
     .video-play-overlay {
@@ -741,34 +753,270 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(0,0,0,0.3);
+      background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.55) 100%);
+      transition: background 0.25s ease;
+    }
+
+    .video-play-btn-circle {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: rgba(239, 68, 68, 0.92);
+      backdrop-filter: blur(8px);
       color: #ffffff;
-      font-size: 1.3rem;
-      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      padding-left: 3px;
+      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5);
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s;
+    }
+
+    .video-card:hover .video-play-btn-circle {
+      transform: scale(1.15);
+      background: #dc2626;
+      box-shadow: 0 8px 25px rgba(220, 38, 38, 0.7);
+    }
+
+    .video-duration-badge {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(6px);
+      color: #ffffff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.3px;
+    }
+
+    .video-platform-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(15, 23, 42, 0.82);
+      backdrop-filter: blur(6px);
+      color: #ffffff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .video-platform-badge i {
+      color: #ef4444;
     }
 
     .video-info {
-      flex: 1;
-      min-width: 0;
+      padding: 1.1rem 1.25rem 1.25rem;
       display: flex;
       flex-direction: column;
-      gap: 0.35rem;
+      flex: 1;
+      gap: 0.5rem;
+    }
+
+    .video-publisher-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
     }
 
     .video-publisher {
-      font-size: 0.76rem;
+      font-size: 0.8rem;
       font-weight: 700;
       color: var(--blue);
       display: inline-flex;
       align-items: center;
-      gap: 0.35rem;
+      gap: 0.4rem;
+      text-decoration: none;
     }
 
-    [data-theme="dark"] .video-publisher {
+    .video-publisher .publisher-avatar {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: rgba(37,99,235,0.12);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      color: var(--blue);
+    }
+
+    [data-theme="dark"] .video-publisher .publisher-avatar {
+      background: rgba(96,165,250,0.2);
       color: #60a5fa;
     }
 
-    /* News Cards */
+    .video-card .result-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      line-height: 1.38;
+      margin: 0;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .video-card .result-snippet {
+      font-size: 0.84rem;
+      color: var(--ink-muted);
+      line-height: 1.45;
+      margin: 0;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .video-footer-actions {
+      margin-top: auto;
+      padding-top: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--border);
+    }
+
+    .video-watch-btn {
+      background: linear-gradient(135deg, var(--blue), #1d4ed8);
+      color: #ffffff !important;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 0.4rem 0.9rem;
+      border-radius: 8px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+
+    .video-watch-btn:hover {
+      opacity: 0.92;
+      transform: translateY(-1px);
+    }
+
+    .video-ext-btn {
+      color: var(--ink-muted);
+      font-size: 0.85rem;
+      text-decoration: none;
+      padding: 0.35rem 0.6rem;
+      border-radius: 6px;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .video-ext-btn:hover {
+      background: rgba(0,0,0,0.06);
+      color: var(--ink);
+    }
+
+    [data-theme="dark"] .video-ext-btn:hover {
+      background: rgba(255,255,255,0.08);
+      color: #ffffff;
+    }
+
+    /* Video Theater Modal */
+    .video-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.88);
+      backdrop-filter: blur(12px);
+      z-index: 99999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .video-modal-backdrop.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .video-modal-content {
+      width: 100%;
+      max-width: 920px;
+      background: #0f172a;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.75);
+      transform: scale(0.95);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .video-modal-backdrop.open .video-modal-content {
+      transform: scale(1);
+    }
+
+    .video-modal-header {
+      padding: 0.9rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #ffffff;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .video-modal-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      padding-right: 1rem;
+    }
+
+    .video-modal-close {
+      background: rgba(255,255,255,0.1);
+      border: none;
+      color: #ffffff;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .video-modal-close:hover {
+      background: #ef4444;
+    }
+
+    .video-modal-body {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+      overflow: hidden;
+      background: #000000;
+    }
+
+    .video-modal-body iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+/* News Cards */
     .news-list {
       display: flex;
       flex-direction: column;
@@ -1776,32 +2024,122 @@
       return html;
     }
 
+        // Utility: Extract YouTube ID
+    function getYouTubeId(url) {
+      if (!url) return null;
+      const m = String(url).match(/(?:v=|\/embed\/|\/shorts\/|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+      return m ? m[1] : null;
+    }
+
+    // Video Theater Modal Open/Close handlers
+    window.openVideoModal = function(videoId, title) {
+      let modal = document.getElementById('hindVideoModal');
+      if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'hindVideoModal';
+        modal.className = 'video-modal-backdrop';
+        modal.innerHTML = `
+          <div class="video-modal-content">
+            <div class="video-modal-header">
+              <div class="video-modal-title" id="hindVideoModalTitle"><i class="fa-brands fa-youtube me-2 text-danger"></i><span></span></div>
+              <button type="button" class="video-modal-close" onclick="closeVideoModal()" title="Close video player"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="video-modal-body">
+              <iframe id="hindVideoIframe" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(modal);
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) closeVideoModal();
+        });
+      }
+      const titleSpan = document.querySelector('#hindVideoModalTitle span');
+      if (titleSpan) titleSpan.textContent = title || 'Video Player';
+      const iframe = document.getElementById('hindVideoIframe');
+      if (iframe) iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0`;
+      modal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    };
+
+    window.closeVideoModal = function() {
+      const modal = document.getElementById('hindVideoModal');
+      if (modal) {
+        modal.classList.remove('open');
+        const iframe = document.getElementById('hindVideoIframe');
+        if (iframe) iframe.src = '';
+        document.body.style.overflow = '';
+      }
+    };
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeVideoModal();
+    });
+
     // Render Video Results
     function renderVideoResults(items, query) {
       let html = `
         <div class="search-meta-bar">
-          <span>Found ${items.length} videos for <strong class="search-meta-query">${escapeHtml(query)}</strong></span>
+          <span>Found ${items.length} curated videos for <strong class="search-meta-query">${escapeHtml(query)}</strong></span>
         </div>
         <div class="videos-list">
       `;
       items.forEach(item => {
         const safeUrl = sanitizeUrl(item.url);
-        const safeThumb = sanitizeUrl(item.thumbnail);
+        const vid = item.videoId || getYouTubeId(item.url);
+        let safeThumb = sanitizeUrl(item.thumbnail);
+        if (vid && (!safeThumb || safeThumb === '#' || safeThumb.includes('placeholder'))) {
+          safeThumb = `https://i.ytimg.com/vi/${vid}/hqdefault.jpg`;
+        } else if (!safeThumb || safeThumb === '#') {
+          safeThumb = 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=600&q=80';
+        }
+        const publisher = item.publisher || (vid ? 'YouTube' : 'Video');
+        const duration = item.duration || 'HD';
+        const isYt = !!vid;
+
         html += `
           <article class="video-card">
-            <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="video-thumb-link">
-              ${safeThumb !== '#' ? `<img src="${safeThumb}" alt="${escapeHtml(item.title || 'Video')}" loading="lazy" onerror="this.style.display='none'" />` : ''}
-              <div class="video-play-overlay"><i class="fa-solid fa-play"></i></div>
-            </a>
+            <div class="video-thumb-link" onclick="${isYt ? `openVideoModal('${vid}', '${escapeHtml(item.title).replace(/'/g, "\'")}')` : `window.open('${safeUrl}', '_blank')`}" title="Play ${escapeHtml(item.title || 'Video')}">
+              <img src="${safeThumb}" alt="${escapeHtml(item.title || 'Video')}" loading="lazy" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=600&q=80'" />
+              <div class="video-play-overlay">
+                <div class="video-play-btn-circle">
+                  <i class="fa-solid fa-play"></i>
+                </div>
+              </div>
+              <span class="video-platform-badge">
+                <i class="fa-brands fa-youtube"></i> ${escapeHtml(publisher)}
+              </span>
+              <span class="video-duration-badge">
+                <i class="fa-solid fa-film me-1" style="font-size:0.65rem;"></i>${escapeHtml(duration)}
+              </span>
+            </div>
             <div class="video-info">
-              <div class="video-publisher">
-                <i class="fa-solid fa-circle-play"></i>
-                <span>${escapeHtml(item.publisher || 'Video')}</span>
+              <div class="video-publisher-row">
+                <span class="video-publisher">
+                  <span class="publisher-avatar"><i class="fa-solid fa-circle-play"></i></span>
+                  <span>${escapeHtml(publisher)}</span>
+                  <i class="fa-solid fa-circle-check text-primary" style="font-size:0.75rem;"></i>
+                </span>
+                <span style="font-size: 0.72rem; color: var(--ink-muted); font-weight: 600;">HD Video</span>
               </div>
               <h2 class="result-title">
                 <a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.title || 'Untitled Video')}</a>
               </h2>
-              <p class="result-snippet">${escapeHtml(item.description || '')}</p>
+              <p class="result-snippet">${escapeHtml(item.description || 'Watch high-definition video highlights, documentaries, tutorials, and full presentations on Hind.')}</p>
+              <div class="video-footer-actions">
+                ${isYt ? `
+                  <button type="button" class="video-watch-btn" onclick="openVideoModal('${vid}', '${escapeHtml(item.title).replace(/'/g, "\'")}')">
+                    <i class="fa-solid fa-circle-play"></i> Watch in Theater
+                  </button>
+                ` : `
+                  <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="video-watch-btn">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Video
+                  </a>
+                `}
+                <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="video-ext-btn" title="Open source video on YouTube">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                </a>
+              </div>
             </div>
           </article>
         `;
@@ -1810,7 +2148,7 @@
       return html;
     }
 
-    // Render News Results
+// Render News Results
     function renderNewsResults(items, query) {
       let html = `
         <div class="search-meta-bar">
@@ -1899,26 +2237,44 @@
         html += `
           <section class="section-block">
             <div class="section-header">
-              <span><i class="fa-solid fa-play me-2 text-danger"></i>Videos for ${escapeHtml(query)}</span>
+              <span><i class="fa-solid fa-play me-2 text-danger"></i>Featured Videos for ${escapeHtml(query)}</span>
               <a href="#" onclick="event.preventDefault(); navigateToSearch('${escapeHtml(query)}', 'videos')">View all videos <i class="fa-solid fa-arrow-right ms-1"></i></a>
             </div>
-            <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
         `;
-        videoItems.slice(0, 2).forEach(item => {
+        videoItems.slice(0, 3).forEach(item => {
           const safeUrl = sanitizeUrl(item.url);
-          const safeThumb = sanitizeUrl(item.thumbnail);
+          const vid = item.videoId || getYouTubeId(item.url);
+          let safeThumb = sanitizeUrl(item.thumbnail);
+          if (vid && (!safeThumb || safeThumb === '#' || safeThumb.includes('placeholder'))) {
+            safeThumb = `https://i.ytimg.com/vi/${vid}/hqdefault.jpg`;
+          } else if (!safeThumb || safeThumb === '#') {
+            safeThumb = 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=500&q=80';
+          }
+          const publisher = item.publisher || 'YouTube';
+          const isYt = !!vid;
+
           html += `
-            <div class="video-card" style="padding: 0.75rem;">
-              <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="video-thumb-link" style="width: 140px; height: 85px;">
-                ${safeThumb !== '#' ? `<img src="${safeThumb}" alt="${escapeHtml(item.title || 'Video')}" loading="lazy" />` : ''}
-                <div class="video-play-overlay"><i class="fa-solid fa-play" style="font-size: 1rem;"></i></div>
-              </a>
-              <div class="video-info">
-                <div class="video-publisher"><i class="fa-solid fa-circle-play"></i>${escapeHtml(item.publisher || 'Video')}</div>
-                <h3 class="result-title" style="font-size: 0.98rem; margin-bottom: 0.2rem;">
+            <div class="video-card">
+              <div class="video-thumb-link" style="height: 155px;" onclick="${isYt ? `openVideoModal('${vid}', '${escapeHtml(item.title).replace(/'/g, "\'")}')` : `window.open('${safeUrl}', '_blank')`}" title="Play ${escapeHtml(item.title || 'Video')}">
+                <img src="${safeThumb}" alt="${escapeHtml(item.title || 'Video')}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=500&q=80'" />
+                <div class="video-play-overlay">
+                  <div class="video-play-btn-circle" style="width: 44px; height: 44px; font-size: 1rem;">
+                    <i class="fa-solid fa-play"></i>
+                  </div>
+                </div>
+                <span class="video-duration-badge" style="font-size: 0.68rem; padding: 2px 6px;">HD</span>
+              </div>
+              <div class="video-info" style="padding: 0.85rem 1rem 1rem;">
+                <div class="video-publisher-row">
+                  <span class="video-publisher" style="font-size: 0.76rem;">
+                    <span class="publisher-avatar" style="width: 18px; height: 18px; font-size: 0.6rem;"><i class="fa-solid fa-circle-play"></i></span>
+                    <span>${escapeHtml(publisher)}</span>
+                  </span>
+                </div>
+                <h3 class="result-title" style="font-size: 0.95rem; margin: 0;">
                   <a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.title || 'Video')}</a>
                 </h3>
-                <p class="result-snippet" style="font-size: 0.84rem;">${escapeHtml(item.description || '')}</p>
               </div>
             </div>
           `;

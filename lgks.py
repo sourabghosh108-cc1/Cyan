@@ -4,6 +4,7 @@ from ddgs import DDGS
 from cachetools import TTLCache
 from concurrent.futures import ThreadPoolExecutor
 import asyncio
+import re
 
 app = FastAPI(
     title="Hind Search API",
@@ -28,6 +29,13 @@ cache = TTLCache(
 executor = ThreadPoolExecutor(
     max_workers=20
 )
+
+
+def extract_youtube_id(url):
+    if not url:
+        return None
+    m = re.search(r'(?:v=|\/embed\/|\/shorts\/|youtu\.be\/)([a-zA-Z0-9_-]{11})', str(url))
+    return m.group(1) if m else None
 
 
 def web_search(query, limit=10):
@@ -75,26 +83,52 @@ def image_search(query, limit=10):
 
 def video_search(query, limit=10):
     try:
-        with DDGS(timeout=10) as ddgs:
-            results = ddgs.videos(
-                query,
-                max_results=limit
-            )
+        videos = []
+        # Attempt 1: ddgs.videos
+        try:
+            with DDGS(timeout=8) as ddgs:
+                results = list(ddgs.videos(query, max_results=limit))
+                for r in results:
+                    url = r.get("content", r.get("url", ""))
+                    vid = extract_youtube_id(url)
+                    thumb = r.get("thumbnail", "")
+                    if vid and (not thumb or "placeholder" in thumb or "default" in thumb):
+                        thumb = f"https://i.ytimg.com/vi/{vid}/hqdefault.jpg"
+                    elif not thumb:
+                        thumb = "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=500&q=80"
+                    
+                    videos.append({
+                        "title": r.get("title", "").replace(" - YouTube", "").strip(),
+                        "url": url,
+                        "thumbnail": thumb,
+                        "description": r.get("description", ""),
+                        "publisher": r.get("publisher", "YouTube" if "youtube" in url else "Video"),
+                        "duration": r.get("duration", "HD"),
+                        "videoId": vid or ""
+                    })
+        except Exception:
+            pass
 
-            return [
-                {
-                    "title": r.get("title", ""),
-                    "url": r.get(
-                        "content",
-                        r.get("url", "")
-                    ),
-                    "thumbnail": r.get("thumbnail", ""),
-                    "description": r.get("description", ""),
-                    "publisher": r.get("publisher", "")
-                }
-                for r in results
-            ]
+        # Attempt 2: If videos is empty, search youtube results directly
+        if not videos:
+            with DDGS(timeout=8) as ddgs:
+                yt_results = list(ddgs.text(f"site:youtube.com {query}", max_results=limit))
+                for r in yt_results:
+                    url = r.get("href", "")
+                    vid = extract_youtube_id(url)
+                    thumb = f"https://i.ytimg.com/vi/{vid}/hqdefault.jpg" if vid else "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=500&q=80"
+                    clean_title = r.get("title", "").replace(" - YouTube", "").replace(" – YouTube", "").strip()
+                    videos.append({
+                        "title": clean_title,
+                        "url": url,
+                        "thumbnail": thumb,
+                        "description": r.get("body", ""),
+                        "publisher": "YouTube",
+                        "duration": "HD",
+                        "videoId": vid or ""
+                    })
 
+        return videos if videos else []
     except Exception as e:
         return {"error": str(e)}
 
