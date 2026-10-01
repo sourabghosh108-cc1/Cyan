@@ -22,25 +22,26 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Page-aware TTL Cache (5 minutes)
 cache = TTLCache(
     maxsize=10000,
     ttl=300
 )
 
 executor = ThreadPoolExecutor(
-    max_workers=25
+    max_workers=30
 )
 
 
-def web_search(query, limit=25):
+def web_search(query, page=1, limit=25):
     try:
         items = []
         seen_urls = set()
 
-        # 1. Primary: DuckDuckGo full web search
+        # 1. Primary: DDGS full web search with page parameter
         try:
             with DDGS(timeout=8) as ddgs:
-                results = list(ddgs.text(query, max_results=limit))
+                results = list(ddgs.text(query, page=page, max_results=limit))
                 for r in results:
                     url = r.get("href", "")
                     if url and url not in seen_urls:
@@ -53,10 +54,12 @@ def web_search(query, limit=25):
         except Exception:
             pass
 
-        # 2. Secondary: If fewer than 15 results, augment with Wikipedia search
-        if len(items) < 15:
+        # 2. Secondary: If fewer than limit results, augment with Wikipedia search at page offset
+        if len(items) < limit:
             try:
-                wiki_url = f"https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch={urllib.parse.quote(query)}&srlimit=15&utf8=&format=json"
+                sroffset = (page - 1) * limit
+                needed = limit - len(items)
+                wiki_url = f"https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch={urllib.parse.quote(query)}&sroffset={sroffset}&srlimit={needed}&utf8=&format=json"
                 req = urllib.request.Request(wiki_url, headers={"User-Agent": "Mozilla/5.0"})
                 with urllib.request.urlopen(req, timeout=4) as res:
                     wdata = json.loads(res.read().decode('utf-8'))
@@ -79,11 +82,12 @@ def web_search(query, limit=25):
         return {"error": str(e)}
 
 
-def image_search(query, limit=25):
+def image_search(query, page=1, limit=25):
     try:
         with DDGS(timeout=10) as ddgs:
             results = ddgs.images(
                 query,
+                page=page,
                 max_results=limit
             )
 
@@ -100,7 +104,7 @@ def image_search(query, limit=25):
         return {"error": str(e)}
 
 
-def fetch_youtube_videos(query, limit=20):
+def fetch_youtube_videos(query, page=1, limit=20):
     encoded_q = urllib.parse.quote(query)
     url = f"https://www.youtube.com/results?search_query={encoded_q}"
     headers = {
@@ -152,22 +156,21 @@ def fetch_youtube_videos(query, limit=20):
 
                 extract(data)
                 if videos:
-                    return videos[:limit]
+                    offset = (page - 1) * limit
+                    return videos[offset:offset + limit] if offset < len(videos) else videos[:limit]
     except Exception:
         pass
     return []
 
 
-def video_search(query, limit=20):
-    # 1. Try real-time YouTube search first
-    yt_results = fetch_youtube_videos(query, limit)
+def video_search(query, page=1, limit=20):
+    yt_results = fetch_youtube_videos(query, page=page, limit=limit)
     if yt_results:
         return yt_results
 
-    # 2. Fallback to DDGS videos
     try:
         with DDGS(timeout=6) as ddgs:
-            results = ddgs.videos(query, max_results=limit)
+            results = ddgs.videos(query, page=page, max_results=limit)
             if results and isinstance(results, list) and len(results) > 0:
                 videos = []
                 for r in results:
@@ -195,11 +198,12 @@ def video_search(query, limit=20):
     return []
 
 
-def news_search(query, limit=20):
+def news_search(query, page=1, limit=20):
     try:
         with DDGS(timeout=10) as ddgs:
             results = ddgs.news(
                 query,
+                page=page,
                 max_results=limit
             )
 
@@ -217,13 +221,12 @@ def news_search(query, limit=20):
         return {"error": str(e)}
 
 
-async def run_search(function, query, limit):
+async def run_search(function, *args):
     loop = asyncio.get_running_loop()
     return await loop.run_in_executor(
         executor,
         function,
-        query,
-        limit
+        *args
     )
 
 
@@ -231,6 +234,7 @@ async def run_search(function, query, limit):
 async def search(
     q: str = Query(..., min_length=1),
     type: str = Query("web"),
+    page: int = Query(1, ge=1, le=50),
     limit: int = Query(25, ge=1, le=50)
 ):
     query = q.strip().lower()
@@ -241,48 +245,75 @@ async def search(
             "error": "Empty query"
         }
 
-    cache_key = f"{query}:{type}:{limit}"
+    # Cache key includes page to prevent page collisions
+    cache_key = f"{query}:{type}:{page}:{limit}"
 
     if cache_key in cache:
         return cache[cache_key]
 
+    has_previous = page > 1
+
     if type == "web":
-        web = await run_search(web_search, query, limit)
+        web = await run_search(web_search, query, page, limit)
+        has_next = isinstance(web, list) and len(web) >= limit and page < 50
         response = {
             "query": q,
             "type": "web",
+            "page": page,
+            "limit": limit,
+            "has_previous": has_previous,
+            "has_next": has_next,
+            "total_pages": 50 if has_next else page,
             "web": web
         }
 
     elif type == "images":
-        images = await run_search(image_search, query, limit)
+        images = await run_search(image_search, query, page, limit)
+        has_next = isinstance(images, list) and len(images) >= limit and page < 50
         response = {
             "query": q,
             "type": "images",
+            "page": page,
+            "limit": limit,
+            "has_previous": has_previous,
+            "has_next": has_next,
+            "total_pages": 50 if has_next else page,
             "images": images
         }
 
     elif type == "videos":
-        videos = await run_search(video_search, query, limit)
+        videos = await run_search(video_search, query, page, limit)
+        has_next = isinstance(videos, list) and len(videos) >= limit and page < 50
         response = {
             "query": q,
             "type": "videos",
+            "page": page,
+            "limit": limit,
+            "has_previous": has_previous,
+            "has_next": has_next,
+            "total_pages": 50 if has_next else page,
             "videos": videos
         }
 
     elif type == "news":
-        news = await run_search(news_search, query, limit)
+        news = await run_search(news_search, query, page, limit)
+        has_next = isinstance(news, list) and len(news) >= limit and page < 50
         response = {
             "query": q,
             "type": "news",
+            "page": page,
+            "limit": limit,
+            "has_previous": has_previous,
+            "has_next": has_next,
+            "total_pages": 50 if has_next else page,
             "news": news
         }
 
     elif type == "all":
-        web_task = run_search(web_search, query, limit)
-        image_task = run_search(image_search, query, limit)
-        video_task = run_search(video_search, query, limit)
-        news_task = run_search(news_search, query, limit)
+        web_task = run_search(web_search, query, page, limit)
+        image_task = run_search(image_search, query, page, limit)
+        video_task = run_search(video_search, query, page, limit)
+        news_task = run_search(news_search, query, page, limit)
 
         web, images, videos, news = await asyncio.gather(
             web_task,
@@ -291,9 +322,15 @@ async def search(
             news_task
         )
 
+        has_next = (isinstance(web, list) and len(web) >= limit) and page < 50
         response = {
             "query": q,
             "type": "all",
+            "page": page,
+            "limit": limit,
+            "has_previous": has_previous,
+            "has_next": has_next,
+            "total_pages": 50 if has_next else page,
             "web": web,
             "images": images,
             "videos": videos,

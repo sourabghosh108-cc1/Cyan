@@ -926,6 +926,87 @@
       color: #ffffff;
     }
 
+    
+    /* Google-Style Hind Pagination */
+    .hind-pagination {
+      margin: 2.5rem 0 3.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      padding: 1.25rem 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .page-numbers-group {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+    }
+
+    .page-btn {
+      min-width: 38px;
+      height: 38px;
+      padding: 0 0.65rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--ink);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.18s ease;
+      text-decoration: none;
+      font-family: inherit;
+    }
+
+    .page-btn:hover:not(.disabled):not(.active) {
+      background: rgba(37,99,235,0.08);
+      border-color: var(--blue);
+      color: var(--blue);
+      transform: translateY(-1px);
+    }
+
+    .page-btn.active {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(37,99,235,0.35);
+      cursor: default;
+    }
+
+    [data-theme="dark"] .page-btn.active {
+      background: #3b82f6;
+      border-color: #3b82f6;
+      box-shadow: 0 4px 14px rgba(59,130,246,0.45);
+    }
+
+    .page-nav-btn {
+      padding: 0 1rem;
+      font-weight: 700;
+      color: var(--blue);
+    }
+
+    .page-nav-btn.disabled {
+      opacity: 0.38;
+      cursor: not-allowed;
+      pointer-events: none;
+      border-color: var(--border);
+      color: var(--ink-muted);
+    }
+
+    .page-ellipsis {
+      padding: 0 0.35rem;
+      color: var(--ink-muted);
+      font-weight: 700;
+      user-select: none;
+    }
+
     /* Video Theater Modal */
     .video-modal-backdrop {
       position: fixed;
@@ -2496,10 +2577,85 @@
       }
     }
 
-    async function performSearch(query, type = 'web') {
+    
+    // ── GOOGLE-STYLE PAGINATION COMPONENT ──
+    let currentPage = 1;
+    let currentTotalPages = 50;
+    let currentHasNext = true;
+
+    function renderPagination(page, totalPages = 50, hasNext = true) {
+      if (page === 1 && !hasNext) return '';
+
+      const maxP = Math.min(50, totalPages || 50);
+      let html = `<nav class="hind-pagination" aria-label="Search results pages">`;
+
+      // Previous button
+      if (page > 1) {
+        html += `<button type="button" class="page-btn page-nav-btn prev" onclick="goToPage(${page - 1})"><i class="fa-solid fa-chevron-left me-1"></i> Previous</button>`;
+      } else {
+        html += `<button type="button" class="page-btn page-nav-btn prev disabled" disabled><i class="fa-solid fa-chevron-left me-1"></i> Previous</button>`;
+      }
+
+      html += `<div class="page-numbers-group">`;
+
+      // Dynamic sliding window of 10 pages
+      let startPage = Math.max(1, page - 4);
+      let endPage = Math.min(maxP, startPage + 9);
+      if (endPage - startPage < 9) {
+        startPage = Math.max(1, endPage - 9);
+      }
+
+      if (startPage > 1) {
+        html += `<button type="button" class="page-btn page-num" onclick="goToPage(1)">1</button>`;
+        if (startPage > 2) {
+          html += `<span class="page-ellipsis">...</span>`;
+        }
+      }
+
+      for (let p = startPage; p <= endPage; p++) {
+        if (p === page) {
+          html += `<span class="page-btn page-num active" aria-current="page">${p}</span>`;
+        } else {
+          html += `<button type="button" class="page-btn page-num" onclick="goToPage(${p})">${p}</button>`;
+        }
+      }
+
+      if (endPage < maxP) {
+        if (endPage < maxP - 1) {
+          html += `<span class="page-ellipsis">...</span>`;
+        }
+        html += `<button type="button" class="page-btn page-num" onclick="goToPage(${maxP})">${maxP}</button>`;
+      }
+
+      html += `</div>`;
+
+      // Next button
+      if (hasNext && page < maxP) {
+        html += `<button type="button" class="page-btn page-nav-btn next" onclick="goToPage(${page + 1})">Next <i class="fa-solid fa-chevron-right ms-1"></i></button>`;
+      } else {
+        html += `<button type="button" class="page-btn page-nav-btn next disabled" disabled>Next <i class="fa-solid fa-chevron-right ms-1"></i></button>`;
+      }
+
+      html += `</nav>`;
+      return html;
+    }
+
+    window.goToPage = function(targetPage) {
+      if (targetPage < 1 || targetPage > 50 || targetPage === currentPage) return;
+      const q = currentQuery;
+      const type = currentType;
+      const newUrl = `search.html?q=${encodeURIComponent(q)}${type !== 'web' ? '&type=' + encodeURIComponent(type) : ''}&page=${targetPage}`;
+      window.history.pushState({ q: q, type: type, page: targetPage }, '', newUrl);
+      performSearch(q, type, targetPage);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    // Perform Search API Request with Page support
+    async function performSearch(query, type = 'web', page = 1) {
       const trimmed = (query || '').trim();
       currentQuery = trimmed;
       currentType = type;
+      currentPage = page;
       setActiveTabUI(type);
 
       const container = document.getElementById('searchResultsContainer');
@@ -2510,7 +2666,7 @@
         return;
       }
 
-      document.title = `${trimmed} - Hind Search`;
+      document.title = `${trimmed}${page > 1 ? ` - Page ${page}` : ''} - Hind Search`;
 
       if (searchAbortController) {
         searchAbortController.abort();
@@ -2519,7 +2675,7 @@
 
       renderLoadingSkeletons(trimmed, type);
 
-      const endpoint = `${API_BASE_URL}/api/search?q=${encodeURIComponent(trimmed)}&type=${encodeURIComponent(type)}&limit=25`;
+      const endpoint = `${API_BASE_URL}/api/search?q=${encodeURIComponent(trimmed)}&type=${encodeURIComponent(type)}&page=${page}&limit=25`;
 
       try {
         const fetchTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Backend timeout')), 12000));
@@ -2538,6 +2694,8 @@
 
         let hasResults = false;
         let renderedHtml = '';
+        currentHasNext = data.has_next !== false;
+        currentTotalPages = data.total_pages || 50;
 
         if (type === 'images') {
           const items = Array.isArray(data.images) ? data.images : [];
@@ -2565,19 +2723,19 @@
         }
 
         if (hasResults) {
-          container.innerHTML = renderedHtml;
+          const paginationHtml = renderPagination(page, currentTotalPages, currentHasNext);
+          container.innerHTML = renderedHtml + paginationHtml;
         } else {
-          await performFallbackSearch(trimmed, type);
+          await performFallbackSearch(trimmed, type, page);
         }
 
       } catch (err) {
         if (err.name === 'AbortError') return;
         console.warn('Backend unavailable, using direct fallback:', err.message);
-        await performFallbackSearch(trimmed, type);
+        await performFallbackSearch(trimmed, type, page);
       }
     }
 
-    // Trigger Shrishti AI Answer Box
     function triggerAiAnswer(query) {
       const aiAnswerBox     = document.getElementById('aiSearchAnswer');
       const aiAnswerContent = document.getElementById('aiSearchAnswerContent');
@@ -2620,39 +2778,39 @@
     }
 
     // Navigate to Search with URL update
-    function navigateToSearch(query, type) {
+    function navigateToSearch(query, type, page = 1) {
       const trimmed = (query || '').trim();
       const currentParamType = (type === 'all' || type === 'images' || type === 'videos' || type === 'news') ? type : 'web';
-      const searchUrl = `search.html?q=${encodeURIComponent(trimmed)}${currentParamType !== 'web' ? '&type=' + encodeURIComponent(currentParamType) : ''}`;
-      window.history.pushState({ q: trimmed, type: currentParamType }, '', searchUrl);
-      if (trimmed) saveToHistory(trimmed);
-      triggerAiAnswer(trimmed);
-      performSearch(trimmed, currentParamType);
+      const targetPage = page || 1;
+      const searchUrl = `search.html?q=${encodeURIComponent(trimmed)}${currentParamType !== 'web' ? '&type=' + encodeURIComponent(currentParamType) : ''}${targetPage > 1 ? '&page=' + targetPage : ''}`;
+      window.history.pushState({ q: trimmed, type: currentParamType, page: targetPage }, '', searchUrl);
+      if (trimmed && targetPage === 1) saveToHistory(trimmed);
+      if (targetPage === 1) triggerAiAnswer(trimmed);
+      performSearch(trimmed, currentParamType, targetPage);
     }
 
     // Tab buttons event listeners
     document.querySelectorAll('.search-tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        const tabType = btn.dataset.type; // 'all', 'images', 'videos', 'news'
+        const tabType = btn.dataset.type;
         const q = document.getElementById('searchInputHeader').value.trim() || currentQuery;
         if (!q) {
           currentType = tabType;
           setActiveTabUI(tabType);
           return;
         }
-        navigateToSearch(q, tabType);
+        navigateToSearch(q, tabType, 1);
       });
     });
 
-    // Header search form submit
+    // Header search form submit (resets to page 1)
     const searchHeaderForm = document.getElementById('searchHeaderForm');
     searchHeaderForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const q = document.getElementById('searchInputHeader').value.trim();
       if (!q) return;
-      // Normal search defaults to 'web' unless already browsing images, videos, or news
       const targetType = (currentType === 'images' || currentType === 'videos' || currentType === 'news') ? currentType : 'web';
-      navigateToSearch(q, targetType);
+      navigateToSearch(q, targetType, 1);
     });
 
     // Handle browser Back / Forward buttons
@@ -2665,18 +2823,18 @@
       const urlParams = new URLSearchParams(window.location.search);
       const q = urlParams.get('q') || '';
       const rawType = (urlParams.get('type') || '').toLowerCase();
-      // Valid types: web, images, videos, news, all
+      const page = parseInt(urlParams.get('page')) || 1;
       const type = (rawType === 'images' || rawType === 'videos' || rawType === 'news' || rawType === 'all') ? rawType : 'web';
 
       document.getElementById('searchInputHeader').value = q;
       setActiveTabUI(type);
 
       if (q) {
-        saveToHistory(q);
-        triggerAiAnswer(q);
-        performSearch(q, type);
+        if (page === 1) saveToHistory(q);
+        if (page === 1) triggerAiAnswer(q);
+        performSearch(q, type, page);
       } else {
-        performSearch('', type);
+        performSearch('', type, 1);
       }
     }
 
