@@ -2359,7 +2359,8 @@
 
       function getHistory() {
         try {
-          return JSON.parse(localStorage.getItem(HIST_KEY)) || [];
+          const raw = JSON.parse(localStorage.getItem(HIST_KEY)) || [];
+          return raw.map(function(item) { return (typeof item === 'object' && item.q) ? item.q : String(item); }).filter(Boolean);
         } catch (_) {
           return [];
         }
@@ -2368,18 +2369,23 @@
       function saveHistory(query) {
         const q = (query || '').trim();
         if (!q) return;
-        let list = getHistory();
-        list = list.filter(item => item.toLowerCase() !== q.toLowerCase());
-        list.unshift(q);
-        if (list.length > 20) list = list.slice(0, 20);
-        localStorage.setItem(HIST_KEY, JSON.stringify(list));
+        var raw = [];
+        try { raw = JSON.parse(localStorage.getItem(HIST_KEY)) || []; } catch (_) {}
+        raw = raw.map(function(item) { return (typeof item === 'object' && item.q) ? item : { q: String(item), t: Date.now() }; });
+        raw = raw.filter(function(item) { return item.q.toLowerCase() !== q.toLowerCase(); });
+        raw.unshift({ q: q, t: Date.now() });
+        if (raw.length > 50) raw = raw.slice(0, 50);
+        localStorage.setItem(HIST_KEY, JSON.stringify(raw));
       }
 
       function deleteHistoryItem(query) {
-        let list = getHistory();
-        list = list.filter(item => item.toLowerCase() !== query.toLowerCase());
-        localStorage.setItem(HIST_KEY, JSON.stringify(list));
-        return list;
+        var raw = [];
+        try { raw = JSON.parse(localStorage.getItem(HIST_KEY)) || []; } catch (_) {}
+        raw = raw.filter(function(item) {
+          var itemQ = (typeof item === 'object' && item.q) ? item.q : String(item);
+          return itemQ.toLowerCase() !== query.toLowerCase();
+        });
+        localStorage.setItem(HIST_KEY, JSON.stringify(raw));
       }
 
       function clearAllHistory() {
