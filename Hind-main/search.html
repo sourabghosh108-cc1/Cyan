@@ -147,6 +147,163 @@
       box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
     }
 
+    /* Recent Searches Suggestions Dropdown */
+    .suggest-dropdown {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      right: 0;
+      z-index: 9999;
+      background: var(--surface, #ffffff);
+      border: 1.5px solid var(--border, rgba(0,0,0,0.12));
+      border-radius: 18px;
+      box-shadow: 0 14px 40px rgba(0,0,0,0.16);
+      padding: 0.5rem 0;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(-8px) scale(0.98);
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    }
+
+    [data-theme="dark"] .suggest-dropdown {
+      background: #0f172a;
+      border-color: rgba(255,255,255,0.15);
+      box-shadow: 0 14px 40px rgba(0,0,0,0.55);
+      color: #f8fafc;
+    }
+
+    .suggest-dropdown.open {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: all;
+    }
+
+    .suggest-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.4rem 1.1rem 0.45rem;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--ink-muted, #64748b);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    [data-theme="dark"] .suggest-header {
+      border-bottom-color: rgba(255,255,255,0.08);
+      color: #94a3b8;
+    }
+
+    .suggest-clear-all {
+      background: transparent;
+      border: none;
+      color: #ef4444;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0.2rem 0.55rem;
+      border-radius: 6px;
+      transition: background 0.15s ease;
+    }
+
+    .suggest-clear-all:hover {
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    .suggest-list {
+      max-height: 280px;
+      overflow-y: auto;
+      margin: 0;
+      padding: 0.25rem 0;
+      list-style: none;
+    }
+
+    .suggest-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.55rem 1.1rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--ink, #1e293b);
+      cursor: pointer;
+      transition: background 0.15s ease, opacity 0.22s ease, transform 0.22s ease, max-height 0.22s ease, padding 0.22s ease;
+    }
+
+    [data-theme="dark"] .suggest-item {
+      color: #e2e8f0;
+    }
+
+    .suggest-item:hover,
+    .suggest-item.active {
+      background: rgba(37, 99, 235, 0.08);
+    }
+
+    [data-theme="dark"] .suggest-item:hover,
+    [data-theme="dark"] .suggest-item.active {
+      background: rgba(37, 99, 235, 0.22);
+    }
+
+    .suggest-item-left {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .suggest-item-icon {
+      font-size: 0.82rem;
+      color: var(--ink-muted, #94a3b8);
+      flex-shrink: 0;
+    }
+
+    .suggest-match-hl {
+      color: #2563eb;
+      font-weight: 700;
+    }
+
+    [data-theme="dark"] .suggest-match-hl {
+      color: #60a5fa;
+    }
+
+    .suggest-delete-btn {
+      background: transparent;
+      border: none;
+      color: var(--ink-muted, #94a3b8);
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+    }
+
+    .suggest-delete-btn:hover {
+      background: rgba(239, 68, 68, 0.12);
+      color: #ef4444;
+    }
+
+    /* Removal animation */
+    .suggest-item.removing {
+      opacity: 0;
+      transform: translateX(-15px);
+      max-height: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+      overflow: hidden;
+    }
+
     .header-search-btn {
       position: absolute;
       right: 0.3rem;
@@ -2194,6 +2351,215 @@
         micIcon.className = 'fa-solid fa-microphone';
         micBtn.title = 'Voice search';
       };
+    })();
+
+    // ── Live Recent Searches & Autocomplete Dropdown ──
+    (function initSearchSuggestions() {
+      const HIST_KEY = 'hind_search_history';
+
+      function getHistory() {
+        try {
+          return JSON.parse(localStorage.getItem(HIST_KEY)) || [];
+        } catch (_) {
+          return [];
+        }
+      }
+
+      function saveHistory(query) {
+        const q = (query || '').trim();
+        if (!q) return;
+        let list = getHistory();
+        list = list.filter(item => item.toLowerCase() !== q.toLowerCase());
+        list.unshift(q);
+        if (list.length > 20) list = list.slice(0, 20);
+        localStorage.setItem(HIST_KEY, JSON.stringify(list));
+      }
+
+      function deleteHistoryItem(query) {
+        let list = getHistory();
+        list = list.filter(item => item.toLowerCase() !== query.toLowerCase());
+        localStorage.setItem(HIST_KEY, JSON.stringify(list));
+        return list;
+      }
+
+      function clearAllHistory() {
+        localStorage.removeItem(HIST_KEY);
+      }
+
+      function setupSuggestionsForInput(inputEl, formEl) {
+        if (!inputEl) return;
+
+        let wrapper = inputEl.closest('.header-search-group') || inputEl.closest('.header-search-form') || inputEl.parentElement;
+        if (!wrapper) return;
+        wrapper.style.position = 'relative';
+
+        let dropdown = wrapper.querySelector('.suggest-dropdown');
+        if (!dropdown) {
+          dropdown = document.createElement('div');
+          dropdown.className = 'suggest-dropdown';
+          wrapper.appendChild(dropdown);
+        }
+
+        let activeIndex = -1;
+
+        function renderDropdown() {
+          const q = inputEl.value.trim().toLowerCase();
+          const history = getHistory();
+          const matches = history.filter(item => !q || item.toLowerCase().includes(q));
+
+          if (matches.length === 0) {
+            dropdown.classList.remove('open');
+            dropdown.innerHTML = '';
+            activeIndex = -1;
+            return;
+          }
+
+          let html = `
+            <div class="suggest-header">
+              <span><i class="fa-regular fa-clock me-1"></i> Recent Searches</span>
+              <button type="button" class="suggest-clear-all" title="Clear all recent searches">
+                <i class="fa-solid fa-trash-can me-1"></i> Clear All
+              </button>
+            </div>
+            <ul class="suggest-list">
+          `;
+
+          matches.forEach((item, idx) => {
+            let displayHtml = escapeHtml(item);
+            if (q) {
+              const reg = new RegExp(`(${escapeRegExp(q)})`, 'gi');
+              displayHtml = escapeHtml(item).replace(reg, '<span class="suggest-match-hl">$1</span>');
+            }
+
+            html += `
+              <li class="suggest-item ${idx === activeIndex ? 'active' : ''}" data-query="${escapeHtml(item)}">
+                <div class="suggest-item-left">
+                  <i class="fa-regular fa-clock suggest-item-icon"></i>
+                  <span>${displayHtml}</span>
+                </div>
+                <button type="button" class="suggest-delete-btn" title="Remove from history" data-query="${escapeHtml(item)}">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </li>
+            `;
+          });
+
+          html += `</ul>`;
+          dropdown.innerHTML = html;
+          dropdown.classList.add('open');
+
+          // Clear All animation
+          const clearBtn = dropdown.querySelector('.suggest-clear-all');
+          if (clearBtn) {
+            clearBtn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              const items = dropdown.querySelectorAll('.suggest-item');
+              items.forEach(el => el.classList.add('removing'));
+              setTimeout(() => {
+                clearAllHistory();
+                dropdown.classList.remove('open');
+                dropdown.innerHTML = '';
+              }, 220);
+            });
+          }
+
+          // Delete single item animation
+          dropdown.querySelectorAll('.suggest-delete-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              const queryToDelete = btn.dataset.query;
+              const li = btn.closest('.suggest-item');
+              if (li) {
+                li.classList.add('removing');
+                setTimeout(() => {
+                  deleteHistoryItem(queryToDelete);
+                  renderDropdown();
+                }, 220);
+              }
+            });
+          });
+
+          // Click item to search
+          dropdown.querySelectorAll('.suggest-item').forEach(itemEl => {
+            itemEl.addEventListener('click', (e) => {
+              if (e.target.closest('.suggest-delete-btn')) return;
+              const query = itemEl.dataset.query;
+              inputEl.value = query;
+              saveHistory(query);
+              dropdown.classList.remove('open');
+              if (window.navigateToSearch) {
+                window.navigateToSearch(query, 'web');
+              } else if (formEl) {
+                formEl.submit();
+              } else {
+                window.location.href = 'search.html?q=' + encodeURIComponent(query);
+              }
+            });
+          });
+        }
+
+        // Input listeners
+        inputEl.addEventListener('focus', () => renderDropdown());
+        inputEl.addEventListener('input', () => renderDropdown());
+
+        // Keyboard navigation
+        inputEl.addEventListener('keydown', (e) => {
+          const items = dropdown.querySelectorAll('.suggest-item');
+          if (!dropdown.classList.contains('open') || !items.length) return;
+
+          if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            activeIndex = (activeIndex + 1) % items.length;
+            renderDropdown();
+          } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            activeIndex = (activeIndex - 1 + items.length) % items.length;
+            renderDropdown();
+          } else if (e.key === 'Enter' && activeIndex >= 0) {
+            e.preventDefault();
+            const selected = items[activeIndex];
+            if (selected) {
+              const query = selected.dataset.query;
+              inputEl.value = query;
+              saveHistory(query);
+              dropdown.classList.remove('open');
+              if (window.navigateToSearch) {
+                window.navigateToSearch(query, 'web');
+              } else if (formEl) {
+                formEl.submit();
+              }
+            }
+          } else if (e.key === 'Escape') {
+            dropdown.classList.remove('open');
+          }
+        });
+
+        if (formEl) {
+          formEl.addEventListener('submit', () => {
+            if (inputEl.value.trim()) {
+              saveHistory(inputEl.value.trim());
+            }
+          });
+        }
+
+        document.addEventListener('click', (e) => {
+          if (!wrapper.contains(e.target)) {
+            dropdown.classList.remove('open');
+          }
+        });
+      }
+
+      function escapeHtml(str) {
+        return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+      }
+
+      function escapeRegExp(str) {
+        return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      }
+
+      const headerInput = document.getElementById('searchInputHeader');
+      const headerForm  = document.getElementById('searchHeaderForm');
+      if (headerInput) setupSuggestionsForInput(headerInput, headerForm);
     })();
   </script>
 <script src="translate.js"></script>
