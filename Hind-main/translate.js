@@ -1,9 +1,34 @@
 /**
- * Hind Optional Full-Site Translation Module (powered by Google Translate API & MyMemory Fallback)
- * Allows visitors to manually choose their preferred language from worldwide options.
+ * Hind Full-Site Translation Module (powered by Google Translate API & MyMemory Fallback)
+ * 1. Automatically detects visitor country via IP & defaults to local language (e.g., IN -> Hindi, BD -> Bengali).
+ * 2. Gives users complete freedom to select any language (Tamil, Suomi, Bengali, English, etc.) via the widget.
+ * 3. Remembers user's custom preference across sessions.
  */
 (function () {
   'use strict';
+
+  const COUNTRY_LANG_MAP = {
+    // South Asia
+    IN: 'hi', PK: 'ur', BD: 'bn', LK: 'si', NP: 'ne',
+    // East Asia
+    CN: 'zh-CN', TW: 'zh-TW', JP: 'ja', KR: 'ko', HK: 'zh-CN',
+    // South-East Asia
+    ID: 'id', MY: 'ms', TH: 'th', VN: 'vi', PH: 'tl', MM: 'my', KH: 'km', SG: 'ms',
+    // Middle East / Arab world
+    SA: 'ar', AE: 'ar', EG: 'ar', IQ: 'ar', JO: 'ar', KW: 'ar', LB: 'ar',
+    LY: 'ar', MA: 'ar', OM: 'ar', QA: 'ar', SY: 'ar', TN: 'ar', YE: 'ar',
+    IL: 'he', TR: 'tr', IR: 'fa',
+    // Europe
+    RU: 'ru', UA: 'uk', PL: 'pl', DE: 'de', FR: 'fr', IT: 'it', ES: 'es', PT: 'pt',
+    NL: 'nl', GR: 'el', RO: 'ro', CZ: 'cs', SK: 'sk', HU: 'hu', BG: 'bg', HR: 'hr',
+    RS: 'sr', FI: 'fi', SE: 'sv', NO: 'no', DK: 'da', AT: 'de', CH: 'de',
+    // Americas
+    BR: 'pt', MX: 'es', AR: 'es', CO: 'es', CL: 'es', PE: 'es', VE: 'es',
+    // Africa
+    NG: 'yo', KE: 'sw', TZ: 'sw', ET: 'am',
+    // English countries
+    US: 'en', GB: 'en', AU: 'en', CA: 'en', NZ: 'en', IE: 'en',
+  };
 
   const LANG_OPTIONS = [
     // Top & Indian Languages
@@ -38,6 +63,7 @@
     { code: 'nl', name: 'Dutch', native: 'Nederlands' },
     { code: 'pl', name: 'Polish', native: 'Polski' },
     { code: 'sv', name: 'Swedish', native: 'Svenska' },
+    { code: 'fi', name: 'Finnish / Suomi', native: 'Suomi' },
     { code: 'uk', name: 'Ukrainian', native: 'Українська' },
     { code: 'vi', name: 'Vietnamese', native: 'Tiếng Việt' },
     { code: 'id', name: 'Indonesian', native: 'Bahasa Indonesia' },
@@ -52,7 +78,6 @@
     { code: 'ro', name: 'Romanian', native: 'Română' },
     { code: 'no', name: 'Norwegian', native: 'Norsk' },
     { code: 'da', name: 'Danish', native: 'Dansk' },
-    { code: 'fi', name: 'Finnish', native: 'Suomi' },
     { code: 'bg', name: 'Bulgarian', native: 'Български' },
     { code: 'kk', name: 'Kazakh', native: 'Қазақ тілі' },
     { code: 'km', name: 'Khmer', native: 'ភាសាខ្មែរ' },
@@ -60,7 +85,8 @@
     { code: 'am', name: 'Amharic', native: 'አማርኛ' },
   ];
 
-  const HIST_KEY = 'hind_user_lang';
+  const USER_KEY = 'hind_user_lang';
+  const IP_KEY   = 'hind_ip_default_lang';
   const DONE_KEY = 'hind_translated_' + location.pathname;
 
   // Google Translate API with MyMemory API fallback
@@ -68,7 +94,7 @@
     if (!text || !text.trim() || text.trim().length < 2) return text;
     const cleanText = text.trim();
 
-    // Primary: Google Translate API (fast & unlimited)
+    // Primary: Google Translate API
     try {
       const gUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(cleanText)}`;
       const res = await fetch(gUrl);
@@ -157,12 +183,40 @@
     sessionStorage.setItem(DONE_KEY, '1');
   }
 
+  // Detect visitor IP language as default suggestion
+  async function getOrDetectActiveLang() {
+    // 1. Check if user explicitly chose a language
+    const userChoice = localStorage.getItem(USER_KEY);
+    if (userChoice) return userChoice;
+
+    // 2. Check cached IP default
+    const cachedIpDefault = localStorage.getItem(IP_KEY);
+    if (cachedIpDefault) return cachedIpDefault;
+
+    // 3. Detect visitor country from IP
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 2000);
+      const res = await fetch('https://ipapi.co/json/', { signal: controller.signal });
+      clearTimeout(timer);
+      if (res.ok) {
+        const data = await res.json();
+        const cc = (data.country_code || 'IN').toUpperCase();
+        const detectedLang = COUNTRY_LANG_MAP[cc] || 'hi';
+        localStorage.setItem(IP_KEY, detectedLang);
+        return detectedLang;
+      }
+    } catch (_) {}
+
+    // Fallback default: Hindi for Bharat/Hind
+    return 'hi';
+  }
+
   // Render Language Picker Widget with Quick Search
-  function createLanguageWidget() {
+  function createLanguageWidget(activeLang) {
     if (document.getElementById('hind_lang_widget')) return;
 
-    const currentLang = localStorage.getItem(HIST_KEY) || 'en';
-    const activeOpt = LANG_OPTIONS.find(o => o.code === currentLang) || LANG_OPTIONS[0];
+    const activeOpt = LANG_OPTIONS.find(o => o.code === activeLang) || LANG_OPTIONS[0];
 
     const container = document.createElement('div');
     container.id = 'hind_lang_widget';
@@ -178,6 +232,7 @@
     const pill = document.createElement('button');
     pill.id = 'hind_lang_pill';
     pill.type = 'button';
+    pill.title = 'Click to change site language / भाषा बदलें';
     pill.innerHTML = `<span style="font-size: 0.95rem;">🌐</span> <span>${activeOpt.native}</span> <span style="font-size:0.7rem; opacity:0.8;">▲</span>`;
     pill.style.cssText = [
       'display: flex',
@@ -205,8 +260,8 @@
       'position: absolute',
       'bottom: 2.8rem',
       'left: 0',
-      'width: 260px',
-      'max-height: 360px',
+      'width: 265px',
+      'max-height: 370px',
       'overflow: hidden',
       'flex-direction: column',
       'background: #0f172a',
@@ -220,13 +275,13 @@
     header.style.cssText = 'padding: 0.5rem 0.65rem 0.4rem; border-bottom: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.02);';
     header.innerHTML = `
       <div style="font-size: 0.73rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.35rem;">Choose Language / भाषा चुनें</div>
-      <input type="text" id="hind_lang_search" placeholder="Search language..." style="width:100%; box-sizing:border-box; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:6px; color:#fff; padding:0.3rem 0.55rem; font-size:0.78rem; outline:none;" />
+      <input type="text" id="hind_lang_search" placeholder="Search (Tamil, Bengali, Suomi...)" style="width:100%; box-sizing:border-box; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:6px; color:#fff; padding:0.3rem 0.55rem; font-size:0.78rem; outline:none;" />
     `;
     menu.appendChild(header);
 
     const listContainer = document.createElement('div');
     listContainer.id = 'hind_lang_list';
-    listContainer.style.cssText = 'padding: 0.4rem; overflow-y: auto; max-height: 280px;';
+    listContainer.style.cssText = 'padding: 0.4rem; overflow-y: auto; max-height: 290px;';
 
     function renderList(filter = '') {
       listContainer.innerHTML = '';
@@ -241,7 +296,7 @@
       filtered.forEach(opt => {
         const item = document.createElement('div');
         item.className = 'hind-lang-item';
-        const isSelected = opt.code === currentLang;
+        const isSelected = opt.code === activeLang;
         item.style.cssText = [
           'display: flex',
           'align-items: center',
@@ -259,13 +314,8 @@
         item.addEventListener('mouseleave', () => { if (!isSelected) item.style.background = 'transparent'; });
 
         item.addEventListener('click', () => {
-          if (opt.code === 'en') {
-            localStorage.removeItem(HIST_KEY);
-            sessionStorage.removeItem(DONE_KEY);
-          } else {
-            localStorage.setItem(HIST_KEY, opt.code);
-            sessionStorage.removeItem(DONE_KEY);
-          }
+          localStorage.setItem(USER_KEY, opt.code);
+          sessionStorage.removeItem(DONE_KEY);
           location.reload();
         });
 
@@ -306,11 +356,12 @@
   }
 
   async function init() {
-    createLanguageWidget();
-    const savedLang = localStorage.getItem(HIST_KEY);
-    if (savedLang && savedLang !== 'en') {
+    const activeLang = await getOrDetectActiveLang();
+    createLanguageWidget(activeLang);
+
+    if (activeLang && activeLang !== 'en') {
       await new Promise(r => setTimeout(r, 200));
-      await translatePage(savedLang);
+      await translatePage(activeLang);
     }
   }
 
@@ -321,7 +372,8 @@
   }
 
   window.hindLangReset = function () {
-    localStorage.removeItem(HIST_KEY);
+    localStorage.removeItem(USER_KEY);
+    localStorage.removeItem(IP_KEY);
     sessionStorage.removeItem(DONE_KEY);
     location.reload();
   };
