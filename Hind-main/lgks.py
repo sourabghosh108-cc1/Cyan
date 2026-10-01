@@ -78,8 +78,8 @@ def web_search(query, page=1, limit=25):
                 pass
 
         return items[:limit] if items else []
-    except Exception as e:
-        return {"error": str(e)}
+    except Exception:
+        return []
 
 
 def image_search(query, page=1, limit=25):
@@ -91,17 +91,19 @@ def image_search(query, page=1, limit=25):
                 max_results=limit
             )
 
-            return [
-                {
-                    "title": r.get("title", ""),
-                    "image": r.get("image", ""),
-                    "thumbnail": r.get("thumbnail", ""),
-                    "source": r.get("url", "")
-                }
-                for r in results
-            ]
-    except Exception as e:
-        return {"error": str(e)}
+            if results:
+                return [
+                    {
+                        "title": r.get("title", ""),
+                        "image": r.get("image", ""),
+                        "thumbnail": r.get("thumbnail", ""),
+                        "source": r.get("url", "")
+                    }
+                    for r in results
+                ]
+    except Exception:
+        pass
+    return []
 
 
 def fetch_youtube_videos(query, page=1, limit=20):
@@ -165,24 +167,37 @@ def fetch_youtube_videos(query, page=1, limit=20):
 
 def video_search(query, page=1, limit=20):
     yt_results = fetch_youtube_videos(query, page=page, limit=limit)
-    if yt_results:
+    if yt_results and len(yt_results) >= 5:
         return yt_results
 
+    items = list(yt_results) if yt_results else []
+    seen_urls = {item["url"] for item in items}
+    seen_ids = {item["videoId"] for item in items if item.get("videoId")}
+
+    # 1. Try DDGS videos search engine
     try:
         with DDGS(timeout=6) as ddgs:
             results = ddgs.videos(query, page=page, max_results=limit)
-            if results and isinstance(results, list) and len(results) > 0:
-                videos = []
+            if results and isinstance(results, list):
                 for r in results:
                     url = r.get("content", r.get("url", ""))
+                    if not url or url in seen_urls:
+                        continue
                     m = re.search(r'(?:v=|\/embed\/|\/shorts\/|youtu\.be\/)([a-zA-Z0-9_-]{11})', url)
                     vid_id = m.group(1) if m else ""
+                    if vid_id and vid_id in seen_ids:
+                        continue
                     thumb = r.get("thumbnail", "")
                     if vid_id and (not thumb or "placeholder" in thumb):
                         thumb = f"https://i.ytimg.com/vi/{vid_id}/hqdefault.jpg"
                     elif not thumb:
                         thumb = "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=500&q=80"
-                    videos.append({
+                    
+                    if vid_id:
+                        seen_ids.add(vid_id)
+                    seen_urls.add(url)
+                    
+                    items.append({
                         "title": r.get("title", ""),
                         "url": url,
                         "thumbnail": thumb,
@@ -191,11 +206,48 @@ def video_search(query, page=1, limit=20):
                         "duration": r.get("duration", "HD"),
                         "videoId": vid_id
                     })
-                return videos
     except Exception:
         pass
 
-    return []
+    # 2. DDGS Text Search Fallback for Videos (site:youtube.com or video keywords)
+    if len(items) < limit:
+        try:
+            with DDGS(timeout=8) as ddgs:
+                ddgs_text_results = list(ddgs.text(f"{query} site:youtube.com", page=page, max_results=limit * 2))
+                for r in ddgs_text_results:
+                    url = r.get("href", "")
+                    if not url or url in seen_urls:
+                        continue
+                    m = re.search(r'(?:v=|\/embed\/|\/shorts\/|youtu\.be\/)([a-zA-Z0-9_-]{11})', url)
+                    vid_id = m.group(1) if m else ""
+                    if vid_id and vid_id in seen_ids:
+                        continue
+                    
+                    title = r.get("title", "")
+                    if title.endswith(" - YouTube"):
+                        title = title[:-10].strip()
+                    
+                    thumb = f"https://i.ytimg.com/vi/{vid_id}/hqdefault.jpg" if vid_id else "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=500&q=80"
+                    
+                    if vid_id:
+                        seen_ids.add(vid_id)
+                    seen_urls.add(url)
+                    
+                    items.append({
+                        "title": title or "YouTube Video",
+                        "url": url,
+                        "thumbnail": thumb,
+                        "description": r.get("body", "Watch on YouTube"),
+                        "publisher": "YouTube",
+                        "duration": "HD",
+                        "videoId": vid_id
+                    })
+                    if len(items) >= limit:
+                        break
+        except Exception:
+            pass
+
+    return items[:limit] if items else []
 
 
 def news_search(query, page=1, limit=20):
@@ -207,18 +259,20 @@ def news_search(query, page=1, limit=20):
                 max_results=limit
             )
 
-            return [
-                {
-                    "title": r.get("title", ""),
-                    "url": r.get("url", ""),
-                    "snippet": r.get("body", ""),
-                    "source": r.get("source", ""),
-                    "date": r.get("date", "")
-                }
-                for r in results
-            ]
-    except Exception as e:
-        return {"error": str(e)}
+            if results:
+                return [
+                    {
+                        "title": r.get("title", ""),
+                        "url": r.get("url", ""),
+                        "snippet": r.get("body", ""),
+                        "source": r.get("source", ""),
+                        "date": r.get("date", "")
+                    }
+                    for r in results
+                ]
+    except Exception:
+        pass
+    return []
 
 
 async def run_search(function, *args):
