@@ -141,7 +141,7 @@
     .weather-search-input {
       width: 100%;
       height: 46px;
-      padding: 0 3rem 0 2.5rem;
+      padding: 0 5.2rem 0 2.5rem;
       border-radius: 23px;
       border: 1px solid var(--input-border);
       background: var(--input-bg);
@@ -164,6 +164,31 @@
       color: var(--text-muted);
     }
 
+    .geo-btn-pos {
+      position: absolute;
+      right: 2.85rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1px solid var(--border-color);
+      background: var(--card-bg);
+      color: var(--cyan-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .geo-btn-pos:hover {
+      background: var(--cyan-primary);
+      color: #fff;
+      transform: translateY(-50%) scale(1.05);
+      box-shadow: 0 2px 8px var(--cyan-glow);
+    }
+
     .search-btn-pos {
       position: absolute;
       right: 0.35rem;
@@ -179,6 +204,31 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .location-quick-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--cyan-primary);
+      background: var(--cyan-glow);
+      border: 1px solid rgba(6, 182, 212, 0.35);
+      padding: 0.25rem 0.65rem;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .location-quick-btn:hover {
+      background: var(--cyan-primary);
+      color: #fff;
+      border-color: var(--cyan-primary);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px var(--cyan-glow);
     }
 
     .autocomplete-list {
@@ -564,9 +614,12 @@
             type="text" 
             id="cityInput" 
             class="weather-search-input" 
-            placeholder="Search city (e.g. Delhi, Mumbai, London)..." 
+            placeholder="Search city or use GPS..." 
             autocomplete="off" 
           />
+          <button type="button" id="geoLocBtn" class="geo-btn-pos" title="Use Current GPS Location" aria-label="Use Current Location">
+            <i class="fa-solid fa-location-crosshairs"></i>
+          </button>
           <button type="button" id="searchBtn" class="search-btn-pos" aria-label="Search">
             <i class="fa-solid fa-arrow-right"></i>
           </button>
@@ -598,7 +651,12 @@
       <section class="hero-weather-card">
         <div class="hero-header">
           <div>
-            <h1 class="location-name" id="cityName"><i class="fa-solid fa-location-dot text-cyan me-2"></i> New Delhi</h1>
+            <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+              <h1 class="location-name mb-0" id="cityName"><i class="fa-solid fa-location-dot text-cyan me-2"></i> New Delhi</h1>
+              <button type="button" class="location-quick-btn" id="heroGeoBtn" title="Detect and use my exact current location">
+                <i class="fa-solid fa-location-crosshairs"></i> Detect My Location
+              </button>
+            </div>
             <div class="location-country" id="countryName">India</div>
           </div>
           <div class="temp-toggle-group">
@@ -764,7 +822,10 @@
       const hourly = data.hourly;
 
       // City Header
-      document.getElementById('cityName').innerHTML = `<i class="fa-solid fa-location-dot me-2 text-info"></i> ${selectedCity.name}`;
+      const liveBadge = selectedCity.isLiveLocation 
+        ? '<span class="badge bg-success ms-2" style="font-size:0.75rem; vertical-align:middle; font-weight:600;"><i class="fa-solid fa-satellite-dish me-1"></i> Live GPS</span>' 
+        : '';
+      document.getElementById('cityName').innerHTML = `<i class="fa-solid fa-location-dot me-2 text-info"></i> ${selectedCity.name} ${liveBadge}`;
       document.getElementById('countryName').innerText = selectedCity.country || '';
 
       // Current Conditions
@@ -842,6 +903,119 @@
       renderWeather();
     }
 
+    // Geolocation Handling
+    async function getCurrentLocationWeather() {
+      const geoBtn = document.getElementById('geoLocBtn');
+      const heroGeoBtn = document.getElementById('heroGeoBtn');
+      
+      if (!navigator.geolocation) {
+        alert('Geolocation is not supported by your browser. Please search for your city manually.');
+        return;
+      }
+
+      // UI Loading indicator
+      if (geoBtn) {
+        geoBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+        geoBtn.disabled = true;
+      }
+      if (heroGeoBtn) {
+        heroGeoBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Detecting...';
+        heroGeoBtn.disabled = true;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          
+          try {
+            // Reverse Geocode to get locality/city name
+            const geoInfo = await reverseGeocode(lat, lng);
+            selectedCity = {
+              name: geoInfo.name,
+              country: geoInfo.country,
+              lat: lat,
+              lng: lng,
+              isLiveLocation: true
+            };
+            cityInput.value = geoInfo.name;
+            await fetchWeather(lat, lng);
+          } catch (err) {
+            console.error('Error in location weather:', err);
+            selectedCity = {
+              name: 'My Location',
+              country: `Coordinates: ${lat.toFixed(2)}°, ${lng.toFixed(2)}°`,
+              lat: lat,
+              lng: lng,
+              isLiveLocation: true
+            };
+            await fetchWeather(lat, lng);
+          } finally {
+            resetGeoButtons();
+          }
+        },
+        (error) => {
+          resetGeoButtons();
+          let msg = 'Unable to retrieve your location.';
+          if (error.code === error.PERMISSION_DENIED) {
+            msg = 'Location permission was denied. Please allow location access in your browser settings or search for your city above.';
+          } else if (error.code === error.POSITION_UNAVAILABLE) {
+            msg = 'Location information is currently unavailable. Please try again or search your city.';
+          } else if (error.code === error.TIMEOUT) {
+            msg = 'Location request timed out. Please try again.';
+          }
+          alert(msg);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 60000
+        }
+      );
+    }
+
+    function resetGeoButtons() {
+      const geoBtn = document.getElementById('geoLocBtn');
+      const heroGeoBtn = document.getElementById('heroGeoBtn');
+      if (geoBtn) {
+        geoBtn.innerHTML = '<i class="fa-solid fa-location-crosshairs"></i>';
+        geoBtn.disabled = false;
+      }
+      if (heroGeoBtn) {
+        heroGeoBtn.innerHTML = '<i class="fa-solid fa-location-crosshairs me-1"></i> Detect My Location';
+        heroGeoBtn.disabled = false;
+      }
+    }
+
+    async function reverseGeocode(lat, lng) {
+      try {
+        const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`);
+        if (res.ok) {
+          const data = await res.json();
+          const city = data.locality || data.city || data.principalSubdivision || 'Local Area';
+          const country = data.countryName ? `${data.principalSubdivision ? data.principalSubdivision + ', ' : ''}${data.countryName}` : 'India';
+          return { name: city, country: country };
+        }
+      } catch (e) {
+        console.warn('BigDataCloud reverse geocode failed, trying OpenStreetMap', e);
+      }
+
+      try {
+        const res2 = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=en`);
+        if (res2.ok) {
+          const data2 = await res2.json();
+          const addr = data2.address || {};
+          const city = addr.city || addr.town || addr.village || addr.suburb || addr.county || addr.state_district || 'Nearest Area';
+          const stateCountry = [addr.state, addr.country].filter(Boolean).join(', ') || 'India';
+          return { name: city, country: stateCountry };
+        }
+      } catch (e2) {
+        console.warn('OSM reverse geocode fallback failed', e2);
+      }
+
+      return { name: `Location (${lat.toFixed(2)}°, ${lng.toFixed(2)}°)`, country: 'Local Region' };
+    }
+
     // Geocoding Autocomplete Search
     const cityInput = document.getElementById('cityInput');
     const autocompleteList = document.getElementById('autocompleteList');
@@ -876,7 +1050,7 @@
     });
 
     function selectCity(name, country, lat, lng) {
-      selectedCity = { name, country, lat, lng };
+      selectedCity = { name, country, lat, lng, isLiveLocation: false };
       cityInput.value = name;
       autocompleteList.style.display = 'none';
       fetchWeather(lat, lng);
@@ -888,6 +1062,16 @@
         if (firstItem) firstItem.click();
       }
     });
+
+    const geoLocBtn = document.getElementById('geoLocBtn');
+    if (geoLocBtn) {
+      geoLocBtn.addEventListener('click', getCurrentLocationWeather);
+    }
+
+    const heroGeoBtn = document.getElementById('heroGeoBtn');
+    if (heroGeoBtn) {
+      heroGeoBtn.addEventListener('click', getCurrentLocationWeather);
+    }
 
     document.addEventListener('click', (e) => {
       if (!e.target.closest('.search-area')) {

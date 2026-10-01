@@ -374,6 +374,11 @@
       border-color: var(--cyan-primary);
     }
 
+    .cal-day-cell.selected {
+      border-color: var(--cyan-primary);
+      box-shadow: 0 0 0 2px var(--cyan-primary), 0 4px 15px var(--cyan-glow);
+    }
+
     .cal-day-cell.today .day-number {
       color: var(--cyan-primary);
       font-weight: 800;
@@ -756,26 +761,165 @@
     // State
     let currentDate = new Date();
     const today = new Date();
+    let selectedDate = new Date();
 
-    const indianFestivals = {
+    // Fixed Annual Holidays / Observances (M-D format)
+    const fixedHolidays = {
+      "1-1": "New Year's Day",
+      "1-14": "Makar Sankranti / Pongal",
       "1-26": "Republic Day",
-      "3-25": "Holi",
+      "2-28": "National Science Day",
+      "3-8": "International Women's Day",
       "4-14": "Ambedkar Jayanti",
+      "5-1": "Labour Day",
       "8-15": "Independence Day",
-      "8-19": "Raksha Bandhan",
-      "8-26": "Janmashtami",
-      "9-7": "Ganesh Chaturthi",
       "10-2": "Gandhi Jayanti",
-      "10-12": "Dussehra",
-      "10-28": "Diwali",
-      "11-1": "Govardhan Puja",
-      "12-25": "Christmas",
-      "1-1": "New Year's Day"
+      "10-31": "National Unity Day",
+      "11-14": "Children's Day",
+      "12-25": "Christmas"
     };
 
-    const tithis = ["Pratipada", "Dwitiya", "Tritiya", "Chaturthi", "Panchami", "Shashti", "Saptami", "Ashtami", "Navami", "Dashami", "Ekadashi", "Dwadashi", "Trayodashi", "Chaturdashi", "Purnima / Amavasya"];
-    const nakshatras = ["Ashwini", "Bharani", "Krittika", "Rohini", "Mrigashirsha", "Ardra", "Punarvasu", "Pushya", "Ashlesha", "Magha", "Purva Phalguni", "Uttara Phalguni", "Hasta", "Chitra", "Swati", "Vishakha", "Anuradha", "Jyeshtha", "Mula", "Purva Ashadha", "Uttara Ashadha", "Shravana", "Dhanishta", "Shatabhisha", "Purva Bhadrapada", "Uttara Bhadrapada", "Revati"];
-    const hinduMonths = ["Chaitra", "Vaisakha", "Jyeshtha", "Ashadha", "Shravana", "Bhadrapada", "Ashwin", "Kartik", "Margashirsha", "Pausha", "Magha", "Phalguna"];
+    // Year-specific Indian & Cultural Festivals (YYYY-M-D format)
+    const dynamicFestivals = {
+      // 2025
+      "2025-1-1": "New Year's Day",
+      "2025-1-14": "Makar Sankranti / Pongal",
+      "2025-1-26": "Republic Day",
+      "2025-2-2": "Vasant Panchami",
+      "2025-2-26": "Maha Shivratri",
+      "2025-3-13": "Holika Dahan",
+      "2025-3-14": "Holi (Dhulandi)",
+      "2025-3-30": "Chaitra Navratri / Ugadi",
+      "2025-3-31": "Eid-ul-Fitr",
+      "2025-4-6": "Ram Navami",
+      "2025-4-10": "Mahavir Jayanti",
+      "2025-4-14": "Baisakhi / Ambedkar Jayanti",
+      "2025-4-18": "Good Friday",
+      "2025-5-12": "Buddha Purnima",
+      "2025-6-7": "Eid al-Adha",
+      "2025-7-6": "Muharram",
+      "2025-8-9": "Raksha Bandhan",
+      "2025-8-15": "Independence Day",
+      "2025-8-16": "Krishna Janmashtami",
+      "2025-8-27": "Ganesh Chaturthi",
+      "2025-10-2": "Gandhi Jayanti / Dussehra",
+      "2025-10-10": "Karwa Chauth",
+      "2025-10-18": "Dhanteras",
+      "2025-10-20": "Diwali (Lakshmi Puja)",
+      "2025-10-22": "Govardhan Puja / Bhai Dooj",
+      "2025-10-28": "Chhath Puja",
+      "2025-11-5": "Guru Nanak Jayanti",
+      "2025-12-25": "Christmas",
+
+      // 2026 (Accurate 2026 Dates)
+      "2026-1-1": "New Year's Day",
+      "2026-1-14": "Makar Sankranti / Pongal",
+      "2026-1-23": "Netaji Subhash Jayanti",
+      "2026-1-26": "Republic Day",
+      "2026-1-27": "Vasant Panchami",
+      "2026-2-15": "Maha Shivratri",
+      "2026-3-3": "Holika Dahan",
+      "2026-3-4": "Holi (Dhulandi)",
+      "2026-3-19": "Ugadi / Gudi Padwa / Chaitra Navratri",
+      "2026-3-20": "Eid-ul-Fitr",
+      "2026-3-27": "Ram Navami",
+      "2026-3-31": "Mahavir Jayanti",
+      "2026-4-3": "Good Friday",
+      "2026-4-5": "Easter Sunday",
+      "2026-4-14": "Baisakhi / Ambedkar Jayanti",
+      "2026-5-1": "Buddha Purnima / May Day",
+      "2026-5-27": "Eid al-Adha (Bakrid)",
+      "2026-6-26": "Muharram (Ashura)",
+      "2026-7-16": "Jagannath Rath Yatra",
+      "2026-7-29": "Guru Purnima",
+      "2026-8-15": "Independence Day",
+      "2026-8-26": "Onam / Thiruvonam",
+      "2026-8-28": "Raksha Bandhan",
+      "2026-9-4": "Krishna Janmashtami",
+      "2026-9-14": "Ganesh Chaturthi",
+      "2026-9-24": "Anant Chaturdashi",
+      "2026-10-2": "Gandhi Jayanti",
+      "2026-10-11": "Shardiya Navratri Starts",
+      "2026-10-18": "Maha Ashtami (Durga Puja)",
+      "2026-10-19": "Maha Navami",
+      "2026-10-20": "Dussehra (Vijayadashami)",
+      "2026-10-28": "Karwa Chauth",
+      "2026-11-6": "Dhanteras",
+      "2026-11-7": "Naraka Chaturdashi (Chhoti Diwali)",
+      "2026-11-8": "Diwali (Lakshmi Puja)",
+      "2026-11-9": "Govardhan Puja",
+      "2026-11-10": "Bhai Dooj",
+      "2026-11-15": "Chhath Puja",
+      "2026-11-24": "Guru Nanak Jayanti",
+      "2026-12-25": "Christmas",
+
+      // 2027
+      "2027-1-1": "New Year's Day",
+      "2027-1-14": "Makar Sankranti / Pongal",
+      "2027-1-26": "Republic Day",
+      "2027-2-11": "Vasant Panchami",
+      "2027-3-6": "Maha Shivratri",
+      "2027-3-22": "Holi (Dhulandi)",
+      "2027-3-23": "Chaitra Navratri",
+      "2027-4-14": "Ambedkar Jayanti",
+      "2027-4-15": "Ram Navami",
+      "2027-8-15": "Independence Day",
+      "2027-8-17": "Raksha Bandhan",
+      "2027-8-25": "Janmashtami",
+      "2027-9-4": "Ganesh Chaturthi",
+      "2027-10-2": "Gandhi Jayanti",
+      "2027-10-9": "Dussehra",
+      "2027-10-29": "Diwali",
+      "2027-11-13": "Guru Nanak Jayanti",
+      "2027-12-25": "Christmas"
+    };
+
+    function getFestivalForDate(year, month, day) {
+      const yearKey = `${year}-${month}-${day}`;
+      if (dynamicFestivals[yearKey]) return dynamicFestivals[yearKey];
+      const fixedKey = `${month}-${day}`;
+      return fixedHolidays[fixedKey] || null;
+    }
+
+    const tithis = [
+      "Pratipada", "Dwitiya", "Tritiya", "Chaturthi", "Panchami",
+      "Shashti", "Saptami", "Ashtami", "Navami", "Dashami",
+      "Ekadashi", "Dwadashi", "Trayodashi", "Chaturdashi", "Purnima",
+      "Pratipada", "Dwitiya", "Tritiya", "Chaturthi", "Panchami",
+      "Shashti", "Saptami", "Ashtami", "Navami", "Dashami",
+      "Ekadashi", "Dwadashi", "Trayodashi", "Chaturdashi", "Amavasya"
+    ];
+
+    const nakshatras = [
+      "Ashwini", "Bharani", "Krittika", "Rohini", "Mrigashirsha", "Ardra",
+      "Punarvasu", "Pushya", "Ashlesha", "Magha", "Purva Phalguni", "Uttara Phalguni",
+      "Hasta", "Chitra", "Swati", "Vishakha", "Anuradha", "Jyeshtha",
+      "Mula", "Purva Ashadha", "Uttara Ashadha", "Shravana", "Dhanishta",
+      "Shatabhisha", "Purva Bhadrapada", "Uttara Bhadrapada", "Revati"
+    ];
+
+    const hinduMonths = [
+      "Pausha - Magha", "Magha - Phalguna", "Phalguna - Chaitra", "Chaitra - Vaisakha",
+      "Vaisakha - Jyeshtha", "Jyeshtha - Ashadha", "Ashadha - Shravana", "Shravana - Bhadrapada",
+      "Bhadrapada - Ashwin", "Ashwin - Kartik", "Kartik - Margashirsha", "Margashirsha - Pausha"
+    ];
+
+    const rituNames = [
+      "Shishir Ritu (Winter)", "Shishir Ritu (Winter)", "Vasant Ritu (Spring)", "Vasant Ritu (Spring)",
+      "Grishma Ritu (Summer)", "Grishma Ritu (Summer)", "Varsha Ritu (Monsoon)", "Varsha Ritu (Monsoon)",
+      "Sharad Ritu (Autumn)", "Sharad Ritu (Autumn)", "Hemant Ritu (Pre-winter)", "Hemant Ritu (Pre-winter)"
+    ];
+
+    // Rahu Kalam by day of week (0: Sunday .. 6: Saturday)
+    const rahuKaalTimings = [
+      "04:30 PM - 06:00 PM", // Sunday
+      "07:30 AM - 09:00 AM", // Monday
+      "03:00 PM - 04:30 PM", // Tuesday
+      "12:00 PM - 01:30 PM", // Wednesday
+      "01:30 PM - 03:00 PM", // Thursday
+      "10:30 AM - 12:00 PM", // Friday
+      "09:00 AM - 10:30 AM"  // Saturday
+    ];
 
     let myEvents = JSON.parse(localStorage.getItem('cyan_calendar_events') || '{}');
 
@@ -790,7 +934,7 @@
         vedicBtn.className = 'mode-tab active-vedic';
         modernView.style.display = 'none';
         vedicView.style.display = 'block';
-        calculateVedicPanchang();
+        calculateVedicPanchang(selectedDate || currentDate);
       } else {
         modernBtn.className = 'mode-tab active-modern';
         vedicBtn.className = 'mode-tab';
@@ -799,24 +943,47 @@
       }
     }
 
-    function calculateVedicPanchang() {
-      const dateNum = currentDate.getDate() || today.getDate();
-      const monthNum = currentDate.getMonth();
+    function calculateVedicPanchang(targetDate) {
+      const date = targetDate || selectedDate || currentDate || today;
+      const dayOfWeek = date.getDay();
+      const monthIdx = date.getMonth();
+      const year = date.getFullYear();
 
-      const tithiIdx = (dateNum + monthNum * 2) % 15;
-      const paksha = (dateNum % 2 === 0) ? "Shukla Paksha" : "Krishna Paksha";
-      const nakshatraIdx = (dateNum + monthNum * 3) % 27;
+      // Accurate Lunar Synodic Phase (Tithi)
+      const knownNewMoon = new Date(Date.UTC(2000, 0, 6, 18, 14));
+      const synodicMonth = 29.53058867;
+      const diffDays = (date.getTime() - knownNewMoon.getTime()) / (1000 * 60 * 60 * 24);
+      const moonAge = (diffDays % synodicMonth + synodicMonth) % synodicMonth;
+      const tithiIdx = Math.min(29, Math.floor((moonAge / synodicMonth) * 30));
+      const paksha = tithiIdx < 15 ? "Shukla Paksha (Waxing)" : "Krishna Paksha (Waning)";
+
+      // Sidereal Moon (Nakshatra)
+      const siderealMonth = 27.321661;
+      const knownAshwini = new Date(Date.UTC(2000, 0, 1, 0, 0));
+      const nakDiff = (date.getTime() - knownAshwini.getTime()) / (1000 * 60 * 60 * 24);
+      const nakAge = (nakDiff % siderealMonth + siderealMonth) % siderealMonth;
+      const nakshatraIdx = Math.floor((nakAge / siderealMonth) * 27) % 27;
+      const pada = (Math.floor((nakAge / (siderealMonth / 108))) % 4) + 1;
+
+      // Samvat Calculations
+      const isPostChaitra = monthIdx >= 2;
+      const vikramSamvat = isPostChaitra ? year + 57 : year + 56;
+      const sakaSamvat = isPostChaitra ? year - 78 : year - 79;
 
       document.getElementById('panTithi').innerText = tithis[tithiIdx];
       document.getElementById('panPaksha').innerText = paksha;
-
       document.getElementById('panNakshatra').innerText = nakshatras[nakshatraIdx];
-      document.getElementById('panPada').innerText = `Pada ${(dateNum % 4) + 1}`;
-
-      document.getElementById('panSamvat').innerText = `Vikram ${currentDate.getFullYear() + 57}`;
-      document.getElementById('panSaka').innerText = `Saka ${currentDate.getFullYear() - 78}`;
-
-      document.getElementById('panMonth').innerText = hinduMonths[monthNum % 12];
+      document.getElementById('panPada').innerText = `Pada ${pada}`;
+      document.getElementById('panSamvat').innerText = `Vikram ${vikramSamvat}`;
+      document.getElementById('panSaka').innerText = `Saka ${sakaSamvat}`;
+      document.getElementById('panMonth').innerText = hinduMonths[monthIdx];
+      if (document.getElementById('panRitu')) {
+        document.getElementById('panRitu').innerText = rituNames[monthIdx];
+      }
+      document.getElementById('panRahu').innerText = rahuKaalTimings[dayOfWeek];
+      if (document.getElementById('panAbhijit')) {
+        document.getElementById('panAbhijit').innerText = dayOfWeek === 3 ? "Not Applicable (Wednesday)" : "11:45 AM - 12:35 PM";
+      }
     }
 
     function renderCalendar() {
@@ -851,31 +1018,48 @@
             cell.classList.add('other-month');
             cell.innerHTML = `<span class="day-number">${nextMonthDayCounter++}</span>`;
           } else {
-            const dateKey = `${month + 1}-${dayCounter}`;
-            const fullDateKey = `${year}-${month + 1}-${dayCounter}`;
-            const tithiName = tithis[(dayCounter + month * 2) % 15];
+            const currentDayNum = dayCounter;
+            const fullDateKey = `${year}-${month + 1}-${currentDayNum}`;
+            const festivalName = getFestivalForDate(year, month + 1, currentDayNum);
 
-            if (dayCounter === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+            // Compute approximate tithi text
+            const dateObj = new Date(year, month, currentDayNum);
+            const knownNewMoon = new Date(Date.UTC(2000, 0, 6, 18, 14));
+            const synodicMonth = 29.53058867;
+            const diffDays = (dateObj.getTime() - knownNewMoon.getTime()) / (1000 * 60 * 60 * 24);
+            const moonAge = (diffDays % synodicMonth + synodicMonth) % synodicMonth;
+            const tithiIdx = Math.min(29, Math.floor((moonAge / synodicMonth) * 30));
+            const tithiName = tithis[tithiIdx];
+
+            if (currentDayNum === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
               cell.classList.add('today');
             }
 
+            if (selectedDate && currentDayNum === selectedDate.getDate() && month === selectedDate.getMonth() && year === selectedDate.getFullYear()) {
+              cell.classList.add('selected');
+            }
+
             let cellHTML = `
-              <span class="day-number">${dayCounter}</span>
+              <span class="day-number">${currentDayNum}</span>
               <span class="tithi-subtext">${tithiName}</span>
             `;
 
-            if (indianFestivals[dateKey]) {
-              cellHTML += `<span class="event-indicator festival-indicator">${indianFestivals[dateKey]}</span>`;
+            if (festivalName) {
+              cellHTML += `<span class="event-indicator festival-indicator" title="${festivalName}">${festivalName}</span>`;
             }
 
             if (myEvents[fullDateKey]) {
-              cellHTML += `<span class="event-indicator">${myEvents[fullDateKey]}</span>`;
+              cellHTML += `<span class="event-indicator" title="${myEvents[fullDateKey]}">${myEvents[fullDateKey]}</span>`;
             }
 
             cell.innerHTML = cellHTML;
 
-            const currentDayNum = dayCounter;
-            cell.addEventListener('click', () => selectDate(year, month + 1, currentDayNum));
+            cell.addEventListener('click', () => {
+              selectedDate = new Date(year, month, currentDayNum);
+              renderCalendar();
+              calculateVedicPanchang(selectedDate);
+              promptAddEvent(year, month + 1, currentDayNum);
+            });
 
             dayCounter++;
           }
@@ -887,30 +1071,38 @@
         if (dayCounter > daysInMonth && nextMonthDayCounter > 7) break;
       }
 
-      renderFestivalList(month + 1);
+      renderFestivalList(year, month + 1);
       renderCustomEventList();
     }
 
-    function renderFestivalList(currentMonth) {
+    function renderFestivalList(currentYear, currentMonth) {
       const festivalList = document.getElementById('festivalList');
       festivalList.innerHTML = '';
 
-      const monthFestivals = Object.keys(indianFestivals).filter(key => parseInt(key.split('-')[0]) === currentMonth);
+      const monthNames = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
+      const monthFestivals = [];
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        const fest = getFestivalForDate(currentYear, currentMonth, d);
+        if (fest) {
+          const dateObj = new Date(currentYear, currentMonth - 1, d);
+          const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
+          monthFestivals.push({ day: d, name: fest, dayName: dayName });
+        }
+      }
 
       if (monthFestivals.length === 0) {
-        festivalList.innerHTML = `<div class="text-muted small">No major national festivals listed for this month.</div>`;
+        festivalList.innerHTML = `<div class="text-muted small">No major national or cultural festivals listed for this month.</div>`;
         return;
       }
 
-      const monthNames = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-      monthFestivals.forEach(key => {
-        const [m, d] = key.split('-');
+      monthFestivals.forEach(item => {
         festivalList.innerHTML += `
           <div class="event-list-item">
             <div class="event-info">
-              <span class="event-title-text">${indianFestivals[key]}</span>
-              <span class="event-date-text">${monthNames[m]} ${d}</span>
+              <span class="event-title-text">${item.name}</span>
+              <span class="event-date-text">${monthNames[currentMonth]} ${item.day} (${item.dayName})</span>
             </div>
             <span class="badge bg-warning text-dark">Festival</span>
           </div>
@@ -924,7 +1116,7 @@
 
       const keys = Object.keys(myEvents);
       if (keys.length === 0) {
-        customEventList.innerHTML = `<div class="text-muted small">No custom reminders added yet. Click a date to add one!</div>`;
+        customEventList.innerHTML = `<div class="text-muted small">No custom reminders added yet. Click any date or use the input box to add one!</div>`;
         return;
       }
 
@@ -941,9 +1133,9 @@
       });
     }
 
-    function selectDate(year, month, day) {
+    function promptAddEvent(year, month, day) {
       const fullKey = `${year}-${month}-${day}`;
-      const title = prompt(`Add reminder for ${fullKey}:`, myEvents[fullKey] || '');
+      const title = prompt(`Add / Edit reminder for ${fullKey}:`, myEvents[fullKey] || '');
       if (title !== null) {
         if (title.trim() === '') {
           delete myEvents[fullKey];
@@ -973,15 +1165,18 @@
 
     document.getElementById('todayBtn').addEventListener('click', () => {
       currentDate = new Date();
+      selectedDate = new Date();
       renderCalendar();
+      calculateVedicPanchang(selectedDate);
     });
 
     document.getElementById('addEventBtn').addEventListener('click', () => {
       const input = document.getElementById('eventInput');
       const val = input.value.trim();
       if (val) {
-        const todayKey = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
-        myEvents[todayKey] = val;
+        const target = selectedDate || today;
+        const targetKey = `${target.getFullYear()}-${target.getMonth() + 1}-${target.getDate()}`;
+        myEvents[targetKey] = val;
         localStorage.setItem('cyan_calendar_events', JSON.stringify(myEvents));
         input.value = '';
         renderCalendar();
@@ -990,6 +1185,7 @@
 
     // Initial render
     renderCalendar();
+    calculateVedicPanchang(today);
 
     // Dark Mode Toggle Logic
     const themeToggle = document.getElementById('themeToggle');

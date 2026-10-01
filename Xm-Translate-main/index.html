@@ -375,11 +375,65 @@
       background: var(--cyan-glow);
     }
 
+    .voice-btn {
+      background: var(--card-bg);
+      color: var(--cyan-primary);
+      border: 1px solid var(--cyan-primary);
+      padding: 0.75rem 1.75rem;
+      border-radius: 30px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .voice-btn:hover {
+      background: var(--cyan-glow);
+      color: var(--cyan-primary);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px var(--cyan-glow);
+    }
+
+    .voice-btn.listening, .icon-btn.listening {
+      background: #ef4444 !important;
+      color: #ffffff !important;
+      border-color: #ef4444 !important;
+      animation: pulseMic 1.2s infinite ease-in-out;
+    }
+
+    @keyframes pulseMic {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+
+    .listening-banner {
+      display: none;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.65rem 1.1rem;
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      border-radius: 14px;
+      color: #ef4444;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+    }
+
+    .listening-banner.active {
+      display: flex;
+    }
+
     /* Submit Action Button */
     .action-row {
       display: flex;
       justify-content: flex-end;
       gap: 1rem;
+      flex-wrap: wrap;
     }
 
     .translate-btn {
@@ -495,15 +549,22 @@
         </div>
       </div>
 
+      <!-- Voice Listening Status Banner -->
+      <div id="listeningBanner" class="listening-banner">
+        <i class="fa-solid fa-microphone fa-bounce"></i>
+        <span id="listeningText">Listening... Speak clearly into your microphone</span>
+      </div>
+
       <!-- Text Inputs Container -->
       <div class="text-grid">
         <!-- Input Text -->
         <div class="text-box-container">
-          <textarea id="fromText" class="translate-textarea" placeholder="Type or paste text to translate..." spellcheck="false"></textarea>
+          <textarea id="fromText" class="translate-textarea" placeholder="Type, paste, or speak text to translate..." spellcheck="false"></textarea>
           <div class="text-box-footer">
             <span id="charCount">0 / 5000</span>
             <div class="icon-btn-group">
-              <button type="button" id="speechFrom" class="icon-btn" title="Listen"><i class="fa-solid fa-volume-high"></i></button>
+              <button type="button" id="micFrom" class="icon-btn" title="Voice Input (Speak)"><i class="fa-solid fa-microphone"></i></button>
+              <button type="button" id="speechFrom" class="icon-btn" title="Listen (Text-to-Speech)"><i class="fa-solid fa-volume-high"></i></button>
               <button type="button" id="copyFrom" class="icon-btn" title="Copy"><i class="fa-regular fa-copy"></i></button>
               <button type="button" id="clearFrom" class="icon-btn" title="Clear"><i class="fa-solid fa-xmark"></i></button>
             </div>
@@ -516,7 +577,7 @@
           <div class="text-box-footer">
             <span id="statusText">Ready</span>
             <div class="icon-btn-group">
-              <button type="button" id="speechTo" class="icon-btn" title="Listen"><i class="fa-solid fa-volume-high"></i></button>
+              <button type="button" id="speechTo" class="icon-btn" title="Listen (Text-to-Speech)"><i class="fa-solid fa-volume-high"></i></button>
               <button type="button" id="copyTo" class="icon-btn" title="Copy"><i class="fa-regular fa-copy"></i></button>
             </div>
           </div>
@@ -525,6 +586,9 @@
 
       <!-- Submit Row -->
       <div class="action-row">
+        <button type="button" id="voiceBtn" class="voice-btn" title="Speak to Translate">
+          <i class="fa-solid fa-microphone"></i> <span>Speak &amp; Translate</span>
+        </button>
         <button type="button" id="translateBtn" class="translate-btn">
           <span>Translate</span> <i class="fa-solid fa-wand-magic-sparkles"></i>
         </button>
@@ -554,6 +618,10 @@
     const translateBtn = document.getElementById("translateBtn");
     const charCount = document.getElementById("charCount");
     const statusText = document.getElementById("statusText");
+    const micFrom = document.getElementById("micFrom");
+    const voiceBtn = document.getElementById("voiceBtn");
+    const listeningBanner = document.getElementById("listeningBanner");
+    const listeningText = document.getElementById("listeningText");
 
     // Populate Languages Select
     for (let code in countries) {
@@ -594,37 +662,136 @@
       statusText.innerText = "Translating...";
       toText.setAttribute("placeholder", "Translating...");
 
-      // Extract 2-letter ISO 639-1 language codes for MyMemory API (e.g. ja-JP -> ja, ur-PK -> ur)
+      // Extract 2-letter ISO 639-1 language codes (e.g. ja-JP -> ja, ur-PK -> ur)
       let langFromCode = langFrom.split('-')[0];
       let langToCode = langTo.split('-')[0];
       if (langFrom === 'zh-CN') langFromCode = 'zh';
       if (langTo === 'zh-CN') langToCode = 'zh';
 
+      let translatedText = '';
+
+      // Primary: MyMemory API
       try {
         let apiUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${langFromCode}|${langToCode}`;
         let res = await fetch(apiUrl);
-        let data = await res.json();
-        
-        let translatedText = data.responseData ? data.responseData.translatedText : '';
-        if (data.matches && data.matches.length > 0) {
-          const zeroMatch = data.matches.find(m => m.id === 0 && m.translation);
-          if (zeroMatch) translatedText = zeroMatch.translation;
-        }
-
-        if (translatedText) {
-          toText.value = translatedText;
-          statusText.innerText = "Translated";
-        } else {
-          statusText.innerText = "No result";
+        if (res.ok) {
+          let data = await res.json();
+          if (data && data.responseStatus === 200 && data.responseData && data.responseData.translatedText) {
+            translatedText = data.responseData.translatedText;
+            if (data.matches && data.matches.length > 0) {
+              const zeroMatch = data.matches.find(m => m.id === 0 && m.translation);
+              if (zeroMatch) translatedText = zeroMatch.translation;
+            }
+          }
         }
       } catch (err) {
-        console.error(err);
+        console.log("MyMemory API limit/error, trying Google Translate cushion...");
+      }
+
+      // Cushion Fallback: Google Translate API (if MyMemory failed, erroring, or exhausted)
+      if (!translatedText) {
+        try {
+          let gUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${langFromCode}&tl=${langToCode}&dt=t&q=${encodeURIComponent(text)}`;
+          let res = await fetch(gUrl);
+          if (res.ok) {
+            let gData = await res.json();
+            if (gData && gData[0]) {
+              translatedText = gData[0].map(x => x[0]).filter(Boolean).join('');
+            }
+          }
+        } catch (err) {
+          console.error("Google Translate API error:", err);
+        }
+      }
+
+      if (translatedText) {
+        toText.value = translatedText;
+        statusText.innerText = "Translated";
+      } else {
         statusText.innerText = "Error translating";
-        toText.value = "Translation error. Please check connection.";
+        toText.value = "Translation error. Please try again.";
       }
     }
 
     translateBtn.addEventListener("click", translate);
+
+    // Speech Recognition (Voice Access Input)
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition = null;
+    let isListening = false;
+
+    if (SpeechRecognition) {
+      recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = true;
+
+      recognition.onstart = () => {
+        isListening = true;
+        const sourceLangName = selectFrom.options[selectFrom.selectedIndex]?.text || "selected language";
+        listeningText.innerText = `Listening... Speak now in ${sourceLangName}`;
+        listeningBanner.classList.add("active");
+        micFrom.classList.add("listening");
+        voiceBtn.classList.add("listening");
+        statusText.innerText = "Listening to voice...";
+      };
+
+      recognition.onresult = (event) => {
+        let transcript = Array.from(event.results)
+          .map(result => result[0].transcript)
+          .join("");
+        fromText.value = transcript;
+        charCount.innerText = `${fromText.value.length} / 5000`;
+      };
+
+      recognition.onerror = (event) => {
+        console.warn("Speech recognition error:", event.error);
+        stopVoiceInput();
+        if (event.error === 'not-allowed') {
+          alert("Microphone permission was denied. Please allow microphone access in your browser settings to use voice translation.");
+        } else if (event.error === 'no-speech') {
+          statusText.innerText = "No voice speech detected";
+        } else {
+          statusText.innerText = "Voice error: " + event.error;
+        }
+      };
+
+      recognition.onend = () => {
+        stopVoiceInput();
+        if (fromText.value.trim()) {
+          translate();
+        }
+      };
+    }
+
+    function startVoiceInput() {
+      if (!SpeechRecognition) {
+        alert("Speech Recognition is not supported by this browser. Please try Google Chrome or Microsoft Edge.");
+        return;
+      }
+
+      if (isListening) {
+        recognition.stop();
+        return;
+      }
+
+      try {
+        recognition.lang = selectFrom.value || 'en-US';
+        recognition.start();
+      } catch (err) {
+        console.error("Speech start error:", err);
+        stopVoiceInput();
+      }
+    }
+
+    function stopVoiceInput() {
+      isListening = false;
+      listeningBanner.classList.remove("active");
+      micFrom.classList.remove("listening");
+      voiceBtn.classList.remove("listening");
+    }
+
+    micFrom.addEventListener("click", startVoiceInput);
+    voiceBtn.addEventListener("click", startVoiceInput);
 
     // Speech & Copy Actions
     document.getElementById("copyFrom").addEventListener("click", () => {
