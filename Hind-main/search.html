@@ -2483,57 +2483,23 @@
         }
 
         if (type === 'videos') {
-          // Use Invidious open-source YouTube API (CORS-enabled, no key needed)
-          const INVIDIOUS_INSTANCES = [
-            'https://inv.nadeko.net',
-            'https://invidious.nikkosphere.com',
-            'https://iv.ggtyler.dev',
-            'https://invidious.privacydev.net',
-            'https://invidious.slipfox.xyz'
-          ];
-          let videoItems = [];
-          for (const inst of INVIDIOUS_INSTANCES) {
-            try {
-              const res = await Promise.race([
-                fetch(`${inst}/api/v1/search?q=${encodeURIComponent(trimmed)}&type=video&page=${page}`, { mode: 'cors' }),
-                new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 5000))
-              ]);
-              if (!res.ok) continue;
-              const data = await res.json();
-              if (Array.isArray(data) && data.length > 0) {
-                videoItems = data.slice(0, 20).map(v => ({
-                  title: v.title || 'Video',
-                  url: `https://www.youtube.com/watch?v=${v.videoId}`,
-                  thumbnail: (v.videoThumbnails && v.videoThumbnails[0] && v.videoThumbnails[0].url)
-                    ? v.videoThumbnails[0].url
-                    : `https://i.ytimg.com/vi/${v.videoId}/hqdefault.jpg`,
-                  description: v.description ? v.description.substring(0, 180) : `${v.author || 'YouTube'} • Watch on YouTube`,
-                  publisher: v.author || 'YouTube',
-                  duration: formatDuration(v.lengthSeconds),
-                  videoId: v.videoId
-                }));
-                break;
-              }
-            } catch (e) {
-              continue;
-            }
-          }
-          if (videoItems.length > 0) {
-            const hasNext = videoItems.length >= 15 && page < 50;
-            const paginHtml = renderPagination(page, hasNext ? Math.min(50, page + 5) : page, hasNext);
-            container.innerHTML = renderVideoResults(videoItems, trimmed) + paginHtml;
-          } else {
-            // Last resort: link to YouTube search
-            container.innerHTML = `
-              <div class="status-card">
-                <div class="status-icon" style="color:#ff0000;"><i class="fa-brands fa-youtube"></i></div>
-                <div class="status-title">Search videos for "${escapeHtml(trimmed)}" on YouTube</div>
-                <div class="status-desc">The local search backend isn't running. Start it with <code>uvicorn lgks:app --reload</code> for full video results, or click below to search YouTube directly.</div>
-                <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(trimmed)}" target="_blank" rel="noopener noreferrer" class="video-watch-btn" style="display:inline-flex;margin-top:1rem;">
-                  <i class="fa-brands fa-youtube me-2"></i> Search on YouTube
-                </a>
-              </div>`;
-          }
+          // Video search requires the Python backend (DDGS videos API)
+          // Backend provides real YouTube/video results via DDGS
+          container.innerHTML = `
+            <div class="status-card">
+              <div class="status-icon" style="color:#ff0000;"><i class="fa-brands fa-youtube"></i></div>
+              <div class="status-title">Video search needs the Hind backend</div>
+              <div class="status-desc" style="max-width:480px;">
+                Run <code style="background:var(--border);padding:2px 8px;border-radius:4px;">python -m uvicorn lgks:app --reload</code>
+                in the <strong>Hind-main</strong> folder to enable video search powered by DDGS.<br><br>
+                Or search directly on YouTube:
+              </div>
+              <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(trimmed)}"
+                 target="_blank" rel="noopener noreferrer" class="video-watch-btn"
+                 style="display:inline-flex;margin-top:1rem;gap:0.5rem;">
+                <i class="fa-brands fa-youtube"></i> Search "${escapeHtml(trimmed)}" on YouTube
+              </a>
+            </div>`;
           return;
         }
 
