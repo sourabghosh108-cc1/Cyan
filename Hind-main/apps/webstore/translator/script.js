@@ -34,16 +34,48 @@ translateBtn.addEventListener("click", () => {
     translateTo = selectTag[1].value;
   if (!text) return;
   toText.setAttribute("placeholder", "Translating...");
-  let apiUrl = `https://api.mymemory.translated.net/get?q=${text}&langpair=${translateFrom}|${translateTo}`;
-  fetch(apiUrl).then(res => res.json()).then(data => {
-    toText.value = data.responseData.translatedText;
-    data.matches.forEach(data => {
-      if (data.id === 0) {
-        toText.value = data.translation;
+
+  // Primary: MyMemory API
+  let apiUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${translateFrom}|${translateTo}`;
+  
+  fetch(apiUrl)
+    .then(res => res.json())
+    .then(data => {
+      if (data && data.responseData && data.responseData.translatedText && data.responseStatus === 200) {
+        let result = data.responseData.translatedText;
+        if (data.matches && Array.isArray(data.matches)) {
+          data.matches.forEach(m => {
+            if (m.id === 0 && m.translation) result = m.translation;
+          });
+        }
+        toText.value = result;
+        toText.setAttribute("placeholder", "Translation");
+      } else {
+        throw new Error("MyMemory error or exhausted");
       }
+    })
+    .catch(() => {
+      // Fallback: Google Translate API
+      let srcLang = translateFrom.split("-")[0];
+      let tgtLang = translateTo.split("-")[0];
+      let gUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${srcLang}&tl=${tgtLang}&dt=t&q=${encodeURIComponent(text)}`;
+      
+      fetch(gUrl)
+        .then(res => res.json())
+        .then(gData => {
+          if (gData && gData[0]) {
+            let translated = gData[0].map(x => x[0]).filter(Boolean).join('');
+            toText.value = translated;
+          } else {
+            toText.value = "Translation error";
+          }
+          toText.setAttribute("placeholder", "Translation");
+        })
+        .catch(() => {
+          toText.value = "Translation error";
+          toText.setAttribute("placeholder", "Translation");
+        });
     });
-    toText.setAttribute("placeholder", "Translation");
-  });
 });
 
 icons.forEach(icon => {

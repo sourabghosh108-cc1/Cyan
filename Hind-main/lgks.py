@@ -73,30 +73,88 @@ def image_search(query, limit=10):
         return {"error": str(e)}
 
 
-def video_search(query, limit=10):
+import urllib.request
+import urllib.parse
+import re
+import json
+
+def fetch_youtube_videos(query, limit=10):
+    encoded_q = urllib.parse.quote(query)
+    url = f"https://www.youtube.com/results?search_query={encoded_q}"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept-Language": "en-US,en;q=0.9"
+    }
+    req = urllib.request.Request(url, headers=headers)
     try:
-        with DDGS(timeout=10) as ddgs:
-            results = ddgs.videos(
-                query,
-                max_results=limit
-            )
+        with urllib.request.urlopen(req, timeout=6) as response:
+            html = response.read().decode('utf-8', errors='ignore')
+            match = re.search(r'ytInitialData\s*=\s*(\{.+?\});', html)
+            if match:
+                data = json.loads(match.group(1))
+                contents = data.get('contents', {}).get('twoColumnSearchResultsRenderer', {}).get('primaryContents', {}).get('sectionListRenderer', {}).get('contents', [])
+                videos = []
+                for sec in contents:
+                    items = sec.get('itemSectionRenderer', {}).get('contents', [])
+                    for item in items:
+                        if 'videoRenderer' in item:
+                            vr = item['videoRenderer']
+                            vid_id = vr.get('videoId')
+                            title_runs = vr.get('title', {}).get('runs', [])
+                            title = title_runs[0].get('text', '') if title_runs else ''
+                            desc_snippets = vr.get('detailedMetadataSnippets', [])
+                            desc = ''
+                            if desc_snippets and 'snippetText' in desc_snippets[0]:
+                                runs = desc_snippets[0]['snippetText'].get('runs', [])
+                                desc = ''.join([r.get('text', '') for r in runs])
+                            owner_runs = vr.get('ownerText', {}).get('runs', [])
+                            owner = owner_runs[0].get('text', '') if owner_runs else 'YouTube'
+                            duration = vr.get('lengthText', {}).get('simpleText', '')
+                            if vid_id and title:
+                                videos.append({
+                                    "title": title,
+                                    "url": f"https://www.youtube.com/watch?v={vid_id}",
+                                    "thumbnail": f"https://i.ytimg.com/vi/{vid_id}/hqdefault.jpg",
+                                    "description": desc or (f"{owner} • {duration}" if duration else owner),
+                                    "publisher": owner,
+                                    "duration": duration
+                                })
+                                if len(videos) >= limit:
+                                    break
+                    if len(videos) >= limit:
+                        break
+                if videos:
+                    return videos
+    except Exception:
+        pass
+    return []
 
-            return [
-                {
-                    "title": r.get("title", ""),
-                    "url": r.get(
-                        "content",
-                        r.get("url", "")
-                    ),
-                    "thumbnail": r.get("thumbnail", ""),
-                    "description": r.get("description", ""),
-                    "publisher": r.get("publisher", "")
-                }
-                for r in results
-            ]
 
-    except Exception as e:
-        return {"error": str(e)}
+def video_search(query, limit=10):
+    # Try YouTube Search scraper first (fast & reliable)
+    yt_results = fetch_youtube_videos(query, limit)
+    if yt_results:
+        return yt_results
+
+    # Fallback to DDGS videos
+    try:
+        with DDGS(timeout=5) as ddgs:
+            results = ddgs.videos(query, max_results=limit)
+            if results and isinstance(results, list) and len(results) > 0:
+                return [
+                    {
+                        "title": r.get("title", ""),
+                        "url": r.get("content", r.get("url", "")),
+                        "thumbnail": r.get("thumbnail", ""),
+                        "description": r.get("description", ""),
+                        "publisher": r.get("publisher", "")
+                    }
+                    for r in results
+                ]
+    except Exception:
+        pass
+
+    return []
 
 
 def news_search(query, limit=10):
