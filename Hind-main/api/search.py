@@ -130,7 +130,7 @@ class handler(BaseHTTPRequestHandler):
                 'limit': limit,
                 'has_previous': has_previous,
                 'has_next': has_next,
-                'total_pages': 50 if has_next else page,
+                'total_pages': 50,
                 'status': status,
                 'message': message,
                 'videos': videos
@@ -145,7 +145,7 @@ class handler(BaseHTTPRequestHandler):
                 'limit': limit,
                 'has_previous': has_previous,
                 'has_next': has_next,
-                'total_pages': 50 if has_next else page,
+                'total_pages': 50,
                 'images': images
             }
         elif search_type == 'news':
@@ -158,7 +158,7 @@ class handler(BaseHTTPRequestHandler):
                 'limit': limit,
                 'has_previous': has_previous,
                 'has_next': has_next,
-                'total_pages': 50 if has_next else page,
+                'total_pages': 50,
                 'news': news
             }
         elif search_type == 'all':
@@ -174,7 +174,7 @@ class handler(BaseHTTPRequestHandler):
                 'limit': limit,
                 'has_previous': has_previous,
                 'has_next': has_next,
-                'total_pages': 50 if has_next else page,
+                'total_pages': 50,
                 'web': web,
                 'images': images,
                 'videos': videos,
@@ -190,7 +190,7 @@ class handler(BaseHTTPRequestHandler):
                 'limit': limit,
                 'has_previous': has_previous,
                 'has_next': has_next,
-                'total_pages': 50 if has_next else page,
+                'total_pages': 50,
                 'web': web
             }
 

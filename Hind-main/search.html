@@ -2469,8 +2469,7 @@
             });
           }
           if (items.length > 0) {
-            const hasNext = items.length >= 25;
-            const paginHtml = renderPagination(page, hasNext ? page + 5 : page, hasNext);
+            const paginHtml = renderPagination(page, 50, true);
             container.innerHTML = renderImageResults(items, trimmed) + paginHtml;
           } else {
             container.innerHTML = renderEmptyState(trimmed);
@@ -2480,6 +2479,7 @@
 
         if (type === 'videos') {
           // Client-side fallback for videos: Direct links to real video queries
+          const paginHtml = renderPagination(page, 50, true);
           container.innerHTML = `
             <div class="status-card">
               <div class="status-icon" style="color: var(--blue);"><i class="fa-solid fa-film"></i></div>
@@ -2499,7 +2499,7 @@
                   <i class="fa-solid fa-play"></i> Watch on DuckDuckGo
                 </a>
               </div>
-            </div>`;
+            </div>` + paginHtml;
           return;
         }
 
@@ -2521,8 +2521,7 @@
             });
           }
           if (items.length > 0) {
-            const hasNext = items.length >= 20;
-            const paginHtml = renderPagination(page, hasNext ? page + 5 : page, hasNext);
+            const paginHtml = renderPagination(page, 50, true);
             container.innerHTML = renderNewsResults(items, trimmed) + paginHtml;
           } else {
             container.innerHTML = renderEmptyState(trimmed);
@@ -2568,8 +2567,7 @@
         }
 
         if (webItems.length > 0) {
-          const hasNext = webItems.length >= 25;
-          const paginHtml = renderPagination(page, hasNext ? Math.min(50, page + 5) : page, hasNext);
+          const paginHtml = renderPagination(page, 50, true);
           if (type === 'all') {
             container.innerHTML = renderAllResults({ web: webItems, images: [], videos: [], news: [] }, trimmed) + paginHtml;
           } else {
@@ -2591,8 +2589,6 @@
     let currentHasNext = true;
 
     function renderPagination(page, totalPages = 50, hasNext = true) {
-      if (page === 1 && !hasNext) return '';
-
       const maxP = Math.min(50, totalPages || 50);
       let html = `<nav class="hind-pagination" aria-label="Search results pages">`;
 
@@ -2636,8 +2632,8 @@
 
       html += `</div>`;
 
-      // Next button
-      if (hasNext && page < maxP) {
+      // Next button (accessible up to maxP)
+      if (page < maxP) {
         html += `<button type="button" class="page-btn page-nav-btn next" onclick="goToPage(${page + 1})">Next <i class="fa-solid fa-chevron-right ms-1"></i></button>`;
       } else {
         html += `<button type="button" class="page-btn page-nav-btn next disabled" disabled>Next <i class="fa-solid fa-chevron-right ms-1"></i></button>`;
@@ -2760,7 +2756,7 @@
         }
 
         if (hasResults) {
-          const paginationHtml = renderPagination(page, currentTotalPages, currentHasNext);
+          const paginationHtml = renderPagination(page, currentTotalPages || 50, true);
           container.innerHTML = renderedHtml + paginationHtml;
         } else {
           await performFallbackSearch(trimmed, type, page);

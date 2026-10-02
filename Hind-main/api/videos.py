@@ -81,7 +81,7 @@ class handler(BaseHTTPRequestHandler):
             'limit': limit,
             'has_previous': has_previous,
             'has_next': has_next,
-            'total_pages': 50 if has_next else page,
+            'total_pages': 50,
             'status': status,
             'message': message,
             'videos': videos
