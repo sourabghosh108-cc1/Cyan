@@ -1475,6 +1475,47 @@
       padding: 0.4rem 1rem 0.65rem;
     }
 
+    .shrishti-model-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      padding: 0.4rem 0.9rem;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      font-size: 0.75rem;
+    }
+
+    .shrishti-model-select {
+      background: var(--surface);
+      color: var(--ink);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.75rem;
+      font-family: inherit;
+      outline: none;
+      cursor: pointer;
+      max-width: 175px;
+    }
+
+    .shrishti-quota-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      background: rgba(139,92,246,0.15);
+      color: var(--purple-dark);
+      border-radius: 12px;
+      padding: 0.15rem 0.55rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    [data-theme="dark"] .shrishti-quota-badge {
+      color: #c4b5fd;
+    }
+
     /* ── FOOTER ── */
     .footer-container {
       padding: 1.5rem 1rem;
@@ -1779,10 +1820,21 @@
 
     <div class="ai-panel-header">
       <span><i class="fa-solid fa-sparkles"></i> Shrishti AI <span class="ai-badge-beta">BETA</span></span>
+      <span class="shrishti-quota-badge" id="shrishtiSearchQuotaBadge">15/15 daily queries left</span>
+    </div>
+
+    <div class="shrishti-model-bar">
+      <span style="font-weight:600;color:var(--ink-muted);"><i class="fa-solid fa-microchip me-1"></i>Model:</span>
+      <select id="shrishtiModelSelect" class="shrishti-model-select" title="Choose AI Model (with automatic fallback cushion)">
+        <option value="cyan-pineapple-a">cyan pineapple model a</option>
+        <option value="lemon-model-b">lemon model b</option>
+        <option value="hind-cyan-b">hind cyan b</option>
+        <option value="orange-d">orange d</option>
+      </select>
     </div>
 
     <div class="ai-body" id="aiBody">
-      <div class="ai-msg bot">Namaste! 🙏 I'm Shrishti AI by Hind.com. Ask me anything!</div>
+      <div class="ai-msg bot">Namaste! 🙏 I'm Shrishti AI by Hind.com. Powered by 4 cushioned models. Ask me anything!</div>
     </div>
 
     <div class="ai-input-row">
@@ -1820,6 +1872,7 @@
   </aside>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="shrishti-engine.js"></script>
   <script>
     // ── Dark Mode ──
     const themeToggle = document.getElementById('themeToggle');
@@ -2769,7 +2822,7 @@
       }
     }
 
-    function triggerAiAnswer(query) {
+    async function triggerAiAnswer(query) {
       const aiAnswerBox     = document.getElementById('aiSearchAnswer');
       const aiAnswerContent = document.getElementById('aiSearchAnswerContent');
       if (!query || !query.trim()) {
@@ -2779,35 +2832,13 @@
       aiAnswerBox.style.display = 'block';
       aiAnswerContent.innerHTML = `<div class="ai-typing-dots"><span></span><span></span><span></span></div>&nbsp;Generating answer...`;
 
-      fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': 'Bearer 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',
-          'Content-Type': 'application/json',
-          'HTTP-Referer': 'https://hind.com',
-          'X-Title': 'Hind Search Engine'
-        },
-        body: JSON.stringify({
-          model: 'openrouter/free',
-          messages: [
-            { role: 'system', content: 'You are Shrishti AI, an intelligent assistant by Hind.com. Provide a concise, helpful answer.' },
-            { role: 'user', content: query }
-          ]
-        })
-      })
-      .then(r => r.json())
-      .then(data => {
-        if (data.choices && data.choices[0] && data.choices[0].message) {
-          aiAnswerContent.innerHTML = data.choices[0].message.content.replace(/\n/g, '<br>');
-        } else if (data.error && data.error.message) {
-          aiAnswerContent.textContent = data.error.message;
-        } else {
-          aiAnswerContent.textContent = 'Could not fetch an AI answer for this query.';
-        }
-      })
-      .catch(() => {
-        aiAnswerContent.textContent = 'AI answer unavailable right now.';
-      });
+      try {
+        const preferredModel = (document.getElementById('shrishtiModelSelect') && document.getElementById('shrishtiModelSelect').value) || 'cyan-pineapple-a';
+        const result = await requestShrishtiAiWithCushion(query, preferredModel);
+        aiAnswerContent.innerHTML = escapeHtml(result.content).replace(/\n/g, '<br>');
+      } catch (err) {
+        aiAnswerContent.textContent = 'AI answer unavailable right now: ' + (err.message || 'Please try again later.');
+      }
     }
 
     // Navigate to Search with URL update
@@ -2901,6 +2932,16 @@
       const text = aiInput.value.trim();
       if (!text) return;
 
+      // Check daily quota (max 15 questions a day)
+      if (!canAskShrishti()) {
+        const errDiv = document.createElement('div');
+        errDiv.className = 'ai-msg bot';
+        errDiv.innerHTML = '<i class="fa-solid fa-circle-exclamation text-danger me-1"></i><strong>Daily limit reached:</strong> You have used all 15 questions for today. Please come back tomorrow!';
+        aiBody.appendChild(errDiv);
+        aiBody.scrollTop = aiBody.scrollHeight;
+        return;
+      }
+
       // User bubble
       const userDiv = document.createElement('div');
       userDiv.className = 'ai-msg user';
@@ -2916,41 +2957,27 @@
       aiBody.appendChild(loadingDiv);
       aiBody.scrollTop = aiBody.scrollHeight;
 
+      const chosenModel = (document.getElementById('shrishtiModelSelect') && document.getElementById('shrishtiModelSelect').value) || 'cyan-pineapple-a';
+
       try {
-        const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': 'Bearer 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',
-            'Content-Type': 'application/json',
-            'HTTP-Referer': 'https://hind.com',
-            'X-Title': 'Hind Search Engine'
-          },
-          body: JSON.stringify({
-            model: 'openrouter/free',
-            messages: [
-              { role: 'system', content: 'You are Shrishti AI, a helpful assistant by Hind.com.' },
-              { role: 'user', content: text }
-            ]
-          })
+        const result = await requestShrishtiAiWithCushion(text, chosenModel, (fallbackModel) => {
+          loadingDiv.innerHTML = `<i class="fa-solid fa-shield-halved fa-spin text-warning me-1"></i> Cushioning failover to <em>${escapeHtml(fallbackModel)}</em>...`;
         });
-        const data = await res.json();
         loadingDiv.remove();
+
+        // Count against daily limit
+        incrementShrishtiQuota();
 
         const botDiv = document.createElement('div');
         botDiv.className = 'ai-msg bot';
-        if (data.choices && data.choices[0] && data.choices[0].message) {
-          botDiv.innerHTML = data.choices[0].message.content.replace(/\n/g, '<br>');
-        } else if (data.error && data.error.message) {
-          botDiv.textContent = data.error.message;
-        } else {
-          botDiv.textContent = 'Could not get a response.';
-        }
+        let badgeHtml = `<span style="display:inline-block;margin-bottom:6px;font-size:0.68rem;padding:2px 8px;border-radius:10px;background:rgba(139,92,246,0.15);color:var(--purple-dark);font-weight:700;"><i class="fa-solid fa-microchip me-1"></i>${escapeHtml(result.modelUsed)}${result.cushioned ? ' (cushioned)' : ''}</span><br>`;
+        botDiv.innerHTML = badgeHtml + escapeHtml(result.content).replace(/\n/g, '<br>');
         aiBody.appendChild(botDiv);
       } catch (err) {
         loadingDiv.remove();
         const errDiv = document.createElement('div');
         errDiv.className = 'ai-msg bot';
-        errDiv.textContent = 'Network error. Please try again.';
+        errDiv.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-danger me-1"></i> ' + escapeHtml(err.message || 'Network error. Please try again.');
         aiBody.appendChild(errDiv);
       }
       aiBody.scrollTop = aiBody.scrollHeight;

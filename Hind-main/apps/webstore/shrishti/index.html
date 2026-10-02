@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -266,14 +266,28 @@
       <!-- Disclaimer Overlay -->
       <div id="aiDisclaimer" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: var(--card-bg); z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; text-align: center; border-radius: 16px;">
         <i class="fa-solid fa-triangle-exclamation text-warning mb-3" style="font-size: 3rem;"></i>
-        <p style="font-size: 1.1rem; margin-bottom: 2rem; max-width: 400px; color: var(--text-main);">AI model is in development stage so data it has is of till July 2024. We will update it soon.</p>
-        <button onclick="document.getElementById('aiDisclaimer').style.display='none'; document.getElementById('chatInput').focus();" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); color: white; border: none; padding: 0.75rem 2.5rem; border-radius: 25px; font-weight: 600; font-size: 1.05rem; cursor: pointer; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);">OK</button>
+        <p style="font-size: 1.1rem; margin-bottom: 2rem; max-width: 400px; color: var(--text-main);">AI model is in development stage. Data knowledge cutoff may apply.</p>
+        <button onclick="document.getElementById('aiDisclaimer').style.display='none'; document.getElementById('chatInput').focus();" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); color: white; border: none; padding: 0.75rem 2.5rem; border-radius: 25px; font-weight: 600; font-size: 1.05rem; cursor: pointer; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);">OK, Continue</button>
+      </div>
+
+      <!-- Model selector + quota bar -->
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;padding:0.5rem 1.25rem;background:linear-gradient(135deg,#8b5cf6,#6d28d9);border-radius:16px 16px 0 0;">
+        <div style="display:flex;align-items:center;gap:0.5rem;">
+          <i class="fa-solid fa-microchip" style="color:#fff;font-size:0.8rem;"></i>
+          <select id="shrishtiModelSelect" style="background:rgba(255,255,255,0.18);color:#fff;border:1px solid rgba(255,255,255,0.35);border-radius:8px;padding:0.2rem 0.5rem;font-size:0.75rem;font-family:inherit;outline:none;cursor:pointer;max-width:185px;" title="Choose AI Model">
+            <option value="cyan-pineapple-a">cyan pineapple model a</option>
+            <option value="lemon-model-b">lemon model b</option>
+            <option value="hind-cyan-b">hind cyan b</option>
+            <option value="orange-d">orange d</option>
+          </select>
+        </div>
+        <span class="shrishti-quota-badge" id="shrishtiStandaloneQuotaBadge" style="display:inline-flex;align-items:center;background:rgba(255,255,255,0.2);color:#fff;border-radius:12px;padding:0.15rem 0.6rem;font-size:0.7rem;font-weight:700;white-space:nowrap;">15/15 queries left today</span>
       </div>
 
       <div class="chat-messages" id="chatMessages">
         <div class="msg-bubble bot">
           <strong><i class="fa-solid fa-sparkles text-primary"></i> Shrishti AI:</strong><br><br>
-          Namaste! I am Shrishti, your advanced AI assistant by Hind.com. How may I assist you today?
+          Namaste! I am Shrishti, powered by <strong>4 cushioned AI models</strong>. How may I assist you today?
         </div>
       </div>
       <div class="chat-input-area">
@@ -283,16 +297,21 @@
         </button>
       </div>
       <div style="text-align: center; font-size: 0.85rem; color: var(--text-muted); padding-bottom: 1.25rem; background: var(--card-bg);">
-        AI model can make mistakes.
+        AI can make mistakes — always verify important info.
       </div>
     </div>
   </main>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="../../../shrishti-engine.js"></script>
   <script>
     const themeToggle = document.getElementById('themeToggle');
     const themeIcon = document.getElementById('themeIcon');
     const themeText = document.getElementById('themeText');
+
+    function escapeHtml(str) {
+      return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+    }
 
     function setTheme(theme) {
       document.documentElement.setAttribute('data-theme', theme);
@@ -318,6 +337,17 @@
       setTheme(currentTheme === 'dark' ? 'light' : 'dark');
     });
 
+    // Init quota badge
+    document.addEventListener('DOMContentLoaded', () => {
+      const badge = document.getElementById('shrishtiStandaloneQuotaBadge');
+      if (badge) {
+        const remaining = getShrishtiRemainingQuestions();
+        badge.textContent = `${remaining}/15 queries left today`;
+        if (remaining <= 0) badge.style.background = 'rgba(239,68,68,0.4)';
+        else if (remaining <= 3) badge.style.background = 'rgba(245,158,11,0.4)';
+      }
+    });
+
     // Chat functionality
     const chatMessages = document.getElementById('chatMessages');
     const chatInput = document.getElementById('chatInput');
@@ -326,9 +356,19 @@
       const text = chatInput.value.trim();
       if (!text) return;
 
+      // Enforce 15 q/day limit
+      if (!canAskShrishti()) {
+        const errDiv = document.createElement('div');
+        errDiv.className = 'msg-bubble bot';
+        errDiv.innerHTML = '<strong><i class="fa-solid fa-circle-exclamation text-danger"></i> Shrishti AI:</strong><br><br>You have used all <strong>15 questions</strong> for today. Please come back tomorrow!';
+        chatMessages.appendChild(errDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        return;
+      }
+
       const userDiv = document.createElement('div');
       userDiv.className = 'msg-bubble user';
-      userDiv.innerHTML = `<strong>You:</strong><br><br>${text.replace(/</g, "&lt;").replace(/>/g, "&gt;")}`;
+      userDiv.innerHTML = `<strong>You:</strong><br><br>${escapeHtml(text)}`;
       chatMessages.appendChild(userDiv);
 
       chatInput.value = '';
@@ -340,43 +380,35 @@
       chatMessages.appendChild(loadingDiv);
       chatMessages.scrollTop = chatMessages.scrollHeight;
 
+      const chosenModel = (document.getElementById('shrishtiModelSelect') && document.getElementById('shrishtiModelSelect').value) || 'cyan-pineapple-a';
+
       try {
-        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': 'Bearer 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',
-            'Content-Type': 'application/json',
-            'HTTP-Referer': 'https://hind.com',
-            'X-Title': 'Hind Search Engine'
-          },
-          body: JSON.stringify({
-            model: 'openrouter/free',
-            messages: [
-              { role: 'system', content: 'You are Shrishti AI, an advanced assistant by Hind.com. The current date is September 30, 2026. Please ensure all your responses are up to date.' },
-              { role: 'user', content: text }
-            ]
-          })
+        const result = await requestShrishtiAiWithCushion(text, chosenModel, (fallbackName) => {
+          loadingDiv.innerHTML = `<i class="fa-solid fa-shield-halved fa-spin text-warning"></i> Cushioning to <em>${escapeHtml(fallbackName)}</em>...`;
         });
-        const data = await response.json();
         loadingDiv.remove();
+
+        // Count the query
+        incrementShrishtiQuota();
+        const badge = document.getElementById('shrishtiStandaloneQuotaBadge');
+        if (badge) {
+          const rem = getShrishtiRemainingQuestions();
+          badge.textContent = `${rem}/15 queries left today`;
+          if (rem <= 0) badge.style.background = 'rgba(239,68,68,0.4)';
+          else if (rem <= 3) badge.style.background = 'rgba(245,158,11,0.4)';
+        }
 
         const botDiv = document.createElement('div');
         botDiv.className = 'msg-bubble bot';
-        if (data.choices && data.choices[0] && data.choices[0].message) {
-          botDiv.innerHTML = `<strong><i class="fa-solid fa-sparkles text-primary"></i> Shrishti AI:</strong><br><br>` + 
-                             data.choices[0].message.content.replace(/\n/g, '<br>');
-        } else if (data.error && data.error.message) {
-          botDiv.innerHTML = `<strong>Shrishti AI Error:</strong><br><br>${data.error.message}`;
-        } else {
-          botDiv.innerHTML = `<strong>Shrishti AI Error:</strong><br><br>${JSON.stringify(data)}`;
-        }
+        botDiv.innerHTML = `<strong><i class="fa-solid fa-sparkles text-primary"></i> Shrishti AI</strong> <span style="font-size:0.68rem;padding:2px 7px;border-radius:8px;background:rgba(139,92,246,0.15);color:#8b5cf6;font-weight:700;">${escapeHtml(result.modelUsed)}${result.cushioned ? ' ✦' : ''}</span><br><br>` +
+                           escapeHtml(result.content).replace(/\n/g, '<br>');
         chatMessages.appendChild(botDiv);
         chatMessages.scrollTop = chatMessages.scrollHeight;
       } catch (err) {
         loadingDiv.remove();
         const errorDiv = document.createElement('div');
         errorDiv.className = 'msg-bubble bot';
-        errorDiv.innerHTML = '<strong>Shrishti AI:</strong><br><br>Failed to reach the server. Please try again.';
+        errorDiv.innerHTML = `<strong><i class="fa-solid fa-triangle-exclamation text-danger"></i> Shrishti AI:</strong><br><br>${escapeHtml(err.message || 'Failed to reach any AI model. Please try again.')}`;
         chatMessages.appendChild(errorDiv);
       }
       chatMessages.scrollTop = chatMessages.scrollHeight;
