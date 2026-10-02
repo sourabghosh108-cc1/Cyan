@@ -166,88 +166,68 @@ def fetch_youtube_videos(query, page=1, limit=25):
 
 
 def video_search(query, page=1, limit=25):
-    yt_results = fetch_youtube_videos(query, page=page, limit=limit)
-    if yt_results and len(yt_results) >= limit:
-        return yt_results[:limit]
-
-    items = list(yt_results) if yt_results else []
-    seen_urls = {item["url"] for item in items}
-    seen_ids = {item["videoId"] for item in items if item.get("videoId")}
-
-    # 1. Try DDGS videos search engine
     try:
-        with DDGS(timeout=6) as ddgs:
-            results = ddgs.videos(query, page=page, max_results=limit)
-            if results and isinstance(results, list):
-                for r in results:
-                    url = r.get("content", r.get("url", ""))
-                    if not url or url in seen_urls:
-                        continue
-                    m = re.search(r'(?:v=|\/embed\/|\/shorts\/|youtu\.be\/)([a-zA-Z0-9_-]{11})', url)
-                    vid_id = m.group(1) if m else ""
-                    if vid_id and vid_id in seen_ids:
-                        continue
-                    thumb = r.get("thumbnail", "")
-                    if vid_id and (not thumb or "placeholder" in thumb):
-                        thumb = f"https://i.ytimg.com/vi/{vid_id}/hqdefault.jpg"
-                    elif not thumb:
-                        thumb = "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=500&q=80"
-                    
-                    if vid_id:
-                        seen_ids.add(vid_id)
-                    seen_urls.add(url)
-                    
-                    items.append({
-                        "title": r.get("title", ""),
-                        "url": url,
-                        "thumbnail": thumb,
-                        "description": r.get("description", ""),
-                        "publisher": r.get("publisher", "YouTube" if "youtube" in url else "Video"),
-                        "duration": r.get("duration", "HD"),
-                        "videoId": vid_id
-                    })
-    except Exception:
-        pass
+        with DDGS(timeout=10) as ddgs:
+            results = ddgs.videos(
+                query,
+                max_results=limit,
+                page=page
+            )
+            items = []
+            seen_urls = set()
+            for r in results:
+                url = r.get("content", "")
+                if not url or url in seen_urls:
+                    continue
+                seen_urls.add(url)
 
-    # 2. DDGS Text Search Fallback for Videos (site:youtube.com or video keywords)
-    if len(items) < limit:
-        try:
-            with DDGS(timeout=8) as ddgs:
-                ddgs_text_results = list(ddgs.text(f"{query} site:youtube.com", page=page, max_results=limit * 2))
-                for r in ddgs_text_results:
-                    url = r.get("href", "")
-                    if not url or url in seen_urls:
-                        continue
-                    m = re.search(r'(?:v=|\/embed\/|\/shorts\/|youtu\.be\/)([a-zA-Z0-9_-]{11})', url)
-                    vid_id = m.group(1) if m else ""
-                    if vid_id and vid_id in seen_ids:
-                        continue
-                    
-                    title = r.get("title", "")
-                    if title.endswith(" - YouTube"):
-                        title = title[:-10].strip()
-                    
-                    thumb = f"https://i.ytimg.com/vi/{vid_id}/hqdefault.jpg" if vid_id else "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=500&q=80"
-                    
-                    if vid_id:
-                        seen_ids.add(vid_id)
-                    seen_urls.add(url)
-                    
-                    items.append({
-                        "title": title or "YouTube Video",
-                        "url": url,
-                        "thumbnail": thumb,
-                        "description": r.get("body", "Watch on YouTube"),
-                        "publisher": "YouTube",
-                        "duration": "HD",
-                        "videoId": vid_id
-                    })
-                    if len(items) >= limit:
-                        break
-        except Exception:
-            pass
+                m = re.search(r'(?:v=|\/embed\/|\/shorts\/|youtu\.be\/)([a-zA-Z0-9_-]{11})', url)
+                vid_id = m.group(1) if m else ""
 
-    return items[:limit] if items else []
+                images_dict = r.get("images") or {}
+                thumb = ""
+                if isinstance(images_dict, dict):
+                    thumb = images_dict.get("medium") or images_dict.get("large") or images_dict.get("small") or ""
+                if not thumb and vid_id:
+                    thumb = f"https://i.ytimg.com/vi/{vid_id}/hqdefault.jpg"
+
+                items.append({
+                    "title": r.get("title", ""),
+                    "url": url,
+                    "thumbnail": thumb,
+                    "description": r.get("description", ""),
+                    "publisher": r.get("publisher", ""),
+                    "duration": r.get("duration", ""),
+                    "videoId": vid_id,
+                    "embed_url": r.get("embed_url", "")
+                })
+
+            if items:
+                return {
+                    "status": "ok",
+                    "message": "",
+                    "videos": items
+                }
+            else:
+                return {
+                    "status": "no_results",
+                    "message": "No videos found for this search.",
+                    "videos": []
+                }
+    except Exception as e:
+        err_msg = str(e).strip().lower()
+        if "no results found" in err_msg:
+            return {
+                "status": "no_results",
+                "message": "No videos found for this search.",
+                "videos": []
+            }
+        print("VIDEO SEARCH ERROR:", repr(e))
+        return {
+            "status": "temporary_error",
+            "message": "Video search is temporarily unavailable. Please try again later.",
+            "videos": []
+        }
 
 
 def news_search(query, page=1, limit=20):
@@ -336,8 +316,17 @@ async def search(
         }
 
     elif type == "videos":
-        videos = await run_search(video_search, query, page, limit)
-        has_next = isinstance(videos, list) and len(videos) > 0 and page < 50
+        video_result = await run_search(video_search, query, page, limit)
+        if isinstance(video_result, dict):
+            videos = video_result.get("videos", [])
+            status = video_result.get("status", "ok")
+            message = video_result.get("message", "")
+        else:
+            videos = video_result or []
+            status = "ok" if videos else "no_results"
+            message = "" if videos else "No videos found for this search."
+
+        has_next = len(videos) > 0 and page < 50
         response = {
             "query": q,
             "type": "videos",
@@ -346,6 +335,8 @@ async def search(
             "has_previous": has_previous,
             "has_next": has_next,
             "total_pages": 50 if has_next else page,
+            "status": status,
+            "message": message,
             "videos": videos
         }
 
@@ -369,12 +360,14 @@ async def search(
         video_task = run_search(video_search, query, page, limit)
         news_task = run_search(news_search, query, page, limit)
 
-        web, images, videos, news = await asyncio.gather(
+        web, images, video_res, news = await asyncio.gather(
             web_task,
             image_task,
             video_task,
             news_task
         )
+
+        videos = video_res.get("videos", []) if isinstance(video_res, dict) else (video_res or [])
 
         has_next = (isinstance(web, list) and len(web) >= limit) and page < 50
         response = {
@@ -397,7 +390,8 @@ async def search(
             "error": "Invalid search type"
         }
 
-    cache[cache_key] = response
+    if not (type == "videos" and response.get("status") == "temporary_error"):
+        cache[cache_key] = response
     return response
 
 

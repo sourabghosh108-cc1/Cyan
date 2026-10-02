@@ -2188,7 +2188,7 @@
 
         html += `
           <article class="video-card">
-            <div class="video-thumb-link" onclick="${isYt ? `openVideoModal('${vid}', '${escapeHtml(item.title).replace(/'/g, "\'")}')` : `window.open('${safeUrl}', '_blank')`}" title="Play ${escapeHtml(item.title || 'Video')}">
+            <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="video-thumb-link" title="Play ${escapeHtml(item.title || 'Video')}">
               <img src="${safeThumb}" alt="${escapeHtml(item.title || 'Video')}" loading="lazy" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=600&q=80'" />
               <div class="video-play-overlay">
                 <div class="video-play-btn-circle">
@@ -2196,12 +2196,12 @@
                 </div>
               </div>
               <span class="video-platform-badge">
-                <i class="fa-brands fa-youtube"></i> ${escapeHtml(publisher)}
+                <i class="${(publisher && publisher.toLowerCase().includes('youtube')) || isYt ? 'fa-brands fa-youtube' : 'fa-solid fa-play'}"></i> ${escapeHtml(publisher)}
               </span>
               <span class="video-duration-badge">
                 <i class="fa-solid fa-film me-1" style="font-size:0.65rem;"></i>${escapeHtml(duration)}
               </span>
-            </div>
+            </a>
             <div class="video-info">
               <div class="video-publisher-row">
                 <span class="video-publisher">
@@ -2216,16 +2216,10 @@
               </h2>
               <p class="result-snippet">${escapeHtml(item.description || 'Watch high-definition video highlights, documentaries, tutorials, and full presentations on Hind.')}</p>
               <div class="video-footer-actions">
-                ${isYt ? `
-                  <button type="button" class="video-watch-btn" onclick="openVideoModal('${vid}', '${escapeHtml(item.title).replace(/'/g, "\'")}')">
-                    <i class="fa-solid fa-circle-play"></i> Watch in Theater
-                  </button>
-                ` : `
-                  <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="video-watch-btn">
-                    <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Video
-                  </a>
-                `}
-                <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="video-ext-btn" title="Open source video on YouTube">
+                <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="video-watch-btn">
+                  <i class="fa-solid fa-circle-play"></i> Watch Video
+                </a>
+                <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="video-ext-btn" title="Open video URL">
                   <i class="fa-solid fa-arrow-up-right-from-square"></i>
                 </a>
               </div>
@@ -2345,15 +2339,15 @@
 
           html += `
             <div class="video-card">
-              <div class="video-thumb-link" style="height: 155px;" onclick="${isYt ? `openVideoModal('${vid}', '${escapeHtml(item.title).replace(/'/g, "\'")}')` : `window.open('${safeUrl}', '_blank')`}" title="Play ${escapeHtml(item.title || 'Video')}">
+              <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="video-thumb-link" style="height: 155px;" title="Play ${escapeHtml(item.title || 'Video')}">
                 <img src="${safeThumb}" alt="${escapeHtml(item.title || 'Video')}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=500&q=80'" />
                 <div class="video-play-overlay">
                   <div class="video-play-btn-circle" style="width: 44px; height: 44px; font-size: 1rem;">
                     <i class="fa-solid fa-play"></i>
                   </div>
                 </div>
-                <span class="video-duration-badge" style="font-size: 0.68rem; padding: 2px 6px;">HD</span>
-              </div>
+                <span class="video-duration-badge" style="font-size: 0.68rem; padding: 2px 6px;">${escapeHtml(item.duration || 'HD')}</span>
+              </a>
               <div class="video-info" style="padding: 0.85rem 1rem 1rem;">
                 <div class="video-publisher-row">
                   <span class="video-publisher" style="font-size: 0.76rem;">
@@ -2714,8 +2708,36 @@
           if (hasResults) renderedHtml = renderImageResults(items, trimmed);
         } else if (type === 'videos') {
           const items = Array.isArray(data.videos) ? data.videos : [];
-          hasResults = items.length > 0;
-          if (hasResults) renderedHtml = renderVideoResults(items, trimmed);
+          const status = data.status || (items.length > 0 ? 'ok' : 'no_results');
+
+          if (status === 'temporary_error') {
+            container.innerHTML = `
+              <div class="status-card">
+                <div class="status-icon" style="color: var(--ink-muted);"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <div class="status-title">${escapeHtml(data.message || 'Video search is temporarily unavailable. Please try again later.')}</div>
+                <div style="margin-top: 1rem;">
+                  <button type="button" class="video-watch-btn" onclick="performSearch('${escapeHtml(trimmed)}', 'videos', ${page})" style="background:var(--blue);color:#fff;border:none;cursor:pointer;padding:0.6rem 1.4rem;border-radius:24px;font-weight:600;">
+                    <i class="fa-solid fa-rotate-right me-1"></i> Try Again
+                  </button>
+                </div>
+              </div>
+            `;
+            return;
+          } else if (status === 'no_results' || items.length === 0) {
+            container.innerHTML = `
+              <div class="status-card">
+                <div class="status-icon"><i class="fa-solid fa-film"></i></div>
+                <div class="status-title">${escapeHtml(data.message || 'No videos found for this search.')}</div>
+                <div class="status-desc">
+                  Try checking your spelling, using more general search terms, or exploring different categories.
+                </div>
+              </div>
+            `;
+            return;
+          } else {
+            hasResults = true;
+            renderedHtml = renderVideoResults(items, trimmed);
+          }
         } else if (type === 'news') {
           const items = Array.isArray(data.news) ? data.news : [];
           hasResults = items.length > 0;
