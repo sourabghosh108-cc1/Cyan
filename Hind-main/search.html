@@ -1936,8 +1936,10 @@
       }
     });
 
-    // ── HIND PYTHON SEARCH API INTEGRATION ──
-    const API_BASE_URL = "http://127.0.0.1:8000";
+    // ── HIND SEARCH API INTEGRATION (Vercel Serverless + Local) ──
+    const API_BASE_URL = (window.location.protocol.startsWith('http') && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1'))
+      ? ''
+      : (window.location.port === '8000' ? '' : 'http://127.0.0.1:8000');
 
     let currentQuery = '';
     let currentType = 'web';
@@ -2477,24 +2479,24 @@
         }
 
         if (type === 'videos') {
-          // Video search requires the Python backend (YouTube scraping + DDGS)
+          // Client-side fallback for videos: Direct links to real video queries
           container.innerHTML = `
             <div class="status-card">
-              <div class="status-icon" style="color:#ff0000;"><i class="fa-brands fa-youtube"></i></div>
-              <div class="status-title">Hind Video Search Backend Offline</div>
+              <div class="status-icon" style="color: var(--blue);"><i class="fa-solid fa-film"></i></div>
+              <div class="status-title">Videos for "${escapeHtml(trimmed)}"</div>
               <div class="status-desc" style="max-width:500px;">
-                Start the backend in terminal to enable real video results:<br>
-                <code style="background:var(--border);padding:4px 8px;border-radius:4px;display:inline-block;margin:6px 0;font-weight:600;">python -m uvicorn lgks:app --reload</code>
-                <div style="font-size:0.85rem;color:var(--text-muted);margin-top:4px;">Server runs on port 8000. Once started, click Retry below:</div>
+                Explore real video highlights, documentaries, and full presentations:
               </div>
               <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;margin-top:1.25rem;">
-                <button type="button" class="video-watch-btn" onclick="performSearch('${escapeHtml(trimmed)}', 'videos', ${page})" style="background:var(--blue);color:#fff;border:none;cursor:pointer;padding:0.6rem 1.2rem;border-radius:24px;font-weight:600;">
-                  <i class="fa-solid fa-rotate-right me-1"></i> Retry Connection
-                </button>
                 <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(trimmed)}"
                    target="_blank" rel="noopener noreferrer" class="video-watch-btn"
-                   style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.6rem 1.2rem;border-radius:24px;text-decoration:none;">
-                  <i class="fa-brands fa-youtube"></i> Search on YouTube
+                   style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.6rem 1.4rem;border-radius:24px;text-decoration:none;background:#ff0000;color:#fff;">
+                  <i class="fa-brands fa-youtube"></i> Watch on YouTube
+                </a>
+                <a href="https://duckduckgo.com/?q=${encodeURIComponent(trimmed)}&iar=videos&iax=videos&ia=videos"
+                   target="_blank" rel="noopener noreferrer" class="video-watch-btn"
+                   style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.6rem 1.4rem;border-radius:24px;text-decoration:none;background:var(--blue);color:#fff;">
+                  <i class="fa-solid fa-play"></i> Watch on DuckDuckGo
                 </a>
               </div>
             </div>`;
@@ -2680,7 +2682,9 @@
 
       renderLoadingSkeletons(trimmed, type);
 
-      const endpoint = `${API_BASE_URL}/api/search?q=${encodeURIComponent(trimmed)}&type=${encodeURIComponent(type)}&page=${page}&limit=25`;
+      const endpoint = type === 'videos'
+        ? `${API_BASE_URL}/api/videos?q=${encodeURIComponent(trimmed)}&page=${page}&limit=25`
+        : `${API_BASE_URL}/api/search?q=${encodeURIComponent(trimmed)}&type=${encodeURIComponent(type)}&page=${page}&limit=25`;
 
       try {
         const fetchTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Backend timeout')), 12000));

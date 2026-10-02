@@ -1,0 +1,4 @@
+ddgs>=0.1.0
+fastapi
+cachetools
+uvicorn
