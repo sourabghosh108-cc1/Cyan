@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from ddgs import DDGS
 from cachetools import TTLCache
@@ -8,6 +8,8 @@ import urllib.request
 import urllib.parse
 import re
 import json
+import os
+from api.ai import call_ai_provider, get_credits, deduct_credits, CREDIT_COST, CREDIT_ALLOWANCE
 
 app = FastAPI(
     title="Hind Search API",
@@ -418,3 +420,56 @@ def health():
         "status": "online",
         "version": "1.0.0"
     }
+
+
+@app.get("/api/ai")
+def ai_status(request: Request):
+    client_ip = request.client.host if request.client else "127.0.0.1"
+    return {
+        "status": "active",
+        "endpoint": "/api/ai",
+        "credits_remaining": get_credits(client_ip),
+        "credit_cost_per_query": CREDIT_COST
+    }
+
+
+@app.post("/api/ai")
+async def ai_query(request: Request):
+    client_ip = request.client.host if request.client else "127.0.0.1"
+    current_credits = get_credits(client_ip)
+
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+
+    message = str(body.get("message") or body.get("prompt") or "").strip()
+    context = str(body.get("context") or "").strip()
+
+    if not message:
+        return {"success": False, "error": "Query message cannot be empty", "credits_remaining": current_credits}
+
+    if current_credits < CREDIT_COST:
+        return {"success": False, "error": "AI credits exhausted", "credits_remaining": current_credits}
+
+    api_key = (os.environ.get("AI_API_KEY") or os.environ.get("GEMINI_API_KEY") or "").strip()
+    if not api_key:
+        return {
+            "success": False,
+            "error": "AI service is currently not configured on server (AI_API_KEY environment variable required)",
+            "credits_remaining": current_credits
+        }
+
+    prompt_with_context = f"Context from search: {context}\n\nQuestion: {message}" if context else message
+
+    try:
+        answer = call_ai_provider(prompt_with_context, api_key)
+        new_credits = deduct_credits(client_ip, CREDIT_COST)
+        return {"success": True, "answer": answer, "credits_remaining": new_credits}
+    except Exception:
+        return {
+            "success": False,
+            "error": "AI provider service error. Please try again shortly.",
+            "credits_remaining": current_credits
+        }
+

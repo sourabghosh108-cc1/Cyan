@@ -281,7 +281,7 @@
             <option value="orange-d">orange d</option>
           </select>
         </div>
-        <span class="shrishti-quota-badge" id="shrishtiStandaloneQuotaBadge" style="display:inline-flex;align-items:center;background:rgba(255,255,255,0.2);color:#fff;border-radius:12px;padding:0.15rem 0.6rem;font-size:0.7rem;font-weight:700;white-space:nowrap;">15/15 queries left today</span>
+        <span class="shrishti-quota-badge" id="shrishtiStandaloneQuotaBadge" style="display:inline-flex;align-items:center;background:rgba(255,255,255,0.2);color:#fff;border-radius:12px;padding:0.15rem 0.6rem;font-size:0.7rem;font-weight:700;white-space:nowrap;">100/100 credits left</span>
       </div>
 
       <div class="chat-messages" id="chatMessages">
@@ -360,7 +360,7 @@
       if (!canAskShrishti()) {
         const errDiv = document.createElement('div');
         errDiv.className = 'msg-bubble bot';
-        errDiv.innerHTML = '<strong><i class="fa-solid fa-circle-exclamation text-danger"></i> Shrishti AI:</strong><br><br>You have used all <strong>15 questions</strong> for today. Please come back tomorrow!';
+        errDiv.innerHTML = '<strong><i class="fa-solid fa-circle-exclamation text-danger"></i> Shrishti AI:</strong><br><br>You have exhausted your <strong>100 AI credits</strong>. Normal web, image, video, and news search continue working normally.';
         chatMessages.appendChild(errDiv);
         chatMessages.scrollTop = chatMessages.scrollHeight;
         return;

@@ -286,8 +286,15 @@
     }
 
     @keyframes micPulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.35); }
-      50% { box-shadow: 0 0 0 8px rgba(220, 38, 38, 0); }
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.35);
+      }
+
+      50% {
+        box-shadow: 0 0 0 8px rgba(220, 38, 38, 0);
+      }
     }
 
     .search-btn-right {
@@ -326,9 +333,9 @@
       right: 0;
       z-index: 9999;
       background: var(--card-bg, #ffffff);
-      border: 1.5px solid var(--border-color, rgba(0,0,0,0.12));
+      border: 1.5px solid var(--border-color, rgba(0, 0, 0, 0.12));
       border-radius: 20px;
-      box-shadow: 0 14px 40px rgba(0,0,0,0.15);
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.15);
       padding: 0.5rem 0;
       overflow: hidden;
       opacity: 0;
@@ -340,8 +347,8 @@
 
     [data-theme="dark"] .suggest-dropdown {
       background: #0f172a;
-      border-color: rgba(255,255,255,0.15);
-      box-shadow: 0 14px 40px rgba(0,0,0,0.55);
+      border-color: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
       color: #f8fafc;
     }
 
@@ -356,7 +363,7 @@
       align-items: center;
       justify-content: space-between;
       padding: 0.4rem 1.1rem 0.45rem;
-      border-bottom: 1px solid rgba(0,0,0,0.06);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
       font-size: 0.76rem;
       font-weight: 700;
       color: var(--text-muted, #64748b);
@@ -365,7 +372,7 @@
     }
 
     [data-theme="dark"] .suggest-header {
-      border-bottom-color: rgba(255,255,255,0.08);
+      border-bottom-color: rgba(255, 255, 255, 0.08);
       color: #94a3b8;
     }
 
@@ -573,15 +580,25 @@
     }
 
     @keyframes ip-blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.35; }
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.35;
+      }
     }
 
     .ip-info-bar a {
       color: var(--text-muted);
       text-decoration: none;
     }
-    .ip-info-bar a:hover { color: #2563eb; }
+
+    .ip-info-bar a:hover {
+      color: #2563eb;
+    }
 
     /* ── Header waffle apps button ── */
     .apps-waffle-btn {
@@ -599,21 +616,35 @@
       transition: all 0.22s ease;
       position: relative;
     }
+
     .apps-waffle-btn:hover {
       border-color: #2563eb;
       color: #2563eb;
-      background: rgba(37,99,235,0.06);
+      background: rgba(37, 99, 235, 0.06);
     }
+
     .apps-waffle-btn.open {
       border-color: #2563eb;
       color: #2563eb;
-      background: rgba(37,99,235,0.08);
+      background: rgba(37, 99, 235, 0.08);
     }
+
     /* The × icon hidden by default, shown when open */
-    .apps-waffle-btn .icon-grid { transition: all 0.2s; }
-    .apps-waffle-btn .icon-close { display: none; }
-    .apps-waffle-btn.open .icon-grid { display: none; }
-    .apps-waffle-btn.open .icon-close { display: block; }
+    .apps-waffle-btn .icon-grid {
+      transition: all 0.2s;
+    }
+
+    .apps-waffle-btn .icon-close {
+      display: none;
+    }
+
+    .apps-waffle-btn.open .icon-grid {
+      display: none;
+    }
+
+    .apps-waffle-btn.open .icon-close {
+      display: block;
+    }
 
     /* ── Apps Dropdown Panel (top-right) ── */
     .apps-panel {
@@ -625,19 +656,21 @@
       background: var(--chip-bg);
       border: 1.5px solid var(--chip-border);
       border-radius: 20px;
-      box-shadow: 0 12px 40px rgba(0,0,0,0.14);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.14);
       padding: 1rem;
       transform: scale(0.92) translateY(-12px);
       transform-origin: top right;
       opacity: 0;
       pointer-events: none;
-      transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1);
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
+
     .apps-panel.open {
       opacity: 1;
       pointer-events: all;
       transform: scale(1) translateY(0);
     }
+
     .apps-panel-title {
       font-size: 0.72rem;
       font-weight: 700;
@@ -648,11 +681,13 @@
       padding-bottom: 0.5rem;
       border-bottom: 1px solid var(--chip-border);
     }
+
     .apps-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 0.5rem;
     }
+
     .app-card {
       display: flex;
       flex-direction: column;
@@ -671,16 +706,19 @@
       opacity: 0;
       transform: translateY(10px);
     }
+
     .app-card.visible {
       opacity: 1;
       transform: translateY(0);
     }
+
     .app-card:hover {
       border-color: #2563eb;
       color: #2563eb;
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(37,99,235,0.1);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
     }
+
     .app-icon {
       width: 40px;
       height: 40px;
@@ -693,7 +731,10 @@
       flex-shrink: 0;
       transition: transform 0.2s ease;
     }
-    .app-card:hover .app-icon { transform: scale(1.08); }
+
+    .app-card:hover .app-icon {
+      transform: scale(1.08);
+    }
 
     /* ============ Floating Calculator ============ */
     .calc-fab {
@@ -844,7 +885,7 @@
       display: inline-flex;
       align-items: center;
       gap: 0.25rem;
-      background: rgba(255,255,255,0.22);
+      background: rgba(255, 255, 255, 0.22);
       color: #ffffff;
       border-radius: 12px;
       padding: 0.15rem 0.55rem;
@@ -900,8 +941,11 @@
       padding: 0.5rem 1rem;
       outline: none;
     }
-    .ai-input:focus { border-color: #8b5cf6; }
-    
+
+    .ai-input:focus {
+      border-color: #8b5cf6;
+    }
+
     .ai-send-btn {
       background: #8b5cf6;
       border: none;
@@ -914,7 +958,10 @@
       align-items: center;
       justify-content: center;
     }
-    .ai-send-btn:hover { background: #7c3aed; }
+
+    .ai-send-btn:hover {
+      background: #7c3aed;
+    }
 
     .calc-panel.open {
       opacity: 1;
@@ -1198,10 +1245,12 @@
         transform: scale(0.95);
         opacity: 0.8;
       }
+
       70% {
         transform: scale(1.35);
         opacity: 0;
       }
+
       100% {
         transform: scale(1.35);
         opacity: 0;
@@ -1254,24 +1303,62 @@
       animation: bingSeaWave 1.4s ease-in-out infinite;
     }
 
-    .voice-overlay.listening .wave-bar.w-1  { animation-delay: 0.00s; }
-    .voice-overlay.listening .wave-bar.w-2  { animation-delay: 0.11s; }
-    .voice-overlay.listening .wave-bar.w-3  { animation-delay: 0.22s; }
-    .voice-overlay.listening .wave-bar.w-4  { animation-delay: 0.33s; }
-    .voice-overlay.listening .wave-bar.w-5  { animation-delay: 0.44s; }
-    .voice-overlay.listening .wave-bar.w-6  { animation-delay: 0.55s; }
-    .voice-overlay.listening .wave-bar.w-7  { animation-delay: 0.66s; }
-    .voice-overlay.listening .wave-bar.w-8  { animation-delay: 0.77s; }
-    .voice-overlay.listening .wave-bar.w-9  { animation-delay: 0.88s; }
-    .voice-overlay.listening .wave-bar.w-10 { animation-delay: 0.99s; }
-    .voice-overlay.listening .wave-bar.w-11 { animation-delay: 1.10s; }
-    .voice-overlay.listening .wave-bar.w-12 { animation-delay: 1.21s; }
+    .voice-overlay.listening .wave-bar.w-1 {
+      animation-delay: 0.00s;
+    }
+
+    .voice-overlay.listening .wave-bar.w-2 {
+      animation-delay: 0.11s;
+    }
+
+    .voice-overlay.listening .wave-bar.w-3 {
+      animation-delay: 0.22s;
+    }
+
+    .voice-overlay.listening .wave-bar.w-4 {
+      animation-delay: 0.33s;
+    }
+
+    .voice-overlay.listening .wave-bar.w-5 {
+      animation-delay: 0.44s;
+    }
+
+    .voice-overlay.listening .wave-bar.w-6 {
+      animation-delay: 0.55s;
+    }
+
+    .voice-overlay.listening .wave-bar.w-7 {
+      animation-delay: 0.66s;
+    }
+
+    .voice-overlay.listening .wave-bar.w-8 {
+      animation-delay: 0.77s;
+    }
+
+    .voice-overlay.listening .wave-bar.w-9 {
+      animation-delay: 0.88s;
+    }
+
+    .voice-overlay.listening .wave-bar.w-10 {
+      animation-delay: 0.99s;
+    }
+
+    .voice-overlay.listening .wave-bar.w-11 {
+      animation-delay: 1.10s;
+    }
+
+    .voice-overlay.listening .wave-bar.w-12 {
+      animation-delay: 1.21s;
+    }
 
     @keyframes bingSeaWave {
-      0%, 100% {
+
+      0%,
+      100% {
         height: 6px;
         background: linear-gradient(180deg, #38bdf8 0%, #2563eb 100%);
       }
+
       50% {
         height: 34px;
         background: linear-gradient(180deg, #67e8f9 0%, #0284c7 100%);
@@ -1287,9 +1374,11 @@
       0% {
         box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4);
       }
+
       40% {
         box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.2);
       }
+
       100% {
         box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
       }
@@ -1333,8 +1422,15 @@
     }
 
     @keyframes voiceCursorBlink {
-      0%, 100% { opacity: 0; }
-      50% { opacity: 1; }
+
+      0%,
+      100% {
+        opacity: 0;
+      }
+
+      50% {
+        opacity: 1;
+      }
     }
 
     .voice-error-notice {
@@ -1425,7 +1521,8 @@
     <div class="header-right">
       <a href="about.html" class="nav-link-custom"><i class="fa-solid fa-circle-info me-1"></i> About &amp; Privacy</a>
       <!-- Waffle/Grid Apps Button -->
-      <button class="apps-waffle-btn" id="appsWaffleBtn" onclick="toggleApps()" aria-label="Apps" title="Apps" aria-expanded="false">
+      <button class="apps-waffle-btn" id="appsWaffleBtn" onclick="toggleApps()" aria-label="Apps" title="Apps"
+        aria-expanded="false">
         <i class="fa-solid fa-border-all icon-grid"></i>
         <i class="fa-solid fa-xmark icon-close"></i>
       </button>
@@ -1437,27 +1534,39 @@
     <div class="apps-panel-title"><i class="fa-solid fa-border-all me-1"></i> Hind Apps</div>
     <div class="apps-grid" id="appsGrid">
       <a href="apps/webstore/shrishti/index.html" class="app-card">
-        <div class="app-icon" style="background: linear-gradient(135deg,#8b5cf6,#6d28d9); box-shadow: 0 4px 10px rgba(139,92,246,0.35); font-weight: 800; font-size: 0.95rem; font-family: 'Plus Jakarta Sans', sans-serif; letter-spacing: -0.5px; color: white;">AI</div>
+        <div class="app-icon"
+          style="background: linear-gradient(135deg,#8b5cf6,#6d28d9); box-shadow: 0 4px 10px rgba(139,92,246,0.35); font-weight: 800; font-size: 0.95rem; font-family: 'Plus Jakarta Sans', sans-serif; letter-spacing: -0.5px; color: white;">
+          AI</div>
         Shrishti AI
       </a>
       <a href="apps/webstore/maps/index.html" class="app-card">
-        <div class="app-icon" style="background: linear-gradient(135deg,#059669,#047857); box-shadow: 0 4px 10px rgba(5,150,105,0.35);"><i class="fa-solid fa-map-location-dot"></i></div>
+        <div class="app-icon"
+          style="background: linear-gradient(135deg,#059669,#047857); box-shadow: 0 4px 10px rgba(5,150,105,0.35);"><i
+            class="fa-solid fa-map-location-dot"></i></div>
         Cyan Maps
       </a>
       <a href="apps/webstore/news/index.html" class="app-card">
-        <div class="app-icon" style="background: linear-gradient(135deg,#0891b2,#0e7490); box-shadow: 0 4px 10px rgba(8,145,178,0.35);"><i class="fa-regular fa-newspaper"></i></div>
+        <div class="app-icon"
+          style="background: linear-gradient(135deg,#0891b2,#0e7490); box-shadow: 0 4px 10px rgba(8,145,178,0.35);"><i
+            class="fa-regular fa-newspaper"></i></div>
         Cyan News
       </a>
       <a href="apps/webstore/weather/index.html" class="app-card">
-        <div class="app-icon" style="background: linear-gradient(135deg,#f59e0b,#d97706); box-shadow: 0 4px 10px rgba(245,158,11,0.35);"><i class="fa-solid fa-cloud-sun"></i></div>
+        <div class="app-icon"
+          style="background: linear-gradient(135deg,#f59e0b,#d97706); box-shadow: 0 4px 10px rgba(245,158,11,0.35);"><i
+            class="fa-solid fa-cloud-sun"></i></div>
         Cyan Weather
       </a>
       <a href="apps/webstore/translator/index.html" class="app-card">
-        <div class="app-icon" style="background: linear-gradient(135deg,#ec4899,#db2777); box-shadow: 0 4px 10px rgba(236,72,153,0.35);"><i class="fa-solid fa-language"></i></div>
+        <div class="app-icon"
+          style="background: linear-gradient(135deg,#ec4899,#db2777); box-shadow: 0 4px 10px rgba(236,72,153,0.35);"><i
+            class="fa-solid fa-language"></i></div>
         Cyan Translate
       </a>
       <a href="apps/webstore/calendar/index.html" class="app-card">
-        <div class="app-icon" style="background: linear-gradient(135deg,#ef4444,#dc2626); box-shadow: 0 4px 10px rgba(239,68,68,0.35);"><i class="fa-solid fa-calendar-days"></i></div>
+        <div class="app-icon"
+          style="background: linear-gradient(135deg,#ef4444,#dc2626); box-shadow: 0 4px 10px rgba(239,68,68,0.35);"><i
+            class="fa-solid fa-calendar-days"></i></div>
         Cyan Calendar
       </a>
     </div>
@@ -1486,10 +1595,11 @@
 
         <div class="search-input-group">
           <i class="fa-solid fa-magnifying-glass search-icon-left"></i>
-          <input type="text" name="q" id="searchInput" class="form-input" placeholder="Vandemataram 🇮🇳 Jai Hind 🇮🇳..."
-            aria-label="Search query" autofocus required />
-          
-          <button type="button" class="voice-search-btn" id="voiceMicBtn" title="Search by voice" aria-label="Voice search">
+          <input type="text" name="q" id="searchInput" class="form-input"
+            placeholder="Vandemataram 🇮🇳 Jai Hind 🇮🇳..." aria-label="Search query" autofocus required />
+
+          <button type="button" class="voice-search-btn" id="voiceMicBtn" title="Search by voice"
+            aria-label="Voice search">
             <i class="fa-solid fa-microphone" id="voiceMicIcon"></i>
           </button>
           <button type="submit" class="search-btn-right" aria-label="Submit Search">
@@ -1548,20 +1658,25 @@
 
   <div class="ai-panel" id="aiPanel" role="dialog" aria-label="Shrishti AI Chatbot" style="position: fixed;">
     <!-- Disclaimer Overlay -->
-    <div id="aiDisclaimer" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: var(--card-bg, var(--input-bg)); z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; text-align: center; border-radius: 24px;">
+    <div id="aiDisclaimer"
+      style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: var(--card-bg, var(--input-bg)); z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; text-align: center; border-radius: 24px;">
       <i class="fa-solid fa-triangle-exclamation text-warning mb-3" style="font-size: 2.5rem;"></i>
-      <p style="font-size: 0.95rem; margin-bottom: 1.5rem; color: var(--text-main);">AI model is in development stage so data it has is of till July 2024. We will update it soon.</p>
-      <button onclick="document.getElementById('aiDisclaimer').style.display='none'; document.getElementById('aiInput').focus();" style="background: #8b5cf6; color: white; border: none; padding: 0.6rem 2rem; border-radius: 20px; font-weight: 600; cursor: pointer;">OK</button>
+      <p style="font-size: 0.95rem; margin-bottom: 1.5rem; color: var(--text-main);">AI model is in development stage so
+        data it has is of till July 2024. We will update it soon.</p>
+      <button
+        onclick="document.getElementById('aiDisclaimer').style.display='none'; document.getElementById('aiInput').focus();"
+        style="background: #8b5cf6; color: white; border: none; padding: 0.6rem 2rem; border-radius: 20px; font-weight: 600; cursor: pointer;">OK</button>
     </div>
 
     <div class="ai-header">
       <span><i class="fa-solid fa-sparkles"></i> Shrishti AI</span>
-      <span class="shrishti-quota-badge" id="shrishtiHomeQuotaBadge">15/15 daily queries left</span>
+      <span class="shrishti-quota-badge" id="shrishtiHomeQuotaBadge">100/100 credits left</span>
     </div>
 
     <div class="shrishti-model-bar">
       <span style="font-weight:600;color:var(--text-muted);"><i class="fa-solid fa-microchip me-1"></i>Model:</span>
-      <select id="shrishtiModelSelect" class="shrishti-model-select" title="Choose AI Model (with automatic fallback cushion)">
+      <select id="shrishtiModelSelect" class="shrishti-model-select"
+        title="Choose AI Model (with automatic fallback cushion)">
         <option value="cyan-pineapple-a">cyan pineapple model a</option>
         <option value="lemon-model-b">lemon model b</option>
         <option value="hind-cyan-b">hind cyan b</option>
@@ -1573,12 +1688,14 @@
       <div class="ai-msg bot">Namaste! I am Shrishti AI. Powered by 4 cushioned models. How can I help you today?</div>
     </div>
     <div class="ai-input-area">
-      <input type="text" id="aiInput" class="ai-input" placeholder="Ask Shrishti..." onkeypress="if(event.key === 'Enter') sendAiMessage()" />
+      <input type="text" id="aiInput" class="ai-input" placeholder="Ask Shrishti..."
+        onkeypress="if(event.key === 'Enter') sendAiMessage()" />
       <button class="ai-send-btn" onclick="sendAiMessage()">
         <i class="fa-solid fa-paper-plane"></i>
       </button>
     </div>
-    <div style="text-align: center; font-size: 0.75rem; color: var(--text-muted); padding-bottom: 0.75rem; background: var(--card-bg, var(--input-bg));">
+    <div
+      style="text-align: center; font-size: 0.75rem; color: var(--text-muted); padding-bottom: 0.75rem; background: var(--card-bg, var(--input-bg));">
       AI model can make mistakes.
     </div>
   </div>
@@ -1777,13 +1894,13 @@
         aiBody.scrollTop = aiBody.scrollHeight;
         return;
       }
-      
+
       // Add user message
       const userDiv = document.createElement('div');
       userDiv.className = 'ai-msg user';
       userDiv.textContent = text;
       aiBody.appendChild(userDiv);
-      
+
       aiInput.value = '';
       aiBody.scrollTop = aiBody.scrollHeight;
 
@@ -1822,7 +1939,7 @@
 
     // ─── Apps Panel Toggle (top-right waffle) ──────────────────
     function toggleApps() {
-      const btn   = document.getElementById('appsWaffleBtn');
+      const btn = document.getElementById('appsWaffleBtn');
       const panel = document.getElementById('appsPanel');
       const cards = document.querySelectorAll('.app-card');
       const isOpen = panel.classList.contains('open');
@@ -1846,7 +1963,7 @@
 
     // Close apps panel when clicking outside
     document.addEventListener('click', (e) => {
-      const btn   = document.getElementById('appsWaffleBtn');
+      const btn = document.getElementById('appsWaffleBtn');
       const panel = document.getElementById('appsPanel');
       if (btn && panel && !btn.contains(e.target) && !panel.contains(e.target)) {
         if (panel.classList.contains('open')) {
@@ -1864,28 +1981,28 @@
     // ─── Visitor IP Address Bar ───────────────────────────────────────
     (async function loadIPInfo() {
       const ipText = document.getElementById('ipText');
-      const ipDot  = document.getElementById('ipDot');
+      const ipDot = document.getElementById('ipDot');
       if (!ipText) return;
       try {
-        const res  = await fetch('https://ipapi.co/json/');
+        const res = await fetch('https://ipapi.co/json/');
         const data = await res.json();
-        const ip      = data.ip       || '—';
-        const city    = data.city     || '';
-        const region  = data.region   || '';
+        const ip = data.ip || '—';
+        const city = data.city || '';
+        const region = data.region || '';
         const country = data.country_name || '';
-        const isp     = data.org      || '';
-        let location  = [city, region, country].filter(Boolean).join(', ');
+        const isp = data.org || '';
+        let location = [city, region, country].filter(Boolean).join(', ');
         ipText.innerHTML =
           `Your IP: <strong>${ip}</strong>${location ? ' &nbsp;·&nbsp; ' + location : ''}${isp ? ' &nbsp;·&nbsp; ' + isp : ''}`;
         if (ipDot) ipDot.title = `IP: ${ip}`;
       } catch (e) {
         if (ipText) ipText.textContent = 'Could not detect connection info.';
-        if (ipDot)  ipDot.style.background = '#ef4444';
+        if (ipDot) ipDot.style.background = '#ef4444';
       }
     })();
     // ── Voice Search ──
-    (function() {
-      const micBtn  = document.getElementById('voiceMicBtn');
+    (function () {
+      const micBtn = document.getElementById('voiceMicBtn');
       const micIcon = document.getElementById('voiceMicIcon');
       const searchInp = document.getElementById('searchInput');
       if (!micBtn) return;
@@ -1960,7 +2077,7 @@
       function getHistory() {
         try {
           const raw = JSON.parse(localStorage.getItem(HIST_KEY)) || [];
-          return raw.map(function(item) { return (typeof item === 'object' && item.q) ? item.q : String(item); }).filter(Boolean);
+          return raw.map(function (item) { return (typeof item === 'object' && item.q) ? item.q : String(item); }).filter(Boolean);
         } catch (_) {
           return [];
         }
@@ -1970,9 +2087,9 @@
         const q = (query || '').trim();
         if (!q) return;
         var raw = [];
-        try { raw = JSON.parse(localStorage.getItem(HIST_KEY)) || []; } catch (_) {}
-        raw = raw.map(function(item) { return (typeof item === 'object' && item.q) ? item : { q: String(item), t: Date.now() }; });
-        raw = raw.filter(function(item) { return item.q.toLowerCase() !== q.toLowerCase(); });
+        try { raw = JSON.parse(localStorage.getItem(HIST_KEY)) || []; } catch (_) { }
+        raw = raw.map(function (item) { return (typeof item === 'object' && item.q) ? item : { q: String(item), t: Date.now() }; });
+        raw = raw.filter(function (item) { return item.q.toLowerCase() !== q.toLowerCase(); });
         raw.unshift({ q: q, t: Date.now() });
         if (raw.length > 50) raw = raw.slice(0, 50);
         localStorage.setItem(HIST_KEY, JSON.stringify(raw));
@@ -1980,8 +2097,8 @@
 
       function deleteHistoryItem(query) {
         var raw = [];
-        try { raw = JSON.parse(localStorage.getItem(HIST_KEY)) || []; } catch (_) {}
-        raw = raw.filter(function(item) {
+        try { raw = JSON.parse(localStorage.getItem(HIST_KEY)) || []; } catch (_) { }
+        raw = raw.filter(function (item) {
           var itemQ = (typeof item === 'object' && item.q) ? item.q : String(item);
           return itemQ.toLowerCase() !== query.toLowerCase();
         });
@@ -2011,32 +2128,32 @@
           activeJsonpScript = null;
         }
 
-        const timeout = setTimeout(function() {
+        const timeout = setTimeout(function () {
           if (done) return;
           done = true;
           cleanup();
           fetch('https://en.wikipedia.org/w/api.php?action=opensearch&search=' + encodeURIComponent(q) + '&limit=8&namespace=0&format=json&origin=*')
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
               if (Array.isArray(data) && Array.isArray(data[1])) {
                 callback(data[1]);
               } else {
                 callback([]);
               }
             })
-            .catch(function() { callback([]); });
+            .catch(function () { callback([]); });
         }, 800);
 
         function cleanup() {
           clearTimeout(timeout);
-          try { delete window[cbName]; } catch(_) {}
+          try { delete window[cbName]; } catch (_) { }
           if (activeJsonpScript && activeJsonpScript.parentNode) {
             activeJsonpScript.parentNode.removeChild(activeJsonpScript);
             activeJsonpScript = null;
           }
         }
 
-        window[cbName] = function(data) {
+        window[cbName] = function (data) {
           if (done) return;
           done = true;
           cleanup();
@@ -2049,20 +2166,20 @@
 
         const script = document.createElement('script');
         script.src = 'https://suggestqueries.google.com/complete/search?client=chrome&q=' + encodeURIComponent(q) + '&callback=' + cbName;
-        script.onerror = function() {
+        script.onerror = function () {
           if (done) return;
           done = true;
           cleanup();
           fetch('https://en.wikipedia.org/w/api.php?action=opensearch&search=' + encodeURIComponent(q) + '&limit=8&namespace=0&format=json&origin=*')
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
               if (Array.isArray(data) && Array.isArray(data[1])) {
                 callback(data[1]);
               } else {
                 callback([]);
               }
             })
-            .catch(function() { callback([]); });
+            .catch(function () { callback([]); });
         };
         activeJsonpScript = script;
         document.head.appendChild(script);
@@ -2091,7 +2208,7 @@
           const items = [];
           const seen = new Set();
 
-          historyMatches.forEach(function(text) {
+          historyMatches.forEach(function (text) {
             const lower = text.toLowerCase();
             if (!seen.has(lower)) {
               seen.add(lower);
@@ -2099,7 +2216,7 @@
             }
           });
 
-          liveSuggestions.forEach(function(text) {
+          liveSuggestions.forEach(function (text) {
             const lower = text.toLowerCase();
             if (!seen.has(lower)) {
               seen.add(lower);
@@ -2116,7 +2233,7 @@
             return;
           }
 
-          let hasHistory = currentItems.some(function(it) { return it.isHistory; });
+          let hasHistory = currentItems.some(function (it) { return it.isHistory; });
 
           let html = '';
           if (hasHistory && !q) {
@@ -2141,7 +2258,7 @@
 
           html += '<ul class="suggest-list">';
 
-          currentItems.forEach(function(item, idx) {
+          currentItems.forEach(function (item, idx) {
             let displayHtml = escapeHtml(item.text);
             if (q) {
               const reg = new RegExp('(' + escapeRegExp(q) + ')', 'gi');
@@ -2174,25 +2291,25 @@
 
           const clearBtn = dropdown.querySelector('.suggest-clear-all');
           if (clearBtn) {
-            clearBtn.addEventListener('click', function(e) {
+            clearBtn.addEventListener('click', function (e) {
               e.stopPropagation();
               const liElements = dropdown.querySelectorAll('.suggest-item');
-              liElements.forEach(function(el) { el.classList.add('removing'); });
-              setTimeout(function() {
+              liElements.forEach(function (el) { el.classList.add('removing'); });
+              setTimeout(function () {
                 clearAllHistory();
                 updateSuggestions();
               }, 200);
             });
           }
 
-          dropdown.querySelectorAll('.suggest-delete-btn').forEach(function(btn) {
-            btn.addEventListener('click', function(e) {
+          dropdown.querySelectorAll('.suggest-delete-btn').forEach(function (btn) {
+            btn.addEventListener('click', function (e) {
               e.stopPropagation();
               const queryToDelete = btn.dataset.query;
               const li = btn.closest('.suggest-item');
               if (li) {
                 li.classList.add('removing');
-                setTimeout(function() {
+                setTimeout(function () {
                   deleteHistoryItem(queryToDelete);
                   updateSuggestions();
                 }, 200);
@@ -2200,8 +2317,8 @@
             });
           });
 
-          dropdown.querySelectorAll('.suggest-item').forEach(function(itemEl) {
-            itemEl.addEventListener('click', function(e) {
+          dropdown.querySelectorAll('.suggest-item').forEach(function (itemEl) {
+            itemEl.addEventListener('click', function (e) {
               if (e.target.closest('.suggest-delete-btn')) return;
               const selectedQuery = itemEl.dataset.query;
               inputEl.value = selectedQuery;
@@ -2220,7 +2337,7 @@
           const rawQ = inputEl.value;
           const q = rawQ.trim().toLowerCase();
           const history = getHistory();
-          const historyMatches = history.filter(function(item) {
+          const historyMatches = history.filter(function (item) {
             return !q || item.toLowerCase().includes(q);
           });
 
@@ -2232,8 +2349,8 @@
           renderList(historyMatches, [], rawQ);
 
           clearTimeout(debounceTimer);
-          debounceTimer = setTimeout(function() {
-            fetchLiveCompletions(rawQ, function(liveSuggestions) {
+          debounceTimer = setTimeout(function () {
+            fetchLiveCompletions(rawQ, function (liveSuggestions) {
               if (inputEl.value.trim().toLowerCase() === q) {
                 renderList(historyMatches, liveSuggestions, rawQ);
               }
@@ -2244,7 +2361,7 @@
         inputEl.addEventListener('focus', updateSuggestions);
         inputEl.addEventListener('input', updateSuggestions);
 
-        inputEl.addEventListener('keydown', function(e) {
+        inputEl.addEventListener('keydown', function (e) {
           const items = dropdown.querySelectorAll('.suggest-item');
           if (!dropdown.classList.contains('open') || !items.length) return;
 
@@ -2277,7 +2394,7 @@
 
         function updateActiveItemClass() {
           const items = dropdown.querySelectorAll('.suggest-item');
-          items.forEach(function(el, idx) {
+          items.forEach(function (el, idx) {
             if (idx === activeIndex) {
               el.classList.add('active');
             } else {
@@ -2287,14 +2404,14 @@
         }
 
         if (formEl) {
-          formEl.addEventListener('submit', function() {
+          formEl.addEventListener('submit', function () {
             if (inputEl.value.trim()) {
               saveHistory(inputEl.value.trim());
             }
           });
         }
 
-        document.addEventListener('click', function(e) {
+        document.addEventListener('click', function (e) {
           if (!wrapper.contains(e.target)) {
             dropdown.classList.remove('open');
           }
@@ -2310,11 +2427,11 @@
       }
 
       const mainInput = document.getElementById('searchInput');
-      const mainForm  = document.getElementById('ddgSearch');
+      const mainForm = document.getElementById('ddgSearch');
       if (mainInput) setupSuggestionsForInput(mainInput, mainForm);
     })();
   </script>
-<script src="translate.js"></script>
+  <script src="translate.js"></script>
 </body>
 
 </html>

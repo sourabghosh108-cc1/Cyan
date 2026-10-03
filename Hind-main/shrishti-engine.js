@@ -1,57 +1,65 @@
 /**
- * Shrishti AI Multi-Model Cushioning & Quota Engine
- * Supported Models:
- * - cyan pineapple model a (OpenRouter free)
- * - lemon model b (Gemini Flash Latest)
- * - hind cyan b (Groq GPT-OSS-20B)
- * - orange d (Mistral Open-Mistral-7B)
+ * Shrishti AI Secure Client Engine for Hind Search
  * 
- * Cascade Cushioning: If the chosen model fails/rate-limits,
- * it cushions and fails over to the next available models sequentially.
+ * ARCHITECTURE:
+ * Browser / Frontend  ─── POST /api/ai ───►  Vercel Serverless Function (api/ai.py)
+ *                                                    │
+ *                                        Reads AI_API_KEY from Server Env
+ *                                                    │
+ *                                                    ▼
+ *                                            Single AI Provider
  * 
- * Daily Limit: 15 questions per user per day.
+ * SECURITY:
+ * - NO API keys are stored in this frontend file.
+ * - NO direct third-party AI provider URLs are invoked from the browser.
+ * - All requests route through the server-side /api/ai endpoint.
+ * 
+ * CREDIT SYSTEM:
+ * - 100 credits per user / IP.
+ * - 5 credits consumed per successful AI response.
+ * - Failed provider requests consume 0 credits.
+ * - When credits < 5, AI requests are rejected while normal search continues uninterrupted.
  */
 
 const SHRISHTI_CONFIG = {
-  DAILY_LIMIT: 15,
+  INITIAL_CREDITS: 100,
+  CREDIT_COST_QUERY: 5,
+  // Metadata for UI selectors (all keys removed; calls routed through /api/ai)
   MODELS: {
-    'cyan-pineapple-a': {
-      id: 'cyan-pineapple-a',
-      name: 'cyan pineapple model a',
-      badge: 'OpenRouter',
-      provider: 'openrouter',
-      apiKey: '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',
-      modelId: 'openrouter/free'
-    },
     'lemon-model-b': {
       id: 'lemon-model-b',
-      name: 'lemon model b',
-      badge: 'Gemini',
-      provider: 'gemini',
-      apiKey: 'AQ.Ab8RN6JIXnc0-oy_47NrMZ0Il0nlgm9g7czX88px8B8eqyqPig',
-      modelId: 'gemini-flash-latest'
+      name: 'Shrishti AI (Gemini)',
+      badge: 'Gemini'
+    },
+    'cyan-pineapple-a': {
+      id: 'cyan-pineapple-a',
+      name: 'Shrishti AI Default',
+      badge: 'Hind AI'
     },
     'hind-cyan-b': {
       id: 'hind-cyan-b',
-      name: 'hind cyan b',
-      badge: 'Groq',
-      provider: 'groq',
-      apiKey: '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',
-      modelId: 'openai/gpt-oss-20b'
+      name: 'Shrishti Fast (Groq)',
+      badge: 'Groq'
     },
     'orange-d': {
       id: 'orange-d',
-      name: 'orange d',
-      badge: 'Mistral',
-      provider: 'mistral',
-      apiKey: 'mstrl_HKF5qt7L9gOx48nn0dVyfGJg0sBzEYOX_35SQAU',
-      modelId: 'open-mistral-7b'
+      name: 'Shrishti Chat (Mistral)',
+      badge: 'Mistral'
     }
   },
-  DEFAULT_ORDER: ['cyan-pineapple-a', 'lemon-model-b', 'hind-cyan-b', 'orange-d']
+  DEFAULT_ORDER: ['lemon-model-b', 'cyan-pineapple-a', 'hind-cyan-b', 'orange-d']
 };
 
-// ── Daily Quota Management (15 queries/day) ──
+// ── Resolve Server-Side Endpoint ──
+function getAiApiEndpoint() {
+  const isProd = window.location.protocol.startsWith('http') &&
+                 !window.location.hostname.includes('localhost') &&
+                 !window.location.hostname.includes('127.0.0.1');
+  const base = isProd ? '' : (window.location.port === '8000' ? '' : 'http://127.0.0.1:8000');
+  return `${base}/api/ai`;
+}
+
+// ── 100 Credit System Management ──
 function getTodayDateKey() {
   const d = new Date();
   const year = d.getFullYear();
@@ -63,242 +71,184 @@ function getTodayDateKey() {
 function getShrishtiQuota() {
   try {
     const today = getTodayDateKey();
-    const stored = localStorage.getItem('shrishti_daily_quota');
+    const stored = localStorage.getItem('hind_ai_credits_data');
     if (!stored) {
-      return { date: today, count: 0, limit: SHRISHTI_CONFIG.DAILY_LIMIT };
+      const initial = { date: today, credits: SHRISHTI_CONFIG.INITIAL_CREDITS };
+      localStorage.setItem('hind_ai_credits_data', JSON.stringify(initial));
+      return initial;
     }
     const parsed = JSON.parse(stored);
     if (parsed.date !== today) {
-      const reset = { date: today, count: 0, limit: SHRISHTI_CONFIG.DAILY_LIMIT };
-      localStorage.setItem('shrishti_daily_quota', JSON.stringify(reset));
+      const reset = { date: today, credits: SHRISHTI_CONFIG.INITIAL_CREDITS };
+      localStorage.setItem('hind_ai_credits_data', JSON.stringify(reset));
       return reset;
     }
-    return { date: today, count: parsed.count || 0, limit: SHRISHTI_CONFIG.DAILY_LIMIT };
+    return {
+      date: today,
+      credits: typeof parsed.credits === 'number' ? parsed.credits : SHRISHTI_CONFIG.INITIAL_CREDITS
+    };
   } catch (e) {
-    return { date: getTodayDateKey(), count: 0, limit: SHRISHTI_CONFIG.DAILY_LIMIT };
+    return { date: getTodayDateKey(), credits: SHRISHTI_CONFIG.INITIAL_CREDITS };
   }
 }
 
-function incrementShrishtiQuota() {
+function saveShrishtiCredits(creditsRemaining) {
   try {
-    const q = getShrishtiQuota();
-    q.count += 1;
-    localStorage.setItem('shrishti_daily_quota', JSON.stringify(q));
+    const today = getTodayDateKey();
+    const validCredits = Math.max(0, Math.min(SHRISHTI_CONFIG.INITIAL_CREDITS, creditsRemaining));
+    localStorage.setItem('hind_ai_credits_data', JSON.stringify({ date: today, credits: validCredits }));
     updateShrishtiQuotaBadges();
-    return q;
   } catch (e) {
-    return { date: getTodayDateKey(), count: 1, limit: SHRISHTI_CONFIG.DAILY_LIMIT };
+    // Ignore localStorage write errors in private browsing
   }
 }
 
 function canAskShrishti() {
   const q = getShrishtiQuota();
-  return q.count < q.limit;
+  return q.credits >= SHRISHTI_CONFIG.CREDIT_COST_QUERY;
 }
 
 function getShrishtiRemainingQuestions() {
   const q = getShrishtiQuota();
-  return Math.max(0, q.limit - q.count);
+  return q.credits;
+}
+
+// Retain legacy method name for backward compatibility with existing UI
+function incrementShrishtiQuota() {
+  // Credits are deducted server-side upon successful AI response.
+  // This helper syncs local display.
+  updateShrishtiQuotaBadges();
 }
 
 function updateShrishtiQuotaBadges() {
   const remaining = getShrishtiRemainingQuestions();
-  // Update all badge elements by class (search.html, index.html)
+  const total = SHRISHTI_CONFIG.INITIAL_CREDITS;
+
+  // Update badge elements in search.html, index.html
   document.querySelectorAll('.shrishti-quota-badge').forEach(el => {
-    el.textContent = `${remaining}/${SHRISHTI_CONFIG.DAILY_LIMIT} daily queries left`;
-    if (remaining <= 0) {
-      el.style.background = 'rgba(239, 68, 68, 0.3)';
-    } else if (remaining <= 3) {
+    el.textContent = `${remaining}/${total} credits left`;
+    if (remaining < SHRISHTI_CONFIG.CREDIT_COST_QUERY) {
+      el.style.background = 'rgba(239, 68, 68, 0.35)';
+      el.style.color = '#fca5a5';
+    } else if (remaining <= 25) {
       el.style.background = 'rgba(245, 158, 11, 0.3)';
+      el.style.color = '#fde68a';
     }
   });
-  // Also update standalone badge if present (shrishti/index.html)
+
+  // Standalone app badge (apps/webstore/shrishti/index.html)
   const standaloneBadge = document.getElementById('shrishtiStandaloneQuotaBadge');
   if (standaloneBadge) {
-    standaloneBadge.textContent = `${remaining}/15 queries left today`;
-    if (remaining <= 0) standaloneBadge.style.background = 'rgba(239,68,68,0.4)';
-    else if (remaining <= 3) standaloneBadge.style.background = 'rgba(245,158,11,0.4)';
+    standaloneBadge.textContent = `${remaining}/${total} credits left`;
+    if (remaining < SHRISHTI_CONFIG.CREDIT_COST_QUERY) {
+      standaloneBadge.style.background = 'rgba(239, 68, 68, 0.4)';
+    } else if (remaining <= 25) {
+      standaloneBadge.style.background = 'rgba(245, 158, 11, 0.4)';
+    }
   }
 }
 
-// ── Provider API Invokers ──
-async function callOpenRouter(prompt, cfg) {
+// ── Secure Server-Side Invocation ──
+/**
+ * Calls Hind's secure server-side /api/ai endpoint.
+ * No API key is sent from the browser.
+ */
+async function callSecureAiEndpoint(prompt, context = '') {
+  const endpoint = getAiApiEndpoint();
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 12000);
+  const timeoutId = setTimeout(() => controller.abort(), 18000);
+
   try {
-    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const res = await fetch(endpoint, {
       method: 'POST',
       signal: controller.signal,
       headers: {
-        'Authorization': `Bearer ${cfg.apiKey}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://hind.com',
-        'X-Title': 'Hind Search Engine'
+        'X-Requested-With': 'XMLHttpRequest'
       },
       body: JSON.stringify({
-        model: cfg.modelId,
-        messages: [
-          { role: 'system', content: 'You are Shrishti AI, a helpful and precise assistant by Hind.com.' },
-          { role: 'user', content: prompt }
-        ]
+        message: prompt,
+        context: context || ''
       })
     });
+
     clearTimeout(timeoutId);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    if (data.choices && data.choices[0] && data.choices[0].message) {
-      return data.choices[0].message.content;
+
+    const data = await res.json().catch(() => null);
+
+    if (!data) {
+      throw new Error(`Server returned HTTP ${res.status}`);
     }
-    if (data.error && data.error.message) throw new Error(data.error.message);
-    throw new Error('Invalid OpenRouter payload');
-  } finally {
-    clearTimeout(timeoutId);
-  }
-}
 
-async function callGemini(prompt, cfg) {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 12000);
-  try {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${cfg.modelId}:generateContent?key=${cfg.apiKey}`;
-    const res = await fetch(url, {
-      method: 'POST',
-      signal: controller.signal,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              { text: `You are Shrishti AI, a helpful and accurate assistant by Hind.com. Answer concisely:\n\n${prompt}` }
-            ]
-          }
-        ]
-      })
-    });
-    clearTimeout(timeoutId);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
-      return data.candidates[0].content.parts.map(p => p.text).join('\n');
+    // Sync remaining credits from server response
+    if (typeof data.credits_remaining === 'number') {
+      saveShrishtiCredits(data.credits_remaining);
     }
-    if (data.error && data.error.message) throw new Error(data.error.message);
-    throw new Error('Invalid Gemini payload');
-  } finally {
-    clearTimeout(timeoutId);
-  }
-}
 
-async function callGroq(prompt, cfg) {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 12000);
-  try {
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      signal: controller.signal,
-      headers: {
-        'Authorization': `Bearer ${cfg.apiKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: cfg.modelId,
-        messages: [
-          { role: 'system', content: 'You are Shrishti AI, a helpful and intelligent assistant by Hind.com.' },
-          { role: 'user', content: prompt }
-        ]
-      })
-    });
-    clearTimeout(timeoutId);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    if (data.choices && data.choices[0] && data.choices[0].message) {
-      return data.choices[0].message.content;
-    }
-    if (data.error && data.error.message) throw new Error(data.error.message);
-    throw new Error('Invalid Groq payload');
-  } finally {
-    clearTimeout(timeoutId);
-  }
-}
-
-async function callMistral(prompt, cfg) {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 12000);
-  try {
-    const res = await fetch('https://api.mistral.ai/v1/chat/completions', {
-      method: 'POST',
-      signal: controller.signal,
-      headers: {
-        'Authorization': `Bearer ${cfg.apiKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: cfg.modelId,
-        messages: [
-          { role: 'system', content: 'You are Shrishti AI, a helpful and articulate assistant by Hind.com.' },
-          { role: 'user', content: prompt }
-        ]
-      })
-    });
-    clearTimeout(timeoutId);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    if (data.choices && data.choices[0] && data.choices[0].message) {
-      return data.choices[0].message.content;
-    }
-    if (data.error && data.error.message) throw new Error(data.error.message);
-    throw new Error('Invalid Mistral payload');
-  } finally {
-    clearTimeout(timeoutId);
-  }
-}
-
-// ── Multi-Model Cushioning Fallback Engine ──
-async function requestShrishtiAiWithCushion(prompt, primaryModelKey = 'cyan-pineapple-a', onFallbackNotify = null) {
-  // Build waterfall cascade starting with primaryModelKey, followed by others
-  const order = [primaryModelKey, ...SHRISHTI_CONFIG.DEFAULT_ORDER.filter(k => k !== primaryModelKey)];
-  const errors = [];
-
-  for (let i = 0; i < order.length; i++) {
-    const key = order[i];
-    const cfg = SHRISHTI_CONFIG.MODELS[key];
-    if (!cfg) continue;
-
-    try {
-      if (i > 0 && typeof onFallbackNotify === 'function') {
-        onFallbackNotify(cfg.name, i);
+    if (!res.ok || !data.success) {
+      if (data.credits_remaining !== undefined && data.credits_remaining < SHRISHTI_CONFIG.CREDIT_COST_QUERY) {
+        throw new Error('AI credits exhausted. Normal web, image, video, and news search continue working normally.');
       }
-      let text = '';
-      if (cfg.provider === 'openrouter') {
-        text = await callOpenRouter(prompt, cfg);
-      } else if (cfg.provider === 'gemini') {
-        text = await callGemini(prompt, cfg);
-      } else if (cfg.provider === 'groq') {
-        text = await callGroq(prompt, cfg);
-      } else if (cfg.provider === 'mistral') {
-        text = await callMistral(prompt, cfg);
-      }
-      if (text && text.trim()) {
-        return {
-          content: text.trim(),
-          modelUsed: cfg.name,
-          modelKey: cfg.id,
-          cushioned: i > 0,
-          attempts: i + 1
-        };
-      }
-      throw new Error(`Empty response from ${cfg.name}`);
-    } catch (err) {
-      console.warn(`Shrishti cushion: ${cfg.name} failed (${err.message}), trying next cushion...`);
-      errors.push({ model: cfg.name, error: err.message });
+      throw new Error(data.error || `AI service returned error (HTTP ${res.status})`);
     }
-  }
 
-  throw new Error(`All Shrishti AI models were unavailable: ${errors.map(e => `${e.model}: ${e.error}`).join('; ')}`);
+    return {
+      content: (data.answer || '').trim(),
+      modelUsed: 'Shrishti AI',
+      modelKey: 'shrishti-ai',
+      creditsRemaining: data.credits_remaining
+    };
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }
 
-// Ensure badge updates on DOM load
+// ── Main UI Interface Function ──
+/**
+ * Main AI entry point used by search.html, index.html, and Shrishti Web App.
+ * Signature preserved so no HTML or UI files need modification.
+ */
+async function requestShrishtiAiWithCushion(prompt, primaryModelKey = 'lemon-model-b', onFallbackNotify = null) {
+  if (!canAskShrishti()) {
+    throw new Error('AI credits exhausted. You have 0 credits remaining. Web, image, video, and news search continue working normally.');
+  }
+
+  const result = await callSecureAiEndpoint(prompt);
+  
+  if (!result.content) {
+    throw new Error('No answer received from AI service.');
+  }
+
+  return {
+    content: result.content,
+    modelUsed: 'Shrishti AI',
+    modelKey: 'shrishti-ai',
+    cushioned: false,
+    attempts: 1,
+    creditsRemaining: result.creditsRemaining
+  };
+}
+
+// Background sync on load to fetch current credits from server
+async function syncCreditsWithServer() {
+  try {
+    const endpoint = getAiApiEndpoint();
+    const res = await fetch(endpoint, { method: 'GET' });
+    if (res.ok) {
+      const data = await res.json();
+      if (typeof data.credits_remaining === 'number') {
+        saveShrishtiCredits(data.credits_remaining);
+      }
+    }
+  } catch (e) {
+    // Graceful fallback to local credits
+  }
+}
+
+// Ensure badges and initial state update on DOM load
 if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', () => {
     updateShrishtiQuotaBadges();
+    syncCreditsWithServer();
   });
 }

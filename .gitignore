@@ -2,3 +2,12 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.log
+
+# Secrets and environment variables
+.env
+.env.local
+.env.*.local
+*.env
+
+# Vercel build/deployment output
+.vercel
