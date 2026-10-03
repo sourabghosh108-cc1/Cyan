@@ -20,7 +20,7 @@ const SHRISHTI_CONFIG = {
       name: 'cyan pineapple model a',
       badge: 'OpenRouter',
       provider: 'openrouter',
-      apiKey: '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',
+      apiKey: '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',
       modelId: 'openrouter/free'
     },
     'lemon-model-b': {
