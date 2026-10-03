@@ -34,43 +34,69 @@ def deduct_credits(ip, amount=CREDIT_COST):
     CREDIT_STORE[ip] = max(0, current - amount)
     return CREDIT_STORE[ip]
 
-def call_ai_provider(prompt, api_key):
+def detect_provider(api_key):
+    cleaned = api_key.strip().strip('"').strip("'")
+    if cleaned.startswith("sk-or-"):
+        return "OpenRouter", cleaned
+    elif cleaned.startswith("gsk_"):
+        return "Groq", cleaned
+    elif cleaned.startswith("mstrl_"):
+        return "Mistral", cleaned
+    return "Google Gemini", cleaned
+
+def call_ai_provider(prompt, raw_key):
     """
     Calls the configured server-side AI provider based on key format.
     The API key is kept strictly within this server-side execution.
     """
+    provider_name, api_key = detect_provider(raw_key)
     system_instruction = "You are Shrishti AI, a helpful, accurate, and concise assistant for Hind search engine."
     full_prompt = f"{system_instruction}\n\nUser Question:\n{prompt}"
 
-    if api_key.startswith("sk-or-"):
-        # 1. OpenRouter
+    if provider_name == "OpenRouter":
+        # OpenRouter endpoint with active models
         endpoint = "https://openrouter.ai/api/v1/chat/completions"
-        payload = {
-            "model": "openrouter/free",
-            "messages": [
-                {"role": "system", "content": system_instruction},
-                {"role": "user", "content": prompt}
-            ],
-            "max_tokens": 1024,
-            "temperature": 0.7
-        }
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {api_key}",
-            "HTTP-Referer": "https://hind.com",
-            "X-Title": "Hind Search Engine",
-            "User-Agent": "Hind-Search-Engine/1.0"
-        }
-        req_data = json.dumps(payload).encode("utf-8")
-        req = urllib.request.Request(endpoint, data=req_data, headers=headers, method="POST")
-        with urllib.request.urlopen(req, timeout=15) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-            if data.get("choices") and len(data["choices"]) > 0:
-                return data["choices"][0]["message"]["content"].strip()
-            raise ValueError("Unexpected response structure from OpenRouter")
+        models_to_try = [
+            "google/gemini-2.0-flash-exp:free",
+            "meta-llama/llama-3.3-70b-instruct:free",
+            "mistralai/mistral-7b-instruct:free"
+        ]
+        last_error = None
+        for model_id in models_to_try:
+            try:
+                payload = {
+                    "model": model_id,
+                    "messages": [
+                        {"role": "system", "content": system_instruction},
+                        {"role": "user", "content": prompt}
+                    ],
+                    "max_tokens": 1024,
+                    "temperature": 0.7
+                }
+                headers = {
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {api_key}",
+                    "HTTP-Referer": "https://hind.com",
+                    "X-Title": "Hind Search Engine",
+                    "User-Agent": "Hind-Search-Engine/1.0"
+                }
+                req_data = json.dumps(payload).encode("utf-8")
+                req = urllib.request.Request(endpoint, data=req_data, headers=headers, method="POST")
+                with urllib.request.urlopen(req, timeout=15) as resp:
+                    data = json.loads(resp.read().decode("utf-8"))
+                    if data.get("choices") and len(data["choices"]) > 0:
+                        return data["choices"][0]["message"]["content"].strip()
+            except urllib.error.HTTPError as he:
+                last_error = he
+                if he.code != 404:
+                    raise he
+            except Exception as e:
+                last_error = e
+        if last_error:
+            raise last_error
+        raise ValueError("Failed to get response from OpenRouter")
 
-    elif api_key.startswith("gsk_"):
-        # 2. Groq
+    elif provider_name == "Groq":
         endpoint = "https://api.groq.com/openai/v1/chat/completions"
         payload = {
             "model": "llama-3.1-8b-instant",
@@ -94,11 +120,10 @@ def call_ai_provider(prompt, api_key):
                 return data["choices"][0]["message"]["content"].strip()
             raise ValueError("Unexpected response structure from Groq")
 
-    elif api_key.startswith("mstrl_"):
-        # 3. Mistral AI
+    elif provider_name == "Mistral":
         endpoint = "https://api.mistral.ai/v1/chat/completions"
         payload = {
-            "model": "open-mistral-7b",
+            "model": "mistral-small-latest",
             "messages": [
                 {"role": "system", "content": system_instruction},
                 {"role": "user", "content": prompt}
@@ -120,8 +145,10 @@ def call_ai_provider(prompt, api_key):
             raise ValueError("Unexpected response structure from Mistral")
 
     else:
-        # 4. Google Gemini REST API (default)
-        endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+        # Google Gemini: Try 1.5-flash first, fallback to 2.0-flash / 2.5-flash / gemini-flash-latest
+        gemini_models = ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-flash-latest"]
+        last_err = None
+
         payload = {
             "contents": [
                 {
@@ -135,22 +162,35 @@ def call_ai_provider(prompt, api_key):
                 "temperature": 0.7
             }
         }
+        req_data = json.dumps(payload).encode("utf-8")
         headers = {
             "Content-Type": "application/json",
             "x-goog-api-key": api_key,
             "User-Agent": "Hind-Search-Engine/1.0"
         }
-        req_data = json.dumps(payload).encode("utf-8")
-        req = urllib.request.Request(endpoint, data=req_data, headers=headers, method="POST")
-        with urllib.request.urlopen(req, timeout=15) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-            candidates = data.get("candidates") or []
-            if candidates:
-                parts = candidates[0].get("content", {}).get("parts", [])
-                texts = [p.get("text", "") for p in parts if p.get("text")]
-                if texts:
-                    return "\n".join(texts).strip()
-            raise ValueError("Empty or invalid candidate response from Gemini")
+
+        for model_name in gemini_models:
+            endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
+            req = urllib.request.Request(endpoint, data=req_data, headers=headers, method="POST")
+            try:
+                with urllib.request.urlopen(req, timeout=15) as resp:
+                    data = json.loads(resp.read().decode("utf-8"))
+                    candidates = data.get("candidates") or []
+                    if candidates:
+                        parts = candidates[0].get("content", {}).get("parts", [])
+                        texts = [p.get("text", "") for p in parts if p.get("text")]
+                        if texts:
+                            return "\n".join(texts).strip()
+            except urllib.error.HTTPError as he:
+                last_err = he
+                if he.code != 404:
+                    raise he
+            except Exception as e:
+                last_err = e
+
+        if last_err:
+            raise last_err
+        raise ValueError("Empty or invalid candidate response from Gemini")
 
 class handler(BaseHTTPRequestHandler):
     def _send_json(self, status_code, data):
@@ -220,20 +260,21 @@ class handler(BaseHTTPRequestHandler):
             return
 
         # 3. Read server environment variable securely
-        api_key = (os.environ.get('AI_API_KEY') or os.environ.get('GEMINI_API_KEY') or '').strip()
-        if not api_key:
+        raw_key = (os.environ.get('AI_API_KEY') or os.environ.get('GEMINI_API_KEY') or '').strip()
+        if not raw_key:
             self._send_json(503, {
                 "success": False,
-                "error": "AI service is currently not configured on server (AI_API_KEY environment variable required)",
+                "error": "AI service is currently not configured on server (AI_API_KEY environment variable required in Vercel)",
                 "credits_remaining": current_credits
             })
             return
 
+        provider_name, _ = detect_provider(raw_key)
         prompt_with_context = f"Context from search: {context}\n\nQuestion: {message}" if context else message
 
         # 4. Invoke AI provider
         try:
-            answer = call_ai_provider(prompt_with_context, api_key)
+            answer = call_ai_provider(prompt_with_context, raw_key)
             new_credits = deduct_credits(client_ip, CREDIT_COST)
             self._send_json(200, {
                 "success": True,
@@ -246,14 +287,26 @@ class handler(BaseHTTPRequestHandler):
                 err_body = http_err.read().decode('utf-8', errors='ignore')
             except Exception:
                 pass
-            print(f"[AI Provider Error] Code: {http_err.code}, Reason: {http_err.reason}, Body: {err_body}")
+            print(f"[{provider_name} Error] Code: {http_err.code}, Reason: {http_err.reason}, Body: {err_body}")
 
-            if http_err.code in (401, 403):
-                err_msg = f"AI provider authentication failed (HTTP {http_err.code}). The API key in Vercel is invalid or was revoked/deleted by the provider."
-            elif http_err.code == 429:
-                err_msg = "AI provider rate limit or quota exceeded (HTTP 429). Please check your provider account quota."
-            else:
-                err_msg = f"AI provider returned HTTP {http_err.code}: {http_err.reason}"
+            detail = ""
+            try:
+                parsed = json.loads(err_body)
+                if isinstance(parsed, dict):
+                    err_field = parsed.get("error") or parsed.get("detail")
+                    if isinstance(err_field, dict):
+                        detail = err_field.get("message") or str(err_field)
+                    elif isinstance(err_field, str):
+                        detail = err_field
+                    elif "message" in parsed:
+                        detail = parsed["message"]
+            except Exception:
+                pass
+
+            if not detail:
+                detail = http_err.reason or err_body[:200]
+
+            err_msg = f"{provider_name} returned HTTP {http_err.code}: {detail}"
 
             self._send_json(502, {
                 "success": False,
@@ -261,9 +314,9 @@ class handler(BaseHTTPRequestHandler):
                 "credits_remaining": current_credits
             })
         except Exception as e:
-            print(f"[AI Server Error] {str(e)}")
+            print(f"[{provider_name} Server Error] {str(e)}")
             self._send_json(502, {
                 "success": False,
-                "error": f"Failed to connect to AI provider: {str(e)}",
+                "error": f"Failed to connect to {provider_name}: {str(e)}",
                 "credits_remaining": current_credits
             })
