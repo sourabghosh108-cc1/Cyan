@@ -16,8 +16,9 @@
   <!-- Bootstrap & FontAwesome -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  <!-- PDF.js for Document Analysis -->
+  <!-- Document Parsing (PDF & Word DOCX) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 
   <style>
     :root {
@@ -1707,11 +1708,11 @@
       <button type="button" onclick="clearAiAttachment()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:2px 6px;" title="Remove attachment"><i class="fa-solid fa-xmark"></i></button>
     </div>
 
-    <!-- Hidden File Input -->
-    <input type="file" id="aiFileInput" accept=".pdf,.doc,.docx,.txt,.csv,.json,.md,.png,.jpg,.jpeg,.webp" style="display:none;" onchange="handleAiFileSelect(event)" />
+    <!-- Hidden File Input (PDF, DOCX, Transcripts) -->
+    <input type="file" id="aiFileInput" accept=".pdf,.docx,.doc,.txt,.vtt,.srt" style="display:none;" onchange="handleAiFileSelect(event)" />
 
     <div class="ai-input-area" style="align-items:center;gap:0.4rem;">
-      <button type="button" id="aiAttachBtn" onclick="document.getElementById('aiFileInput').click()" title="Analyse Doc, PDF, or Image (costs 5 Pro Credits)" style="background:transparent;border:1px solid var(--border-color);color:var(--text-muted);width:34px;height:34px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;">
+      <button type="button" id="aiAttachBtn" onclick="document.getElementById('aiFileInput').click()" title="Analyse PDF, DOCX or Transcript (costs 5 Pro Credits)" style="background:transparent;border:1px solid var(--border-color);color:var(--text-muted);width:34px;height:34px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;">
         <i class="fa-solid fa-paperclip"></i>
       </button>
       <button type="button" id="aiImageBtn" onclick="toggleImageGenPrompt()" title="Generate AI Image (costs 2 Pro Credits)" style="background:transparent;border:1px solid var(--border-color);color:#f59e0b;width:34px;height:34px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;">
@@ -1725,7 +1726,7 @@
     </div>
     <div
       style="text-align: center; font-size: 0.72rem; color: var(--text-muted); padding-bottom: 0.6rem; background: var(--card-bg, var(--input-bg));">
-      AI can make mistakes • 2 credits/image • 5 credits/document
+      AI can make mistakes • 2 credits/image • 5 credits/Doc &amp; Transcript summary
     </div>
   </div>
 
@@ -1936,7 +1937,7 @@
       }
       const inputEl = document.getElementById('aiInput');
       if (inputEl) {
-        inputEl.placeholder = 'Ask questions about this file (or press Enter to summarize)...';
+        inputEl.placeholder = 'Ask questions, or press Enter for full summary...';
         inputEl.focus();
       }
     }
