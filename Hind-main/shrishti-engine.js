@@ -278,9 +278,28 @@ async function requestShrishtiAiWithCushion(prompt, primaryModelKey = 'lemon-pin
   throw new Error(`All Shrishti AI models were unavailable: ${errors.map(e => `${e.model}: ${e.error}`).join('; ')}`);
 }
 
+// Global HTML Escape Utility
+function escapeHtml(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+if (typeof window !== 'undefined') {
+  window.escapeHtml = escapeHtml;
+}
+
 // Ensure badge updates on DOM load
 if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', () => {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      updateShrishtiQuotaBadges();
+    });
+  } else {
     updateShrishtiQuotaBadges();
-  });
+  }
 }
+

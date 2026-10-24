@@ -1762,17 +1762,32 @@
       }
     });
 
+    // Utility: HTML Escaping
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+    window.escapeHtml = escapeHtml;
+
     async function sendAiMessage() {
-      const text = aiInput.value.trim();
+      const inputEl = document.getElementById('aiInput');
+      const bodyEl = document.getElementById('aiBody');
+      if (!inputEl || !bodyEl) return;
+      const text = inputEl.value.trim();
       if (!text) return;
 
       // Check daily quota (max 15 questions a day)
-      if (!canAskShrishti()) {
+      if (typeof canAskShrishti === 'function' && !canAskShrishti()) {
         const errDiv = document.createElement('div');
         errDiv.className = 'ai-msg bot';
         errDiv.innerHTML = '<i class="fa-solid fa-circle-exclamation text-danger me-1"></i><strong>Daily limit reached:</strong> You have used all 15 questions for today. Please come back tomorrow!';
-        aiBody.appendChild(errDiv);
-        aiBody.scrollTop = aiBody.scrollHeight;
+        bodyEl.appendChild(errDiv);
+        bodyEl.scrollTop = bodyEl.scrollHeight;
         return;
       }
       
@@ -1780,19 +1795,20 @@
       const userDiv = document.createElement('div');
       userDiv.className = 'ai-msg user';
       userDiv.textContent = text;
-      aiBody.appendChild(userDiv);
+      bodyEl.appendChild(userDiv);
       
-      aiInput.value = '';
-      aiBody.scrollTop = aiBody.scrollHeight;
+      inputEl.value = '';
+      bodyEl.scrollTop = bodyEl.scrollHeight;
 
       // Add loading state
       const loadingDiv = document.createElement('div');
       loadingDiv.className = 'ai-msg bot';
       loadingDiv.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Thinking...';
-      aiBody.appendChild(loadingDiv);
-      aiBody.scrollTop = aiBody.scrollHeight;
+      bodyEl.appendChild(loadingDiv);
+      bodyEl.scrollTop = bodyEl.scrollHeight;
 
-      const chosenModel = (document.getElementById('shrishtiModelSelect') && document.getElementById('shrishtiModelSelect').value) || 'lemon-pineapple-a';
+      const modelSelectEl = document.getElementById('shrishtiModelSelect');
+      const chosenModel = (modelSelectEl && modelSelectEl.value) || 'lemon-pineapple-a';
 
       try {
         const result = await requestShrishtiAiWithCushion(text, chosenModel, (fallbackModel) => {
@@ -1801,22 +1817,25 @@
         loadingDiv.remove();
 
         // Increment quota count
-        incrementShrishtiQuota();
+        if (typeof incrementShrishtiQuota === 'function') {
+          incrementShrishtiQuota();
+        }
 
         const botDiv = document.createElement('div');
         botDiv.className = 'ai-msg bot';
         let badgeHtml = `<span style="display:inline-block;margin-bottom:6px;font-size:0.68rem;padding:2px 8px;border-radius:10px;background:rgba(139,92,246,0.15);color:#8b5cf6;font-weight:700;"><i class="fa-solid fa-microchip me-1"></i>${escapeHtml(result.modelUsed)}${result.cushioned ? ' (cushioned)' : ''}</span><br>`;
         botDiv.innerHTML = badgeHtml + escapeHtml(result.content).replace(/\n/g, '<br>');
-        aiBody.appendChild(botDiv);
+        bodyEl.appendChild(botDiv);
       } catch (err) {
         loadingDiv.remove();
         const errorDiv = document.createElement('div');
         errorDiv.className = 'ai-msg bot';
         errorDiv.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-danger me-1"></i> ' + escapeHtml(err.message || 'Failed to reach Shrishti AI.');
-        aiBody.appendChild(errorDiv);
+        bodyEl.appendChild(errorDiv);
       }
-      aiBody.scrollTop = aiBody.scrollHeight;
+      bodyEl.scrollTop = bodyEl.scrollHeight;
     }
+    window.sendAiMessage = sendAiMessage;
 
     // ─── Apps Panel Toggle (top-right waffle) ──────────────────
     function toggleApps() {
