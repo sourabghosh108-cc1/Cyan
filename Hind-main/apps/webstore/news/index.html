@@ -612,43 +612,77 @@
     // Fetch and render RSS Native
     async function loadNews() {
       const grid = document.getElementById('newsGrid');
+
+      // All HTTPS feeds — mixed-content safe
       const feeds = [
-        'http://rss.cnn.com/rss/edition.rss',
-        'http://feeds.bbci.co.uk/news/world/rss.xml',
-        'https://timesofindia.indiatimes.com/rssfeedstopstories.cms'
+        { url: 'https://feeds.bbci.co.uk/news/world/rss.xml',          name: 'BBC News' },
+        { url: 'https://timesofindia.indiatimes.com/rssfeedstopstories.cms', name: 'Times of India' },
+        { url: 'https://www.thehindu.com/news/national/feeder/default.rss', name: 'The Hindu' },
+        { url: 'https://feeds.feedburner.com/ndtvnews-top-stories',     name: 'NDTV' },
+        { url: 'https://www.hindustantimes.com/feeds/rss/india-news/rssfeed.xml', name: 'Hindustan Times' }
       ];
-      
-      let allItems = [];
-      
-      try {
-        await Promise.all(feeds.map(async (url) => {
-          const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`);
-          const data = await res.json();
-          if (data.status === 'ok' && data.items) {
-            // Tag items with source
-            const sourceName = data.feed.title || 'News';
-            data.items.forEach(item => item.sourceName = sourceName.split(' - ')[0]);
-            allItems.push(...data.items);
-          }
-        }));
 
-        // Sort by date descending
-        allItems.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-        
-        // Remove duplicates (sometimes happens across similar feeds)
-        const unique = [];
-        const titles = new Set();
-        for (let item of allItems) {
-          if (!titles.has(item.title)) {
-            titles.add(item.title);
-            unique.push(item);
-          }
-        }
-
-        renderGrid(unique.slice(0, 36)); // Render top 36
-      } catch (err) {
-        grid.innerHTML = `<div class="loading-grid text-danger">Failed to load news. Please try again later.</div>`;
+      async function fetchFeedViaRss2json(feedUrl) {
+        const api = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}&api_key=&count=20`;
+        const res = await fetch(api, { signal: AbortSignal.timeout(8000) });
+        const data = await res.json();
+        if (data.status === 'ok' && Array.isArray(data.items) && data.items.length > 0) return data.items;
+        throw new Error('rss2json: no items');
       }
+
+      async function fetchFeedViaAllOrigins(feedUrl) {
+        const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(feedUrl)}`;
+        const res = await fetch(proxy, { signal: AbortSignal.timeout(10000) });
+        const json = await res.json();
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(json.contents, 'text/xml');
+        const entries = [...xml.querySelectorAll('item')];
+        if (!entries.length) throw new Error('allorigins: no items');
+        return entries.map(el => ({
+          title:       el.querySelector('title')?.textContent || '',
+          link:        el.querySelector('link')?.textContent || el.querySelector('guid')?.textContent || '#',
+          description: el.querySelector('description')?.textContent || '',
+          pubDate:     el.querySelector('pubDate')?.textContent || '',
+          thumbnail:   el.querySelector('enclosure')?.getAttribute('url') || '',
+          content:     el.querySelector('content\\:encoded')?.textContent || el.querySelector('description')?.textContent || '',
+        }));
+      }
+
+      let allItems = [];
+
+      await Promise.allSettled(feeds.map(async (feed) => {
+        let items = null;
+        try { items = await fetchFeedViaRss2json(feed.url); } catch (_) {}
+        if (!items) {
+          try { items = await fetchFeedViaAllOrigins(feed.url); } catch (_) {}
+        }
+        if (items && items.length > 0) {
+          items.forEach(item => item.sourceName = feed.name);
+          allItems.push(...items);
+        }
+      }));
+
+      if (allItems.length === 0) {
+        grid.innerHTML = `<div class="loading-grid" style="color:var(--accent)">
+          <i class="fa-solid fa-circle-exclamation fa-lg me-2"></i>
+          Unable to load headlines right now. Please check your internet connection and try again.
+          <br><br><button onclick="loadNews()" style="margin-top:1rem;padding:0.5rem 1.5rem;border-radius:4px;border:none;background:var(--accent);color:#fff;font-weight:700;cursor:pointer;">Retry</button>
+        </div>`;
+        return;
+      }
+
+      // Sort by date descending
+      allItems.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+
+      // Deduplicate by title
+      const unique = [];
+      const titles = new Set();
+      for (const item of allItems) {
+        const t = (item.title || '').trim();
+        if (t && !titles.has(t)) { titles.add(t); unique.push(item); }
+      }
+
+      renderGrid(unique.slice(0, 36));
     }
 
     function renderGrid(items) {
