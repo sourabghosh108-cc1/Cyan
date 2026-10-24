@@ -12,6 +12,7 @@
 
 const SHRISHTI_CONFIG = {
   DAILY_LIMIT: 15,
+  SEARCH_DAILY_LIMIT: 30,
   MODELS: {
     'lemon-pineapple-a': {
       id: 'lemon-pineapple-a',
@@ -101,6 +102,105 @@ function updateShrishtiQuotaBadges() {
     if (remaining <= 0) standaloneBadge.style.background = 'rgba(239,68,68,0.4)';
     else if (remaining <= 3) standaloneBadge.style.background = 'rgba(245,158,11,0.4)';
   }
+}
+
+// ── Search AI Daily Quota Management (30 searches/day per IP) ──
+let _cachedClientIp = null;
+async function getSearchClientIp() {
+  if (_cachedClientIp) return _cachedClientIp;
+  try {
+    const cached = sessionStorage.getItem('hind_client_ip');
+    if (cached) {
+      _cachedClientIp = cached;
+      return cached;
+    }
+  } catch (e) {}
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 2500);
+    const res = await fetch('https://api.ipify.org?format=json', { signal: controller.signal });
+    clearTimeout(timeout);
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.ip) {
+        _cachedClientIp = String(data.ip).trim();
+        try { sessionStorage.setItem('hind_client_ip', _cachedClientIp); } catch (e) {}
+        return _cachedClientIp;
+      }
+    }
+  } catch (e) {}
+
+  // Fallback to stable per-device / browser ID
+  try {
+    let anon = localStorage.getItem('hind_anon_ip_id');
+    if (!anon) {
+      anon = 'ip_' + Math.random().toString(36).substring(2, 12);
+      localStorage.setItem('hind_anon_ip_id', anon);
+    }
+    _cachedClientIp = anon;
+    return anon;
+  } catch (e) {
+    return 'default_client';
+  }
+}
+
+function getSearchAiQuotaKey(ip) {
+  const today = getTodayDateKey();
+  const safeIp = (ip || 'default').replace(/[^a-zA-Z0-9_.-]/g, '_');
+  return `shrishti_search_quota_${safeIp}_${today}`;
+}
+
+function getSearchAiQuota(ip = 'default') {
+  const today = getTodayDateKey();
+  const key = getSearchAiQuotaKey(ip);
+  try {
+    const stored = localStorage.getItem(key);
+    if (!stored) {
+      return { date: today, count: 0, limit: SHRISHTI_CONFIG.SEARCH_DAILY_LIMIT };
+    }
+    const parsed = JSON.parse(stored);
+    if (parsed.date !== today) {
+      const reset = { date: today, count: 0, limit: SHRISHTI_CONFIG.SEARCH_DAILY_LIMIT };
+      localStorage.setItem(key, JSON.stringify(reset));
+      return reset;
+    }
+    return { date: today, count: parsed.count || 0, limit: SHRISHTI_CONFIG.SEARCH_DAILY_LIMIT };
+  } catch (e) {
+    return { date: today, count: 0, limit: SHRISHTI_CONFIG.SEARCH_DAILY_LIMIT };
+  }
+}
+
+function canPerformSearchAi(ip = 'default') {
+  const q = getSearchAiQuota(ip);
+  return q.count < q.limit;
+}
+
+function incrementSearchAiQuota(ip = 'default') {
+  try {
+    const key = getSearchAiQuotaKey(ip);
+    const q = getSearchAiQuota(ip);
+    q.count += 1;
+    localStorage.setItem(key, JSON.stringify(q));
+    return q;
+  } catch (e) {
+    return { date: getTodayDateKey(), count: 1, limit: SHRISHTI_CONFIG.SEARCH_DAILY_LIMIT };
+  }
+}
+
+function getSearchAiRemaining(ip = 'default') {
+  const q = getSearchAiQuota(ip);
+  return Math.max(0, q.limit - q.count);
+}
+
+if (typeof window !== 'undefined') {
+  window.getSearchClientIp = getSearchClientIp;
+  window.getSearchAiQuota = getSearchAiQuota;
+  window.canPerformSearchAi = canPerformSearchAi;
+  window.incrementSearchAiQuota = incrementSearchAiQuota;
+  window.getSearchAiRemaining = getSearchAiRemaining;
+  // Eagerly prefetch IP in background
+  getSearchClientIp().catch(() => {});
 }
 
 // ── Provider API Invokers ──

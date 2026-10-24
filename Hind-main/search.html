@@ -1787,7 +1787,8 @@
     <!-- Shrishti AI Answer (shown only when query exists) -->
     <div id="aiSearchAnswer" class="ai-answer-card" style="display:none;">
       <div class="ai-answer-label">
-        <i class="fa-solid fa-sparkles"></i> Shrishti AI
+        <span><i class="fa-solid fa-sparkles"></i> Shrishti AI</span>
+        <span id="aiSearchQuotaBadge" style="margin-left:auto;font-size:0.75rem;font-weight:700;text-transform:none;letter-spacing:normal;"></span>
       </div>
       <div id="aiSearchAnswerContent" class="ai-answer-content">
         <div class="ai-typing-dots"><span></span><span></span><span></span></div>
@@ -2823,17 +2824,64 @@
     async function triggerAiAnswer(query) {
       const aiAnswerBox     = document.getElementById('aiSearchAnswer');
       const aiAnswerContent = document.getElementById('aiSearchAnswerContent');
+      const quotaBadge      = document.getElementById('aiSearchQuotaBadge');
+
       if (!query || !query.trim()) {
         aiAnswerBox.style.display = 'none';
         return;
       }
+
+      // Identify client IP and check daily quota (30 searches/day per IP)
+      let clientIp = 'default';
+      try {
+        if (typeof getSearchClientIp === 'function') {
+          clientIp = await getSearchClientIp();
+        }
+      } catch (e) {}
+
+      // If 30 AI searches limit is reached: pause AI answers for the day
+      if (typeof canPerformSearchAi === 'function' && !canPerformSearchAi(clientIp)) {
+        aiAnswerBox.style.display = 'block';
+        if (quotaBadge) {
+          quotaBadge.innerHTML = `<span style="color:#ef4444;"><i class="fa-solid fa-circle-pause me-1"></i>Limit reached (0/30)</span>`;
+        }
+        aiAnswerContent.innerHTML = `
+          <div style="display:flex;align-items:center;gap:0.65rem;color:var(--ink-muted);font-size:0.92rem;line-height:1.5;">
+            <i class="fa-solid fa-hourglass-half text-warning" style="font-size:1.2rem;flex-shrink:0;"></i>
+            <span><strong>Daily limit reached:</strong> You have used your 30 AI search answers for today on this IP. AI answers are paused and will resume tomorrow. Search results are shown below.</span>
+          </div>
+        `;
+        return;
+      }
+
+      const remainingBefore = typeof getSearchAiRemaining === 'function' ? getSearchAiRemaining(clientIp) : 30;
+      if (quotaBadge) {
+        quotaBadge.innerHTML = `<span style="color:var(--purple);font-weight:700;"><i class="fa-solid fa-bolt text-warning me-1"></i>${remainingBefore}/30 AI searches left</span>`;
+      }
+
       aiAnswerBox.style.display = 'block';
       aiAnswerContent.innerHTML = `<div class="ai-typing-dots"><span></span><span></span><span></span></div>&nbsp;Generating answer...`;
 
       try {
         const preferredModel = (document.getElementById('shrishtiModelSelect') && document.getElementById('shrishtiModelSelect').value) || 'lemon-pineapple-a';
         const result = await requestShrishtiAiWithCushion(query, preferredModel);
-        aiAnswerContent.innerHTML = escapeHtml(result.content).replace(/\n/g, '<br>');
+
+        // Increment daily search quota for IP
+        if (typeof incrementSearchAiQuota === 'function') {
+          incrementSearchAiQuota(clientIp);
+        }
+        const remainingAfter = typeof getSearchAiRemaining === 'function' ? getSearchAiRemaining(clientIp) : (remainingBefore - 1);
+
+        if (quotaBadge) {
+          quotaBadge.innerHTML = `<span style="color:var(--ink-muted);font-weight:600;"><i class="fa-solid fa-bolt text-warning me-1"></i>${remainingAfter}/30 left today</span>`;
+        }
+
+        let badgeHeader = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;font-size:0.75rem;">
+          <span style="font-weight:700;color:var(--purple);"><i class="fa-solid fa-microchip me-1"></i>${escapeHtml(result.modelUsed)}${result.cushioned ? ' (cushioned)' : ''}</span>
+          <span style="color:var(--ink-muted);font-weight:600;">${remainingAfter}/30 daily searches left</span>
+        </div>`;
+
+        aiAnswerContent.innerHTML = badgeHeader + escapeHtml(result.content).replace(/\n/g, '<br>');
       } catch (err) {
         aiAnswerContent.textContent = 'AI answer unavailable right now: ' + (err.message || 'Please try again later.');
       }
