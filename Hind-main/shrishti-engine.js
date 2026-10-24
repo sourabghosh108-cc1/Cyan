@@ -28,7 +28,7 @@ const SHRISHTI_CONFIG = {
       badge: 'OpenRouter',
       provider: 'openrouter',
       apiKey: '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',
-      modelId: 'openrouter/free'
+      modelId: 'meta-llama/llama-3.1-8b-instruct:free'
     }
   },
   DEFAULT_ORDER: ['lemon-pineapple-a', 'cyan-hind-b']
