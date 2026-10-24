@@ -1471,6 +1471,94 @@
 
     .ai-send-btn:hover { background: var(--purple-dark); }
 
+    .ai-voice-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--ink-muted);
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .ai-voice-btn:hover {
+      background: rgba(139, 92, 246, 0.1);
+      color: var(--purple);
+      border-color: var(--purple);
+    }
+
+    .ai-voice-btn.listening {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+      border-color: #ef4444;
+      animation: pulse-search-mic 1.2s infinite;
+    }
+
+    @keyframes pulse-search-mic {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+      70% { transform: scale(1.08); box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+
+    .ai-speak-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--ink-muted);
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.2s;
+    }
+
+    .ai-speak-btn:hover {
+      background: rgba(139, 92, 246, 0.12);
+      color: var(--purple);
+      border-color: var(--purple);
+    }
+
+    .ai-speak-btn.speaking {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+      border-color: #ef4444;
+    }
+
+    .ai-msg-speak-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--ink-muted);
+      border-radius: 6px;
+      padding: 2px 6px;
+      font-size: 0.72rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: all 0.2s;
+      vertical-align: middle;
+    }
+
+    .ai-msg-speak-btn:hover {
+      background: rgba(139, 92, 246, 0.12);
+      color: var(--purple);
+      border-color: var(--purple);
+    }
+
+    .ai-msg-speak-btn.speaking {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+      border-color: #ef4444;
+    }
+
     .ai-footer-note {
       text-align: center;
       font-size: 0.72rem;
@@ -1791,7 +1879,10 @@
     <div id="aiSearchAnswer" class="ai-answer-card" style="display:none;">
       <div class="ai-answer-label">
         <span><i class="fa-solid fa-sparkles"></i> Shrishti AI</span>
-        <span id="aiSearchQuotaBadge" style="margin-left:auto;font-size:0.75rem;font-weight:700;text-transform:none;letter-spacing:normal;"></span>
+        <button type="button" id="aiSearchAnswerSpeakBtn" class="ai-speak-btn" onclick="toggleSpeakAiMessage(this)" title="Listen to AI answer" style="margin-left:auto;margin-right:0.6rem;">
+          <i class="fa-solid fa-volume-high"></i> <span>Listen</span>
+        </button>
+        <span id="aiSearchQuotaBadge" style="font-size:0.75rem;font-weight:700;text-transform:none;letter-spacing:normal;"></span>
       </div>
       <div id="aiSearchAnswerContent" class="ai-answer-content">
         <div class="ai-typing-dots"><span></span><span></span><span></span></div>
@@ -1840,6 +1931,10 @@
 
     <div class="ai-body" id="aiBody">
       <div class="ai-msg bot">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+          <span style="font-size:0.75rem;font-weight:700;color:var(--purple);"><i class="fa-solid fa-robot me-1"></i>Shrishti AI</span>
+          <button type="button" class="ai-msg-speak-btn" onclick="toggleSpeakAiMessage(this)" title="Listen to message"><i class="fa-solid fa-volume-high"></i></button>
+        </div>
         Namaste! 🙏 I'm Shrishti AI by Hind.com. Powered by <strong>2 cushioned models</strong>.<br><br>
         <span style="font-size:0.8rem;color:var(--ink-muted);">
           ✨ <strong>Creative &amp; Analysis Features:</strong><br>
@@ -1869,6 +1964,9 @@
         <i class="fa-solid fa-wand-magic-sparkles"></i>
       </button>
       <input type="text" id="aiInput" class="ai-input" placeholder="Ask Shrishti AI, or /image to draw..." onkeypress="if(event.key==='Enter') sendAiMessage()">
+      <button type="button" id="aiVoiceBtn" class="ai-voice-btn" title="Voice Input (speak to Shrishti)" aria-label="Voice Input">
+        <i class="fa-solid fa-microphone"></i>
+      </button>
       <button class="ai-send-btn" onclick="sendAiMessage()" style="flex-shrink:0;" aria-label="Send">
         <i class="fa-solid fa-paper-plane"></i>
       </button>
@@ -3102,7 +3200,7 @@
           if (result.fileType === 'image' && result.dataUrl) {
             previewHtml = `<div style="margin-bottom:8px;"><img src="${result.dataUrl}" style="max-width:100%;max-height:160px;border-radius:8px;border:1px solid var(--border);display:block;" alt="Analyzed image" /></div>`;
           }
-          const badgeHtml = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;gap:0.5rem;"><span style="font-size:0.68rem;padding:2px 8px;border-radius:10px;background:rgba(139,92,246,0.15);color:var(--purple-dark);font-weight:700;"><i class="fa-solid fa-file-lines me-1"></i>${escapeHtml(result.fileName)} (${result.fileExt.toUpperCase()})</span><span style="font-size:0.68rem;padding:2px 7px;border-radius:8px;background:rgba(245,158,11,0.2);color:#f59e0b;font-weight:700;">-5 Credits (⚡ ${result.creditsRemaining}/10 left)</span></div>`;
+          const badgeHtml = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;gap:0.5rem;"><span style="font-size:0.68rem;padding:2px 8px;border-radius:10px;background:rgba(139,92,246,0.15);color:var(--purple-dark);font-weight:700;"><i class="fa-solid fa-file-lines me-1"></i>${escapeHtml(result.fileName)} (${result.fileExt.toUpperCase()})</span><div style="display:flex;align-items:center;gap:0.4rem;"><span style="font-size:0.68rem;padding:2px 7px;border-radius:8px;background:rgba(245,158,11,0.2);color:#f59e0b;font-weight:700;">-5 Credits (⚡ ${result.creditsRemaining}/10 left)</span><button type="button" class="ai-msg-speak-btn" onclick="toggleSpeakAiMessage(this)" title="Listen to summary"><i class="fa-solid fa-volume-high"></i></button></div></div>`;
           botDiv.innerHTML = previewHtml + badgeHtml + escapeHtml(result.content).replace(/\n/g, '<br>');
           aiBody.appendChild(botDiv);
         } catch (err) {
@@ -3224,7 +3322,7 @@
 
         const botDiv = document.createElement('div');
         botDiv.className = 'ai-msg bot';
-        let badgeHtml = `<span style="display:inline-block;margin-bottom:6px;font-size:0.68rem;padding:2px 8px;border-radius:10px;background:rgba(139,92,246,0.15);color:var(--purple-dark);font-weight:700;"><i class="fa-solid fa-microchip me-1"></i>${escapeHtml(result.modelUsed)}${result.cushioned ? ' (cushioned)' : ''}</span><br>`;
+        let badgeHtml = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;gap:0.5rem;"><span style="font-size:0.68rem;padding:2px 8px;border-radius:10px;background:rgba(139,92,246,0.15);color:var(--purple-dark);font-weight:700;"><i class="fa-solid fa-microchip me-1"></i>${escapeHtml(result.modelUsed)}${result.cushioned ? ' (cushioned)' : ''}</span><button type="button" class="ai-msg-speak-btn" onclick="toggleSpeakAiMessage(this)" title="Listen to answer"><i class="fa-solid fa-volume-high"></i></button></div>`;
         botDiv.innerHTML = badgeHtml + escapeHtml(result.content).replace(/\n/g, '<br>');
         aiBody.appendChild(botDiv);
       } catch (err) {
@@ -3241,6 +3339,11 @@
     window.handleAiFileSelect = handleAiFileSelect;
     window.clearAiAttachment = clearAiAttachment;
     window.toggleImageGenPrompt = toggleImageGenPrompt;
+
+    // ── Shrishti AI Voice Input ──
+    if (typeof initShrishtiVoiceInput === 'function') {
+      initShrishtiVoiceInput(document.getElementById('aiVoiceBtn'), document.getElementById('aiInput'));
+    }
 
     // ── Voice Search ──
     (function() {

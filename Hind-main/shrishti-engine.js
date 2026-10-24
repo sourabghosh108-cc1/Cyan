@@ -683,6 +683,165 @@ Please format your response clearly with these specific sections:
   };
 }
 
+// ── Speech Synthesis (Text-to-Speech) & Speech Recognition (Voice Input) ──
+let _currentSpeakingBtn = null;
+
+function stopShrishtiSpeech() {
+  if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+  }
+  if (_currentSpeakingBtn) {
+    const icon = _currentSpeakingBtn.querySelector('i');
+    if (icon) icon.className = 'fa-solid fa-volume-high';
+    const textSpan = _currentSpeakingBtn.querySelector('span');
+    if (textSpan && textSpan.textContent.includes('Stop')) textSpan.textContent = 'Listen';
+    _currentSpeakingBtn.classList.remove('speaking');
+    _currentSpeakingBtn = null;
+  }
+}
+
+function speakShrishtiText(text, buttonEl) {
+  if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+    alert('Text-to-speech is not supported in this browser.');
+    return;
+  }
+
+  // If already speaking from this button, toggle off
+  if (window.speechSynthesis.speaking && _currentSpeakingBtn === buttonEl) {
+    stopShrishtiSpeech();
+    return;
+  }
+
+  // Stop any other active speech
+  stopShrishtiSpeech();
+
+  const cleanText = (text || '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/[*#_~`]/g, '')
+    .replace(/https?:\/\/\S+/g, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+
+  if (!cleanText) return;
+
+  const utterance = new SpeechSynthesisUtterance(cleanText);
+  // Detect Hindi vs English
+  const isHindi = /[\u0900-\u097F]/.test(cleanText);
+  utterance.lang = isHindi ? 'hi-IN' : 'en-US';
+  utterance.rate = 1.0;
+  utterance.pitch = 1.0;
+
+  if (buttonEl) {
+    _currentSpeakingBtn = buttonEl;
+    const icon = buttonEl.querySelector('i');
+    if (icon) icon.className = 'fa-solid fa-circle-stop';
+    const textSpan = buttonEl.querySelector('span');
+    if (textSpan && textSpan.textContent.includes('Listen')) textSpan.textContent = 'Stop';
+    buttonEl.classList.add('speaking');
+
+    utterance.onend = () => {
+      stopShrishtiSpeech();
+    };
+    utterance.onerror = () => {
+      stopShrishtiSpeech();
+    };
+  }
+
+  window.speechSynthesis.speak(utterance);
+}
+
+function toggleSpeakAiMessage(buttonEl) {
+  if (!buttonEl) return;
+  if (window.speechSynthesis && window.speechSynthesis.speaking && _currentSpeakingBtn === buttonEl) {
+    stopShrishtiSpeech();
+    return;
+  }
+
+  const container = buttonEl.closest('.ai-msg, .msg-bubble, .ai-answer-card');
+  if (!container) return;
+
+  const clone = container.cloneNode(true);
+  clone.querySelectorAll('.ai-speak-btn, .ai-msg-speak-btn, .shrishti-model-bar, button, script').forEach(el => el.remove());
+  const rawText = clone.innerText || clone.textContent || '';
+  speakShrishtiText(rawText, buttonEl);
+}
+
+function initShrishtiVoiceInput(micBtn, inputEl, onComplete) {
+  if (!micBtn || !inputEl) return;
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    micBtn.style.display = 'none';
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
+  recognition.lang = 'en-IN';
+  recognition.continuous = false;
+  recognition.interimResults = true;
+
+  let listening = false;
+  const icon = micBtn.querySelector('i');
+
+  micBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (listening) {
+      recognition.stop();
+      return;
+    }
+    try {
+      recognition.start();
+    } catch (err) {
+      console.warn('SpeechRecognition start error:', err);
+    }
+  });
+
+  recognition.onstart = () => {
+    listening = true;
+    micBtn.classList.add('listening');
+    if (icon) icon.className = 'fa-solid fa-microphone-lines';
+    micBtn.title = 'Listening... click to stop';
+    inputEl.placeholder = 'Listening... speak now!';
+  };
+
+  recognition.onresult = (event) => {
+    let finalTranscript = '';
+    let interimTranscript = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      if (event.results[i].isFinal) {
+        finalTranscript += event.results[i][0].transcript;
+      } else {
+        interimTranscript += event.results[i][0].transcript;
+      }
+    }
+    if (finalTranscript) {
+      inputEl.value = (inputEl.value ? inputEl.value + ' ' : '') + finalTranscript.trim();
+    } else if (interimTranscript && !inputEl.value) {
+      inputEl.placeholder = interimTranscript;
+    }
+  };
+
+  recognition.onerror = (event) => {
+    console.warn('Speech recognition error:', event.error);
+    listening = false;
+    micBtn.classList.remove('listening');
+    if (icon) icon.className = 'fa-solid fa-microphone';
+    micBtn.title = 'Voice Input';
+  };
+
+  recognition.onend = () => {
+    listening = false;
+    micBtn.classList.remove('listening');
+    if (icon) icon.className = 'fa-solid fa-microphone';
+    micBtn.title = 'Voice Input';
+    inputEl.placeholder = 'Ask Shrishti, or type /image...';
+    inputEl.focus();
+    if (typeof onComplete === 'function' && inputEl.value.trim()) {
+      onComplete(inputEl.value.trim());
+    }
+  };
+}
+
 // Global HTML Escape Utility
 function escapeHtml(str) {
   if (str === null || str === undefined) return '';
@@ -708,6 +867,10 @@ if (typeof window !== 'undefined') {
   window.incrementShrishtiQuota = incrementShrishtiQuota;
   window.getShrishtiRemainingQuestions = getShrishtiRemainingQuestions;
   window.updateShrishtiQuotaBadges = updateShrishtiQuotaBadges;
+  window.speakShrishtiText = speakShrishtiText;
+  window.stopShrishtiSpeech = stopShrishtiSpeech;
+  window.toggleSpeakAiMessage = toggleSpeakAiMessage;
+  window.initShrishtiVoiceInput = initShrishtiVoiceInput;
 }
 
 // Ensure badge updates on DOM load

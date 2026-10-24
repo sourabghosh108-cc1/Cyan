@@ -966,6 +966,67 @@
       background: #7c3aed;
     }
 
+    .ai-voice-btn {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .ai-voice-btn:hover {
+      background: rgba(139, 92, 246, 0.1);
+      color: #8b5cf6;
+      border-color: #8b5cf6;
+    }
+
+    .ai-voice-btn.listening {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+      border-color: #ef4444;
+      animation: pulse-ai-mic 1.2s infinite;
+    }
+
+    @keyframes pulse-ai-mic {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+      70% { transform: scale(1.08); box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+
+    .ai-msg-speak-btn {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      border-radius: 6px;
+      padding: 2px 7px;
+      font-size: 0.72rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: all 0.2s;
+      vertical-align: middle;
+    }
+
+    .ai-msg-speak-btn:hover {
+      background: rgba(139, 92, 246, 0.12);
+      color: #8b5cf6;
+      border-color: #8b5cf6;
+    }
+
+    .ai-msg-speak-btn.speaking {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+      border-color: #ef4444;
+    }
+
     .calc-panel.open {
       opacity: 1;
       pointer-events: all;
@@ -1690,6 +1751,10 @@
 
     <div class="ai-body" id="aiBody">
       <div class="ai-msg bot">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+          <span style="font-size:0.75rem;font-weight:700;color:#8b5cf6;"><i class="fa-solid fa-robot me-1"></i>Shrishti AI</span>
+          <button type="button" class="ai-msg-speak-btn" onclick="toggleSpeakAiMessage(this)" title="Listen to message"><i class="fa-solid fa-volume-high"></i></button>
+        </div>
         Namaste! I am Shrishti AI. Powered by <strong>2 cushioned models</strong>.<br><br>
         <span style="font-size:0.8rem;color:var(--text-muted);">
           ✨ <strong>New features enabled:</strong><br>
@@ -1720,6 +1785,9 @@
       </button>
       <input type="text" id="aiInput" class="ai-input" placeholder="Ask Shrishti or type /image..."
         onkeypress="if(event.key === 'Enter') sendAiMessage()" />
+      <button type="button" id="aiVoiceBtn" class="ai-voice-btn" title="Voice Input (speak to Shrishti)" aria-label="Voice Input">
+        <i class="fa-solid fa-microphone"></i>
+      </button>
       <button class="ai-send-btn" onclick="sendAiMessage()" style="flex-shrink:0;" aria-label="Send">
         <i class="fa-solid fa-paper-plane"></i>
       </button>
@@ -2027,7 +2095,7 @@
           if (result.fileType === 'image' && result.dataUrl) {
             previewHtml = `<div style="margin-bottom:8px;"><img src="${result.dataUrl}" style="max-width:100%;max-height:160px;border-radius:8px;border:1px solid var(--border-color);display:block;" alt="Analyzed image" /></div>`;
           }
-          const badgeHtml = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;gap:0.5rem;"><span style="font-size:0.68rem;padding:2px 8px;border-radius:10px;background:rgba(139,92,246,0.15);color:#8b5cf6;font-weight:700;"><i class="fa-solid fa-file-lines me-1"></i>${escapeHtml(result.fileName)} (${result.fileExt.toUpperCase()})</span><span style="font-size:0.68rem;padding:2px 7px;border-radius:8px;background:rgba(245,158,11,0.2);color:#f59e0b;font-weight:700;">-5 Credits (⚡ ${result.creditsRemaining}/10 left)</span></div>`;
+          const badgeHtml = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;gap:0.5rem;"><span style="font-size:0.68rem;padding:2px 8px;border-radius:10px;background:rgba(139,92,246,0.15);color:#8b5cf6;font-weight:700;"><i class="fa-solid fa-file-lines me-1"></i>${escapeHtml(result.fileName)} (${result.fileExt.toUpperCase()})</span><div style="display:flex;align-items:center;gap:0.4rem;"><span style="font-size:0.68rem;padding:2px 7px;border-radius:8px;background:rgba(245,158,11,0.2);color:#f59e0b;font-weight:700;">-5 Credits (⚡ ${result.creditsRemaining}/10 left)</span><button type="button" class="ai-msg-speak-btn" onclick="toggleSpeakAiMessage(this)" title="Listen to summary"><i class="fa-solid fa-volume-high"></i></button></div></div>`;
           botDiv.innerHTML = previewHtml + badgeHtml + escapeHtml(result.content).replace(/\n/g, '<br>');
           bodyEl.appendChild(botDiv);
         } catch (err) {
@@ -2157,7 +2225,7 @@
 
         const botDiv = document.createElement('div');
         botDiv.className = 'ai-msg bot';
-        let badgeHtml = `<span style="display:inline-block;margin-bottom:6px;font-size:0.68rem;padding:2px 8px;border-radius:10px;background:rgba(139,92,246,0.15);color:#8b5cf6;font-weight:700;"><i class="fa-solid fa-microchip me-1"></i>${escapeHtml(result.modelUsed)}${result.cushioned ? ' (cushioned)' : ''}</span><br>`;
+        let badgeHtml = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;gap:0.5rem;"><span style="font-size:0.68rem;padding:2px 8px;border-radius:10px;background:rgba(139,92,246,0.15);color:#8b5cf6;font-weight:700;"><i class="fa-solid fa-microchip me-1"></i>${escapeHtml(result.modelUsed)}${result.cushioned ? ' (cushioned)' : ''}</span><button type="button" class="ai-msg-speak-btn" onclick="toggleSpeakAiMessage(this)" title="Listen to answer"><i class="fa-solid fa-volume-high"></i></button></div>`;
         botDiv.innerHTML = badgeHtml + escapeHtml(result.content).replace(/\n/g, '<br>');
         bodyEl.appendChild(botDiv);
       } catch (err) {
@@ -2306,6 +2374,11 @@
         micBtn.title = 'Search by voice';
       };
     })();
+
+    // ── Shrishti AI Voice Input ──
+    if (typeof initShrishtiVoiceInput === 'function') {
+      initShrishtiVoiceInput(document.getElementById('aiVoiceBtn'), document.getElementById('aiInput'));
+    }
   </script>
   <script>
     // ── Live Recent Searches & Autocomplete Dropdown ──
