@@ -1562,15 +1562,13 @@
     <div class="shrishti-model-bar">
       <span style="font-weight:600;color:var(--text-muted);"><i class="fa-solid fa-microchip me-1"></i>Model:</span>
       <select id="shrishtiModelSelect" class="shrishti-model-select" title="Choose AI Model (with automatic fallback cushion)">
-        <option value="cyan-pineapple-a">cyan pineapple model a</option>
-        <option value="lemon-model-b">lemon model b</option>
-        <option value="hind-cyan-b">hind cyan b</option>
-        <option value="orange-d">orange d</option>
+        <option value="lemon-pineapple-a">Lemon Pineapple a</option>
+        <option value="cyan-hind-b">Cyan Hind b</option>
       </select>
     </div>
 
     <div class="ai-body" id="aiBody">
-      <div class="ai-msg bot">Namaste! I am Shrishti AI. Powered by 4 cushioned models. How can I help you today?</div>
+      <div class="ai-msg bot">Namaste! I am Shrishti AI. Powered by 2 cushioned models. How can I help you today?</div>
     </div>
     <div class="ai-input-area">
       <input type="text" id="aiInput" class="ai-input" placeholder="Ask Shrishti..." onkeypress="if(event.key === 'Enter') sendAiMessage()" />
@@ -1794,7 +1792,7 @@
       aiBody.appendChild(loadingDiv);
       aiBody.scrollTop = aiBody.scrollHeight;
 
-      const chosenModel = (document.getElementById('shrishtiModelSelect') && document.getElementById('shrishtiModelSelect').value) || 'cyan-pineapple-a';
+      const chosenModel = (document.getElementById('shrishtiModelSelect') && document.getElementById('shrishtiModelSelect').value) || 'lemon-pineapple-a';
 
       try {
         const result = await requestShrishtiAiWithCushion(text, chosenModel, (fallbackModel) => {

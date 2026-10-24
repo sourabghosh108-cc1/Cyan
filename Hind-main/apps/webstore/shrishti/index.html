@@ -275,10 +275,8 @@
         <div style="display:flex;align-items:center;gap:0.5rem;">
           <i class="fa-solid fa-microchip" style="color:#fff;font-size:0.8rem;"></i>
           <select id="shrishtiModelSelect" style="background:rgba(255,255,255,0.18);color:#fff;border:1px solid rgba(255,255,255,0.35);border-radius:8px;padding:0.2rem 0.5rem;font-size:0.75rem;font-family:inherit;outline:none;cursor:pointer;max-width:185px;" title="Choose AI Model">
-            <option value="cyan-pineapple-a">cyan pineapple model a</option>
-            <option value="lemon-model-b">lemon model b</option>
-            <option value="hind-cyan-b">hind cyan b</option>
-            <option value="orange-d">orange d</option>
+            <option value="lemon-pineapple-a">Lemon Pineapple a</option>
+            <option value="cyan-hind-b">Cyan Hind b</option>
           </select>
         </div>
         <span class="shrishti-quota-badge" id="shrishtiStandaloneQuotaBadge" style="display:inline-flex;align-items:center;background:rgba(255,255,255,0.2);color:#fff;border-radius:12px;padding:0.15rem 0.6rem;font-size:0.7rem;font-weight:700;white-space:nowrap;">15/15 queries left today</span>
@@ -287,7 +285,7 @@
       <div class="chat-messages" id="chatMessages">
         <div class="msg-bubble bot">
           <strong><i class="fa-solid fa-sparkles text-primary"></i> Shrishti AI:</strong><br><br>
-          Namaste! I am Shrishti, powered by <strong>4 cushioned AI models</strong>. How may I assist you today?
+          Namaste! I am Shrishti, powered by <strong>2 cushioned AI models</strong>. How may I assist you today?
         </div>
       </div>
       <div class="chat-input-area">
@@ -380,7 +378,7 @@
       chatMessages.appendChild(loadingDiv);
       chatMessages.scrollTop = chatMessages.scrollHeight;
 
-      const chosenModel = (document.getElementById('shrishtiModelSelect') && document.getElementById('shrishtiModelSelect').value) || 'cyan-pineapple-a';
+      const chosenModel = (document.getElementById('shrishtiModelSelect') && document.getElementById('shrishtiModelSelect').value) || 'lemon-pineapple-a';
 
       try {
         const result = await requestShrishtiAiWithCushion(text, chosenModel, (fallbackName) => {

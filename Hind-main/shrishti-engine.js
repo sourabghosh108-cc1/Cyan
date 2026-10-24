@@ -1,13 +1,11 @@
 /**
  * Shrishti AI Multi-Model Cushioning & Quota Engine
  * Supported Models:
- * - cyan pineapple model a (OpenRouter free)
- * - lemon model b (Gemini Flash Latest)
- * - hind cyan b (Groq GPT-OSS-20B)
- * - orange d (Mistral Open-Mistral-7B)
+ * - Lemon Pineapple a (Mistral Open-Mistral-7B)
+ * - Cyan Hind b (OpenRouter free)
  * 
  * Cascade Cushioning: If the chosen model fails/rate-limits,
- * it cushions and fails over to the next available models sequentially.
+ * it cushions and fails over to the other model sequentially.
  * 
  * Daily Limit: 15 questions per user per day.
  */
@@ -15,40 +13,24 @@
 const SHRISHTI_CONFIG = {
   DAILY_LIMIT: 15,
   MODELS: {
-    'cyan-pineapple-a': {
-      id: 'cyan-pineapple-a',
-      name: 'cyan pineapple model a',
-      badge: 'OpenRouter',
-      provider: 'openrouter',
-      apiKey: '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',
-      modelId: 'openrouter/free'
-    },
-    'lemon-model-b': {
-      id: 'lemon-model-b',
-      name: 'lemon model b',
-      badge: 'Gemini',
-      provider: 'gemini',
-      apiKey: 'AQ.Ab8RN6JIXnc0-oy_47NrMZ0Il0nlgm9g7czX88px8B8eqyqPig',
-      modelId: 'gemini-flash-latest'
-    },
-    'hind-cyan-b': {
-      id: 'hind-cyan-b',
-      name: 'hind cyan b',
-      badge: 'Groq',
-      provider: 'groq',
-      apiKey: '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',
-      modelId: 'openai/gpt-oss-20b'
-    },
-    'orange-d': {
-      id: 'orange-d',
-      name: 'orange d',
+    'lemon-pineapple-a': {
+      id: 'lemon-pineapple-a',
+      name: 'Lemon Pineapple a',
       badge: 'Mistral',
       provider: 'mistral',
       apiKey: 'mstrl_HKF5qt7L9gOx48nn0dVyfGJg0sBzEYOX_35SQAU',
       modelId: 'open-mistral-7b'
+    },
+    'cyan-hind-b': {
+      id: 'cyan-hind-b',
+      name: 'Cyan Hind b',
+      badge: 'OpenRouter',
+      provider: 'openrouter',
+      apiKey: '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',
+      modelId: 'openrouter/free'
     }
   },
-  DEFAULT_ORDER: ['cyan-pineapple-a', 'lemon-model-b', 'hind-cyan-b', 'orange-d']
+  DEFAULT_ORDER: ['lemon-pineapple-a', 'cyan-hind-b']
 };
 
 // ── Daily Quota Management (15 queries/day) ──
@@ -253,7 +235,7 @@ async function callMistral(prompt, cfg) {
 }
 
 // ── Multi-Model Cushioning Fallback Engine ──
-async function requestShrishtiAiWithCushion(prompt, primaryModelKey = 'cyan-pineapple-a', onFallbackNotify = null) {
+async function requestShrishtiAiWithCushion(prompt, primaryModelKey = 'lemon-pineapple-a', onFallbackNotify = null) {
   // Build waterfall cascade starting with primaryModelKey, followed by others
   const order = [primaryModelKey, ...SHRISHTI_CONFIG.DEFAULT_ORDER.filter(k => k !== primaryModelKey)];
   const errors = [];

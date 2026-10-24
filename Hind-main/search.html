@@ -1826,15 +1826,13 @@
     <div class="shrishti-model-bar">
       <span style="font-weight:600;color:var(--ink-muted);"><i class="fa-solid fa-microchip me-1"></i>Model:</span>
       <select id="shrishtiModelSelect" class="shrishti-model-select" title="Choose AI Model (with automatic fallback cushion)">
-        <option value="cyan-pineapple-a">cyan pineapple model a</option>
-        <option value="lemon-model-b">lemon model b</option>
-        <option value="hind-cyan-b">hind cyan b</option>
-        <option value="orange-d">orange d</option>
+        <option value="lemon-pineapple-a">Lemon Pineapple a</option>
+        <option value="cyan-hind-b">Cyan Hind b</option>
       </select>
     </div>
 
     <div class="ai-body" id="aiBody">
-      <div class="ai-msg bot">Namaste! 🙏 I'm Shrishti AI by Hind.com. Powered by 4 cushioned models. Ask me anything!</div>
+      <div class="ai-msg bot">Namaste! 🙏 I'm Shrishti AI by Hind.com. Powered by 2 cushioned models. Ask me anything!</div>
     </div>
 
     <div class="ai-input-row">
@@ -2833,7 +2831,7 @@
       aiAnswerContent.innerHTML = `<div class="ai-typing-dots"><span></span><span></span><span></span></div>&nbsp;Generating answer...`;
 
       try {
-        const preferredModel = (document.getElementById('shrishtiModelSelect') && document.getElementById('shrishtiModelSelect').value) || 'cyan-pineapple-a';
+        const preferredModel = (document.getElementById('shrishtiModelSelect') && document.getElementById('shrishtiModelSelect').value) || 'lemon-pineapple-a';
         const result = await requestShrishtiAiWithCushion(query, preferredModel);
         aiAnswerContent.innerHTML = escapeHtml(result.content).replace(/\n/g, '<br>');
       } catch (err) {
@@ -2957,7 +2955,7 @@
       aiBody.appendChild(loadingDiv);
       aiBody.scrollTop = aiBody.scrollHeight;
 
-      const chosenModel = (document.getElementById('shrishtiModelSelect') && document.getElementById('shrishtiModelSelect').value) || 'cyan-pineapple-a';
+      const chosenModel = (document.getElementById('shrishtiModelSelect') && document.getElementById('shrishtiModelSelect').value) || 'lemon-pineapple-a';
 
       try {
         const result = await requestShrishtiAiWithCushion(text, chosenModel, (fallbackModel) => {
