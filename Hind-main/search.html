@@ -12,6 +12,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <!-- PDF.js for Document Analysis -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
   <style>
     :root {
@@ -1825,24 +1827,52 @@
     </div>
 
     <div class="shrishti-model-bar">
-      <span style="font-weight:600;color:var(--ink-muted);"><i class="fa-solid fa-microchip me-1"></i>Model:</span>
-      <select id="shrishtiModelSelect" class="shrishti-model-select" title="Choose AI Model (with automatic fallback cushion)">
-        <option value="lemon-pineapple-a">Lemon Pineapple a</option>
-        <option value="cyan-hind-b">Cyan Hind b</option>
-      </select>
+      <div style="display:flex;align-items:center;gap:0.35rem;">
+        <span style="font-weight:600;color:var(--ink-muted);font-size:0.75rem;"><i class="fa-solid fa-microchip me-1"></i></span>
+        <select id="shrishtiModelSelect" class="shrishti-model-select" title="Choose AI Model (with automatic fallback cushion)">
+          <option value="lemon-pineapple-a">Lemon Pineapple a</option>
+          <option value="cyan-hind-b">Cyan Hind b</option>
+        </select>
+      </div>
+      <span class="shrishti-pro-badge" id="shrishtiSearchProBadge" style="display:inline-flex;align-items:center;background:rgba(245,158,11,0.22);color:#f59e0b;border-radius:10px;padding:0.15rem 0.5rem;font-size:0.7rem;font-weight:700;white-space:nowrap;cursor:help;" title="Pro Credits: 10/day (2 credits per image = 5 images/day, 5 credits per doc/image = 2 files/day)">⚡ 10/10 Pro Credits</span>
     </div>
 
     <div class="ai-body" id="aiBody">
-      <div class="ai-msg bot">Namaste! 🙏 I'm Shrishti AI by Hind.com. Powered by 2 cushioned models. Ask me anything!</div>
+      <div class="ai-msg bot">
+        Namaste! 🙏 I'm Shrishti AI by Hind.com. Powered by <strong>2 cushioned models</strong>.<br><br>
+        <span style="font-size:0.8rem;color:var(--ink-muted);">
+          ✨ <strong>Creative &amp; Analysis Features:</strong><br>
+          • 🎨 <strong>Generate Image:</strong> Type <code>/image &lt;prompt&gt;</code> (2 credits)<br>
+          • 📎 <strong>Analyse Files:</strong> Upload any Doc, PDF, or Image (5 credits)<br>
+          • ⚡ <strong>10 daily Pro credits</strong> replenished every midnight!
+        </span>
+      </div>
     </div>
 
-    <div class="ai-input-row">
-      <input type="text" id="aiInput" class="ai-input" placeholder="Ask Shrishti AI..." onkeypress="if(event.key==='Enter') sendAiMessage()">
-      <button class="ai-send-btn" onclick="sendAiMessage()" aria-label="Send">
+    <!-- Pending Attachment Chip -->
+    <div id="aiPendingAttachment" style="display:none;padding:0.4rem 0.85rem;background:rgba(139,92,246,0.12);border-top:1px solid var(--border);font-size:0.75rem;align-items:center;justify-content:space-between;color:var(--ink);">
+      <span style="display:flex;align-items:center;gap:0.4rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+        <i class="fa-solid fa-paperclip" style="color:var(--purple);"></i> <strong id="aiAttachedFileName">document</strong> <span style="color:var(--purple);">(5 credits)</span>
+      </span>
+      <button type="button" onclick="clearAiAttachment()" style="background:none;border:none;color:var(--ink-muted);cursor:pointer;padding:2px 6px;" title="Remove attachment"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <!-- Hidden File Input -->
+    <input type="file" id="aiFileInput" accept=".pdf,.doc,.docx,.txt,.csv,.json,.md,.png,.jpg,.jpeg,.webp" style="display:none;" onchange="handleAiFileSelect(event)" />
+
+    <div class="ai-input-row" style="gap:0.4rem;">
+      <button type="button" id="aiAttachBtn" onclick="document.getElementById('aiFileInput').click()" title="Analyse Doc, PDF, or Image (costs 5 Pro Credits)" style="background:transparent;border:1px solid var(--border);color:var(--ink-muted);width:34px;height:34px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;">
+        <i class="fa-solid fa-paperclip"></i>
+      </button>
+      <button type="button" id="aiImageBtn" onclick="toggleImageGenPrompt()" title="Generate AI Image (costs 2 Pro Credits)" style="background:transparent;border:1px solid var(--border);color:#f59e0b;width:34px;height:34px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;">
+        <i class="fa-solid fa-wand-magic-sparkles"></i>
+      </button>
+      <input type="text" id="aiInput" class="ai-input" placeholder="Ask Shrishti AI, or /image to draw..." onkeypress="if(event.key==='Enter') sendAiMessage()">
+      <button class="ai-send-btn" onclick="sendAiMessage()" style="flex-shrink:0;" aria-label="Send">
         <i class="fa-solid fa-paper-plane"></i>
       </button>
     </div>
-    <div class="ai-footer-note">AI can make mistakes — always verify important info.</div>
+    <div class="ai-footer-note">AI can make mistakes • 2 credits/image • 5 credits/document</div>
   </div>
 
   <!-- ── FOOTER ── -->
@@ -2974,11 +3004,190 @@
       }
     });
 
+    let _aiSelectedFile = null;
+
+    function handleAiFileSelect(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      _aiSelectedFile = file;
+      const bar = document.getElementById('aiPendingAttachment');
+      const nameEl = document.getElementById('aiAttachedFileName');
+      if (bar && nameEl) {
+        nameEl.textContent = `${file.name} (${Math.round(file.size / 1024)} KB)`;
+        bar.style.display = 'flex';
+      }
+      const inputEl = document.getElementById('aiInput');
+      if (inputEl) {
+        inputEl.placeholder = 'Ask questions about this file (or press Enter to summarize)...';
+        inputEl.focus();
+      }
+    }
+
+    function clearAiAttachment() {
+      _aiSelectedFile = null;
+      const fileInput = document.getElementById('aiFileInput');
+      if (fileInput) fileInput.value = '';
+      const bar = document.getElementById('aiPendingAttachment');
+      if (bar) bar.style.display = 'none';
+      const inputEl = document.getElementById('aiInput');
+      if (inputEl) inputEl.placeholder = 'Ask Shrishti AI, or /image to draw...';
+    }
+
+    function toggleImageGenPrompt() {
+      const inputEl = document.getElementById('aiInput');
+      if (!inputEl) return;
+      if (inputEl.value.startsWith('/image ')) {
+        inputEl.value = '';
+        inputEl.placeholder = 'Ask Shrishti AI, or /image to draw...';
+      } else {
+        inputEl.value = '/image ';
+        inputEl.focus();
+      }
+    }
+
     async function sendAiMessage() {
       const text = aiInput.value.trim();
-      if (!text) return;
+      const hasFile = !!_aiSelectedFile;
 
-      // Check daily quota (max 15 questions a day)
+      if (!text && !hasFile) return;
+
+      const isImageRequest = !hasFile && (
+        text.startsWith('/image ') ||
+        text.toLowerCase().startsWith('generate image ') ||
+        text.toLowerCase().startsWith('draw an image ') ||
+        text.toLowerCase().startsWith('draw ')
+      );
+
+      const chosenModel = (document.getElementById('shrishtiModelSelect') && document.getElementById('shrishtiModelSelect').value) || 'lemon-pineapple-a';
+
+      // ── 1. FILE ANALYSIS FLOW (costs 5 Pro Credits) ──
+      if (hasFile) {
+        const fileToAnalyze = _aiSelectedFile;
+        clearAiAttachment();
+
+        if (typeof canSpendProCredits === 'function' && !canSpendProCredits(5)) {
+          const rem = typeof getShrishtiRemainingProCredits === 'function' ? getShrishtiRemainingProCredits() : 0;
+          const errDiv = document.createElement('div');
+          errDiv.className = 'ai-msg bot';
+          errDiv.innerHTML = `<i class="fa-solid fa-circle-exclamation text-warning me-1"></i><strong>Not enough Pro Credits:</strong> File analysis requires <strong>5 credits</strong> (you have ${rem}/10 left today). Credits reset daily at midnight!`;
+          aiBody.appendChild(errDiv);
+          aiBody.scrollTop = aiBody.scrollHeight;
+          return;
+        }
+
+        const userDiv = document.createElement('div');
+        userDiv.className = 'ai-msg user';
+        userDiv.innerHTML = `<div style="display:inline-flex;align-items:center;gap:0.35rem;margin-bottom:4px;padding:3px 8px;background:rgba(255,255,255,0.2);border-radius:8px;font-size:0.75rem;"><i class="fa-solid fa-paperclip"></i> ${escapeHtml(fileToAnalyze.name)}</div><br>${escapeHtml(text || 'Please analyze and summarize this file.')}`;
+        aiBody.appendChild(userDiv);
+
+        aiInput.value = '';
+        aiBody.scrollTop = aiBody.scrollHeight;
+
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = 'ai-msg bot';
+        loadingDiv.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-primary"></i> Reading & analyzing document (5 credits)...';
+        aiBody.appendChild(loadingDiv);
+        aiBody.scrollTop = aiBody.scrollHeight;
+
+        try {
+          const result = await analyzeShrishtiFile(fileToAnalyze, text, chosenModel, (status) => {
+            loadingDiv.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-primary"></i> ${escapeHtml(status)}`;
+          });
+          loadingDiv.remove();
+
+          const botDiv = document.createElement('div');
+          botDiv.className = 'ai-msg bot';
+          let previewHtml = '';
+          if (result.fileType === 'image' && result.dataUrl) {
+            previewHtml = `<div style="margin-bottom:8px;"><img src="${result.dataUrl}" style="max-width:100%;max-height:160px;border-radius:8px;border:1px solid var(--border);display:block;" alt="Analyzed image" /></div>`;
+          }
+          const badgeHtml = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;gap:0.5rem;"><span style="font-size:0.68rem;padding:2px 8px;border-radius:10px;background:rgba(139,92,246,0.15);color:var(--purple-dark);font-weight:700;"><i class="fa-solid fa-file-lines me-1"></i>${escapeHtml(result.fileName)} (${result.fileExt.toUpperCase()})</span><span style="font-size:0.68rem;padding:2px 7px;border-radius:8px;background:rgba(245,158,11,0.2);color:#f59e0b;font-weight:700;">-5 Credits (⚡ ${result.creditsRemaining}/10 left)</span></div>`;
+          botDiv.innerHTML = previewHtml + badgeHtml + escapeHtml(result.content).replace(/\n/g, '<br>');
+          aiBody.appendChild(botDiv);
+        } catch (err) {
+          loadingDiv.remove();
+          const errorDiv = document.createElement('div');
+          errorDiv.className = 'ai-msg bot';
+          errorDiv.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-danger me-1"></i> ' + escapeHtml(err.message || 'Failed to analyze file.');
+          aiBody.appendChild(errorDiv);
+        }
+        aiBody.scrollTop = aiBody.scrollHeight;
+        return;
+      }
+
+      // ── 2. IMAGE GENERATION FLOW (costs 2 Pro Credits) ──
+      if (isImageRequest) {
+        let promptText = text;
+        if (text.startsWith('/image ')) promptText = text.slice(7).trim();
+        else if (text.toLowerCase().startsWith('generate image of ')) promptText = text.slice(18).trim();
+        else if (text.toLowerCase().startsWith('generate image ')) promptText = text.slice(15).trim();
+        else if (text.toLowerCase().startsWith('draw an image of ')) promptText = text.slice(18).trim();
+        else if (text.toLowerCase().startsWith('draw ')) promptText = text.slice(5).trim();
+
+        if (!promptText) promptText = 'Vibrant scenery in Bharat, high detailed, digital art';
+
+        if (typeof canSpendProCredits === 'function' && !canSpendProCredits(2)) {
+          const rem = typeof getShrishtiRemainingProCredits === 'function' ? getShrishtiRemainingProCredits() : 0;
+          const errDiv = document.createElement('div');
+          errDiv.className = 'ai-msg bot';
+          errDiv.innerHTML = `<i class="fa-solid fa-circle-exclamation text-warning me-1"></i><strong>Not enough Pro Credits:</strong> Image generation requires <strong>2 credits</strong> (you have ${rem}/10 left today). Credits reset daily at midnight!`;
+          aiBody.appendChild(errDiv);
+          aiBody.scrollTop = aiBody.scrollHeight;
+          return;
+        }
+
+        const userDiv = document.createElement('div');
+        userDiv.className = 'ai-msg user';
+        userDiv.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles me-1 text-warning"></i> Generate Image: <em>"${escapeHtml(promptText)}"</em>`;
+        aiBody.appendChild(userDiv);
+
+        aiInput.value = '';
+        aiBody.scrollTop = aiBody.scrollHeight;
+
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = 'ai-msg bot';
+        loadingDiv.innerHTML = '<i class="fa-solid fa-palette fa-spin text-warning"></i> Generating your image (2 credits)...';
+        aiBody.appendChild(loadingDiv);
+        aiBody.scrollTop = aiBody.scrollHeight;
+
+        try {
+          const imgResult = await generateShrishtiImage(promptText);
+          loadingDiv.remove();
+
+          const botDiv = document.createElement('div');
+          botDiv.className = 'ai-msg bot';
+          botDiv.style.maxWidth = '92%';
+          botDiv.innerHTML = `
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;gap:0.5rem;">
+              <span style="font-size:0.68rem;padding:2px 8px;border-radius:10px;background:rgba(245,158,11,0.2);color:#f59e0b;font-weight:700;"><i class="fa-solid fa-palette me-1"></i>AI Generated Image</span>
+              <span style="font-size:0.68rem;padding:2px 7px;border-radius:8px;background:rgba(245,158,11,0.2);color:#f59e0b;font-weight:700;">-2 Credits (⚡ ${imgResult.creditsRemaining}/10 left)</span>
+            </div>
+            <div style="position:relative;margin:6px 0;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:#000;">
+              <img src="${imgResult.imageUrl}" style="width:100%;height:auto;display:block;border-radius:12px;min-height:180px;object-fit:cover;" alt="${escapeHtml(imgResult.prompt)}" loading="lazy" />
+            </div>
+            <div style="font-size:0.8rem;color:var(--ink-muted);margin-bottom:8px;"><em>"${escapeHtml(imgResult.prompt)}"</em></div>
+            <div style="display:flex;gap:0.5rem;">
+              <a href="${imgResult.imageUrl}" target="_blank" download="shrishti-art.jpg" style="display:inline-flex;align-items:center;gap:0.35rem;padding:0.3rem 0.75rem;border-radius:6px;background:var(--purple);color:#fff;text-decoration:none;font-size:0.75rem;font-weight:700;">
+                <i class="fa-solid fa-download"></i> Download
+              </a>
+              <a href="${imgResult.imageUrl}" target="_blank" style="display:inline-flex;align-items:center;gap:0.35rem;padding:0.3rem 0.75rem;border-radius:6px;background:var(--surface);color:var(--ink);border:1px solid var(--border);text-decoration:none;font-size:0.75rem;font-weight:600;">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i> Full Res
+              </a>
+            </div>
+          `;
+          aiBody.appendChild(botDiv);
+        } catch (err) {
+          loadingDiv.remove();
+          const errorDiv = document.createElement('div');
+          errorDiv.className = 'ai-msg bot';
+          errorDiv.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-danger me-1"></i> ' + escapeHtml(err.message || 'Failed to generate image.');
+          aiBody.appendChild(errorDiv);
+        }
+        aiBody.scrollTop = aiBody.scrollHeight;
+        return;
+      }
+
+      // ── 3. STANDARD QUERY FLOW (15 daily questions) ──
       if (!canAskShrishti()) {
         const errDiv = document.createElement('div');
         errDiv.className = 'ai-msg bot';
@@ -3003,8 +3212,6 @@
       aiBody.appendChild(loadingDiv);
       aiBody.scrollTop = aiBody.scrollHeight;
 
-      const chosenModel = (document.getElementById('shrishtiModelSelect') && document.getElementById('shrishtiModelSelect').value) || 'lemon-pineapple-a';
-
       try {
         const result = await requestShrishtiAiWithCushion(text, chosenModel, (fallbackModel) => {
           loadingDiv.innerHTML = `<i class="fa-solid fa-shield-halved fa-spin text-warning me-1"></i> Cushioning failover to <em>${escapeHtml(fallbackModel)}</em>...`;
@@ -3028,6 +3235,11 @@
       }
       aiBody.scrollTop = aiBody.scrollHeight;
     }
+
+    window.sendAiMessage = sendAiMessage;
+    window.handleAiFileSelect = handleAiFileSelect;
+    window.clearAiAttachment = clearAiAttachment;
+    window.toggleImageGenPrompt = toggleImageGenPrompt;
 
     // ── Voice Search ──
     (function() {
