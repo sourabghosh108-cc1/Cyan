@@ -522,10 +522,10 @@
   <main class="chat-container">
     <div class="chat-box" style="position: relative;">
       <!-- Disclaimer Overlay -->
-      <div id="aiDisclaimer" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: var(--card-bg); z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; text-align: center; border-radius: 16px;">
+      <div id="aiDisclaimer" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: var(--card-bg); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; text-align: center; border-radius: 16px; pointer-events: auto;">
         <i class="fa-solid fa-triangle-exclamation text-warning mb-3" style="font-size: 3rem;"></i>
         <p style="font-size: 1.1rem; margin-bottom: 2rem; max-width: 400px; color: var(--text-main);">AI model is in development stage. Data knowledge cutoff may apply.</p>
-        <button onclick="document.getElementById('aiDisclaimer').style.display='none'; document.getElementById('chatInput').focus();" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); color: white; border: none; padding: 0.75rem 2.5rem; border-radius: 25px; font-weight: 600; font-size: 1.05rem; cursor: pointer; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);">OK, Continue</button>
+        <button type="button" id="aiDisclaimerDismissBtn" onclick="dismissAiDisclaimer(event)" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); color: white; border: none; padding: 0.75rem 2.5rem; border-radius: 25px; font-weight: 600; font-size: 1.05rem; cursor: pointer; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3); touch-action: manipulation; -webkit-tap-highlight-color: transparent; position: relative; z-index: 10000; min-height: 48px; min-width: 180px;">OK, Continue</button>
       </div>
 
       <!-- Model selector + quota bar -->
@@ -625,8 +625,30 @@
       setTheme(currentTheme === 'dark' ? 'light' : 'dark');
     });
 
-    // Init quota badge
+    // Disclaimer Dismissal (robust touch & click support)
+    function dismissAiDisclaimer(e) {
+      if (e) {
+        if (e.preventDefault) e.preventDefault();
+        if (e.stopPropagation) e.stopPropagation();
+      }
+      const disc = document.getElementById('aiDisclaimer');
+      if (disc) {
+        disc.style.display = 'none';
+      }
+      const input = document.getElementById('chatInput');
+      if (input) {
+        try { input.focus(); } catch (_) {}
+      }
+    }
+
+    // Init quota badge & event bindings
     document.addEventListener('DOMContentLoaded', () => {
+      const discBtn = document.getElementById('aiDisclaimerDismissBtn');
+      if (discBtn) {
+        discBtn.addEventListener('click', dismissAiDisclaimer);
+        discBtn.addEventListener('touchend', dismissAiDisclaimer, { passive: false });
+      }
+
       const badge = document.getElementById('shrishtiStandaloneQuotaBadge');
       if (badge) {
         const remaining = getShrishtiRemainingQuestions();
