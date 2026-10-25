@@ -305,6 +305,199 @@
       color: #ef4444;
       border-color: #ef4444;
     }
+
+    /* Tool Buttons in Chat Input */
+    .ai-tool-btn {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .ai-tool-btn:hover {
+      background: rgba(139, 92, 246, 0.1);
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .home-text-short {
+      display: none;
+    }
+
+    /* ── Mobile Responsive Overhaul ── */
+    @media (max-width: 768px) {
+      body {
+        height: 100vh;
+        height: 100dvh;
+        min-height: 100vh;
+        min-height: 100dvh;
+      }
+
+      .shrishti-header {
+        padding: 0.6rem 0.85rem;
+      }
+
+      .brand-logo-area {
+        gap: 0.5rem;
+      }
+
+      .ai-logo {
+        font-size: 1.2rem;
+        gap: 0.4rem;
+        white-space: nowrap;
+      }
+
+      .ai-badge {
+        font-size: 0.82rem;
+        padding: 0.2rem 0.45rem;
+      }
+
+      .header-nav-right {
+        gap: 0.4rem;
+      }
+
+      .theme-toggle-btn {
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        border-radius: 50%;
+        justify-content: center;
+      }
+
+      .nav-btn {
+        padding: 0.35rem 0.6rem;
+        font-size: 0.82rem;
+      }
+
+      .home-text-full {
+        display: none;
+      }
+
+      .home-text-short {
+        display: inline;
+      }
+
+      .chat-container {
+        padding: 0.4rem 0.5rem 0.5rem;
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
+      }
+
+      .chat-box {
+        border-radius: 16px;
+        width: 100%;
+        max-width: 100%;
+      }
+
+      .shrishti-topbar {
+        padding: 0.45rem 0.65rem !important;
+        gap: 0.35rem !important;
+        border-radius: 16px 16px 0 0 !important;
+      }
+
+      #shrishtiModelSelect {
+        max-width: 130px !important;
+        font-size: 0.72rem !important;
+        padding: 0.15rem 0.35rem !important;
+      }
+
+      .shrishti-quota-badge,
+      .shrishti-pro-badge {
+        font-size: 0.65rem !important;
+        padding: 0.12rem 0.45rem !important;
+      }
+
+      #aiDisclaimer {
+        padding: 1.5rem 1rem !important;
+        border-radius: 16px !important;
+      }
+
+      #aiDisclaimer i {
+        font-size: 2.2rem !important;
+        margin-bottom: 0.65rem !important;
+      }
+
+      #aiDisclaimer p {
+        font-size: 0.92rem !important;
+        margin-bottom: 1.25rem !important;
+        max-width: 95% !important;
+      }
+
+      #aiDisclaimer button {
+        padding: 0.6rem 2rem !important;
+        font-size: 0.95rem !important;
+      }
+
+      .chat-messages {
+        padding: 0.75rem 0.65rem;
+        gap: 0.85rem;
+      }
+
+      .msg-bubble {
+        max-width: 92%;
+        padding: 0.65rem 0.85rem;
+        font-size: 0.92rem;
+        border-radius: 14px;
+        word-break: break-word;
+      }
+
+      .chat-input-area {
+        padding: 0.5rem 0.6rem !important;
+        gap: 0.35rem !important;
+      }
+
+      .chat-input {
+        min-width: 0 !important;
+        height: 42px !important;
+        padding: 0 0.85rem !important;
+        font-size: 0.88rem !important;
+        border-radius: 21px !important;
+      }
+
+      .ai-tool-btn,
+      .ai-voice-btn {
+        width: 36px !important;
+        height: 36px !important;
+        min-width: 36px !important;
+        font-size: 0.95rem !important;
+      }
+
+      .send-btn {
+        width: 40px !important;
+        height: 40px !important;
+        min-width: 40px !important;
+        font-size: 1rem !important;
+      }
+
+      .shrishti-footnote {
+        font-size: 0.68rem !important;
+        padding: 0.2rem 0.5rem 0.4rem !important;
+      }
+
+      /* Position language widget neatly below header so it never blocks chat input or buttons */
+      #hind_lang_widget {
+        bottom: auto !important;
+        top: 3.85rem !important;
+        left: auto !important;
+        right: 0.65rem !important;
+      }
+
+      #hind_lang_menu {
+        top: 2.2rem !important;
+        bottom: auto !important;
+        right: 0 !important;
+        left: auto !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -318,11 +511,11 @@
     </div>
 
     <div class="header-nav-right">
-      <button id="themeToggle" class="theme-toggle-btn">
+      <button id="themeToggle" class="theme-toggle-btn" aria-label="Toggle theme">
         <i class="fa-solid fa-moon" id="themeIcon"></i>
         <span id="themeText" class="ms-1 d-none d-sm-inline">Dark Mode</span>
       </button>
-      <a href="../../../index.html" class="nav-btn"><i class="fa-solid fa-house me-1"></i> Hind Home</a>
+      <a href="../../../index.html" class="nav-btn"><i class="fa-solid fa-house me-1"></i> <span class="home-text-full">Hind Home</span><span class="home-text-short">Home</span></a>
     </div>
   </header>
 
@@ -336,7 +529,7 @@
       </div>
 
       <!-- Model selector + quota bar -->
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;padding:0.5rem 1.25rem;background:linear-gradient(135deg,#8b5cf6,#6d28d9);border-radius:16px 16px 0 0;flex-wrap:wrap;">
+      <div class="shrishti-topbar" style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;padding:0.5rem 1.25rem;background:linear-gradient(135deg,#8b5cf6,#6d28d9);border-radius:16px 16px 0 0;flex-wrap:wrap;">
         <div style="display:flex;align-items:center;gap:0.5rem;">
           <i class="fa-solid fa-microchip" style="color:#fff;font-size:0.8rem;"></i>
           <select id="shrishtiModelSelect" style="background:rgba(255,255,255,0.18);color:#fff;border:1px solid rgba(255,255,255,0.35);border-radius:8px;padding:0.2rem 0.5rem;font-size:0.75rem;font-family:inherit;outline:none;cursor:pointer;max-width:185px;" title="Choose AI Model">
@@ -377,10 +570,10 @@
       <input type="file" id="aiFileInput" accept=".pdf,.docx,.doc,.txt,.vtt,.srt" style="display:none;" onchange="handleAiFileSelect(event)" />
 
       <div class="chat-input-area" style="align-items:center;gap:0.5rem;">
-        <button type="button" id="aiAttachBtn" onclick="document.getElementById('aiFileInput').click()" title="Analyse PDF, DOCX or Transcript (costs 5 Pro Credits)" style="background:transparent;border:1px solid var(--border-color);color:var(--text-muted);width:38px;height:38px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;">
+        <button type="button" id="aiAttachBtn" class="ai-tool-btn" onclick="document.getElementById('aiFileInput').click()" title="Analyse PDF, DOCX or Transcript (costs 5 Pro Credits)">
           <i class="fa-solid fa-paperclip"></i>
         </button>
-        <button type="button" id="aiImageBtn" onclick="toggleImageGenPrompt()" title="Generate AI Image (costs 2 Pro Credits)" style="background:transparent;border:1px solid var(--border-color);color:#f59e0b;width:38px;height:38px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;">
+        <button type="button" id="aiImageBtn" class="ai-tool-btn" onclick="toggleImageGenPrompt()" title="Generate AI Image (costs 2 Pro Credits)" style="color:#f59e0b;">
           <i class="fa-solid fa-wand-magic-sparkles"></i>
         </button>
         <input type="text" id="chatInput" class="chat-input" placeholder="Type message, /image prompt, or attach file..." autofocus onkeypress="if(event.key === 'Enter') sendMessage()" />
@@ -391,7 +584,7 @@
           <i class="fa-solid fa-paper-plane"></i>
         </button>
       </div>
-      <div style="text-align: center; font-size: 0.8rem; color: var(--text-muted); padding-bottom: 0.85rem; background: var(--card-bg);">
+      <div class="shrishti-footnote" style="text-align: center; font-size: 0.8rem; color: var(--text-muted); padding-bottom: 0.85rem; background: var(--card-bg);">
         AI can make mistakes • 2 credits/image • 5 credits/Doc &amp; Transcript summary
       </div>
     </div>
@@ -440,6 +633,10 @@
         badge.textContent = `${remaining}/15 queries left today`;
         if (remaining <= 0) badge.style.background = 'rgba(239,68,68,0.4)';
         else if (remaining <= 3) badge.style.background = 'rgba(245,158,11,0.4)';
+      }
+      const chatInputEl = document.getElementById('chatInput');
+      if (window.innerWidth <= 768 && chatInputEl) {
+        chatInputEl.placeholder = "Type message or /image...";
       }
     });
 
