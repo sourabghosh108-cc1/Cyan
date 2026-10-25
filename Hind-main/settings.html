@@ -831,6 +831,132 @@
     .settings-footer a:hover {
       text-decoration: underline;
     }
+
+    /* ── Permission Rows ── */
+    .perm-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 1.1rem 0;
+      border-bottom: 1px solid var(--border-color);
+      gap: 1rem;
+      transition: background 0.15s ease;
+    }
+
+    .perm-row:last-of-type {
+      border-bottom: none;
+    }
+
+    .perm-row:hover {
+      background: rgba(37, 99, 235, 0.02);
+      border-radius: 10px;
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+    }
+
+    .perm-left {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      flex: 1;
+    }
+
+    .perm-icon-bubble {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .perm-info {
+      flex: 1;
+    }
+
+    .perm-title {
+      font-size: 0.97rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 0.2rem;
+    }
+
+    .perm-desc {
+      font-size: 0.83rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+      margin-bottom: 0.55rem;
+    }
+
+    .perm-status-row {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    .perm-api-note {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .perm-right {
+      display: flex;
+      align-items: center;
+      padding-top: 4px;
+      flex-shrink: 0;
+    }
+
+    /* Permission status badges */
+    .perm-badge {
+      display: inline-flex;
+      align-items: center;
+      font-size: 0.74rem;
+      font-weight: 700;
+      padding: 0.2rem 0.65rem;
+      border-radius: 20px;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
+    }
+
+    .perm-badge-granted {
+      background: rgba(16, 185, 129, 0.12);
+      color: #059669;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .perm-badge-paused {
+      background: rgba(245, 158, 11, 0.12);
+      color: #d97706;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .perm-badge-blocked {
+      background: rgba(239, 68, 68, 0.1);
+      color: #dc2626;
+      border: 1px solid rgba(239, 68, 68, 0.25);
+    }
+
+    .perm-badge-unknown {
+      background: rgba(100, 116, 139, 0.1);
+      color: var(--text-muted);
+      border: 1px solid var(--border-color);
+    }
+
+    @media (max-width: 580px) {
+      .perm-row {
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      .perm-right {
+        align-self: flex-end;
+        padding-top: 0;
+      }
+    }
   </style>
 </head>
 
@@ -1128,7 +1254,169 @@
       </div>
     </section>
 
-    <!-- Section 4: Danger Zone -->
+    <!-- Section 4: Permissions -->
+    <section class="settings-card" id="permissionsSection">
+      <div class="card-header-row">
+        <div class="card-title-group">
+          <div class="card-icon-bubble bubble-amber">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <div>
+            <div class="card-title-text">Site Permissions</div>
+            <div class="card-subtitle-text">Control what Hind.com can access on your device. Pausing a permission does not delete it — it just blocks access until you re-enable it.</div>
+          </div>
+        </div>
+        <button type="button" class="btn-hind-secondary" onclick="recheckAllPermissions()" title="Re-check actual browser permission states">
+          <i class="fa-solid fa-arrows-rotate"></i>
+          <span>Refresh Status</span>
+        </button>
+      </div>
+
+      <!-- IP Address -->
+      <div class="perm-row" id="permRow_ip">
+        <div class="perm-left">
+          <div class="perm-icon-bubble" style="background:rgba(37,99,235,0.1);color:#2563eb;">
+            <i class="fa-solid fa-network-wired"></i>
+          </div>
+          <div class="perm-info">
+            <div class="perm-title">IP Address Detection</div>
+            <div class="perm-desc">Used for connection info bar, anonymous session ID, and regional context. No IP is stored permanently.</div>
+            <div class="perm-status-row">
+              <span class="perm-badge" id="perm_badge_ip">Checking…</span>
+              <span class="perm-api-note">Fetched via public API on load</span>
+            </div>
+          </div>
+        </div>
+        <div class="perm-right">
+          <label class="toggle-switch" title="Toggle IP detection">
+            <input type="checkbox" id="perm_toggle_ip" onchange="handlePermToggle('ip', this.checked)">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Location -->
+      <div class="perm-row" id="permRow_location">
+        <div class="perm-left">
+          <div class="perm-icon-bubble" style="background:rgba(5,150,105,0.1);color:#059669;">
+            <i class="fa-solid fa-location-dot"></i>
+          </div>
+          <div class="perm-info">
+            <div class="perm-title">Location (Geolocation)</div>
+            <div class="perm-desc">Used by Cyan Maps and Weather to show your current area. We never share or store your GPS coordinates.</div>
+            <div class="perm-status-row">
+              <span class="perm-badge" id="perm_badge_location">Checking…</span>
+              <span class="perm-api-note">Requires browser Geolocation API</span>
+            </div>
+          </div>
+        </div>
+        <div class="perm-right">
+          <label class="toggle-switch" title="Request / pause location access">
+            <input type="checkbox" id="perm_toggle_location" onchange="handlePermToggle('location', this.checked)">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Storage -->
+      <div class="perm-row" id="permRow_storage">
+        <div class="perm-left">
+          <div class="perm-icon-bubble" style="background:rgba(139,92,246,0.1);color:#8b5cf6;">
+            <i class="fa-solid fa-database"></i>
+          </div>
+          <div class="perm-info">
+            <div class="perm-title">Local Storage</div>
+            <div class="perm-desc">Required to save your profile, search history, theme preferences, AI quotas, and calendar events locally on your browser.</div>
+            <div class="perm-status-row">
+              <span class="perm-badge" id="perm_badge_storage">Checking…</span>
+              <span class="perm-api-note">Browser localStorage &amp; sessionStorage</span>
+            </div>
+          </div>
+        </div>
+        <div class="perm-right">
+          <label class="toggle-switch" title="Toggle local storage usage">
+            <input type="checkbox" id="perm_toggle_storage" onchange="handlePermToggle('storage', this.checked)">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Camera -->
+      <div class="perm-row" id="permRow_camera">
+        <div class="perm-left">
+          <div class="perm-icon-bubble" style="background:rgba(236,72,153,0.1);color:#ec4899;">
+            <i class="fa-solid fa-camera"></i>
+          </div>
+          <div class="perm-info">
+            <div class="perm-title">Camera</div>
+            <div class="perm-desc">Used for document scanning and QR code scanning via Shrishti AI. Camera is never active unless explicitly triggered by you.</div>
+            <div class="perm-status-row">
+              <span class="perm-badge" id="perm_badge_camera">Checking…</span>
+              <span class="perm-api-note">Requires MediaDevices API</span>
+            </div>
+          </div>
+        </div>
+        <div class="perm-right">
+          <label class="toggle-switch" title="Request / pause camera access">
+            <input type="checkbox" id="perm_toggle_camera" onchange="handlePermToggle('camera', this.checked)">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Microphone / Voice -->
+      <div class="perm-row" id="permRow_mic">
+        <div class="perm-left">
+          <div class="perm-icon-bubble" style="background:rgba(245,158,11,0.1);color:#f59e0b;">
+            <i class="fa-solid fa-microphone"></i>
+          </div>
+          <div class="perm-info">
+            <div class="perm-title">Microphone / Voice Input</div>
+            <div class="perm-desc">Powers voice search, Shrishti AI voice input, and multilingual speech recognition. Audio is processed locally and never uploaded raw.</div>
+            <div class="perm-status-row">
+              <span class="perm-badge" id="perm_badge_mic">Checking…</span>
+              <span class="perm-api-note">Requires MediaDevices &amp; SpeechRecognition API</span>
+            </div>
+          </div>
+        </div>
+        <div class="perm-right">
+          <label class="toggle-switch" title="Request / pause microphone access">
+            <input type="checkbox" id="perm_toggle_mic" onchange="handlePermToggle('mic', this.checked)">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Speaker / Audio Output -->
+      <div class="perm-row" id="permRow_speaker">
+        <div class="perm-left">
+          <div class="perm-icon-bubble" style="background:rgba(8,145,178,0.1);color:#0891b2;">
+            <i class="fa-solid fa-volume-high"></i>
+          </div>
+          <div class="perm-info">
+            <div class="perm-title">Speaker / Audio Output</div>
+            <div class="perm-desc">Used by text-to-speech (Shrishti AI speak responses, search page accessibility speaker). No microphone is used for output.</div>
+            <div class="perm-status-row">
+              <span class="perm-badge" id="perm_badge_speaker">Checking…</span>
+              <span class="perm-api-note">Uses Web Speech API SpeechSynthesis</span>
+            </div>
+          </div>
+        </div>
+        <div class="perm-right">
+          <label class="toggle-switch" title="Enable / pause speaker output">
+            <input type="checkbox" id="perm_toggle_speaker" onchange="handlePermToggle('speaker', this.checked)">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div style="margin-top:1rem;padding:0.85rem 1rem;background:rgba(37,99,235,0.05);border:1px solid rgba(37,99,235,0.15);border-radius:12px;font-size:0.82rem;color:var(--text-muted);">
+        <i class="fa-solid fa-circle-info me-1" style="color:#2563eb;"></i>
+        <strong>Note:</strong> Pausing a permission here records your preference locally. Actual browser-level permissions (like Camera / Mic) must also be granted or denied in your browser's Site Settings. Clicking the toggle to request a permission will trigger the browser's native permission dialog.
+      </div>
+    </section>
+
+    <!-- Section 5: Danger Zone -->
     <section class="settings-card" style="border-color: rgba(239, 68, 68, 0.3);">
       <div class="card-header-row" style="border-bottom-color: rgba(239, 68, 68, 0.2);">
         <div class="card-title-group">
@@ -1590,7 +1878,258 @@
       }
     }
 
-    // ── 5. Toast Notifications ──
+    // ── 5. Permissions ──
+    const PERM_KEY = 'hind_permissions';
+
+    // Default permission state stored locally
+    let permState = {
+      ip:      { enabled: true,  status: 'unknown' },
+      location:{ enabled: false, status: 'unknown' },
+      storage: { enabled: true,  status: 'granted' },
+      camera:  { enabled: false, status: 'unknown' },
+      mic:     { enabled: false, status: 'unknown' },
+      speaker: { enabled: true,  status: 'granted' }
+    };
+
+    function loadPermState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(PERM_KEY));
+        if (saved) permState = { ...permState, ...saved };
+      } catch(_) {}
+    }
+
+    function savePermState() {
+      try { localStorage.setItem(PERM_KEY, JSON.stringify(permState)); } catch(_) {}
+    }
+
+    // badge styles: granted | paused | blocked | unknown
+    function setBadge(id, status) {
+      const el = document.getElementById('perm_badge_' + id);
+      if (!el) return;
+      const map = {
+        granted:  { label: 'Granted',       cls: 'perm-badge perm-badge-granted'   },
+        paused:   { label: 'Paused',         cls: 'perm-badge perm-badge-paused'    },
+        blocked:  { label: 'Blocked',        cls: 'perm-badge perm-badge-blocked'   },
+        denied:   { label: 'Denied',         cls: 'perm-badge perm-badge-blocked'   },
+        unknown:  { label: 'Not Requested',  cls: 'perm-badge perm-badge-unknown'   },
+        checking: { label: 'Checking…',      cls: 'perm-badge perm-badge-unknown'   }
+      };
+      const info = map[status] || map.unknown;
+      el.className = info.cls;
+      el.textContent = info.label;
+    }
+
+    function setToggle(id, checked) {
+      const el = document.getElementById('perm_toggle_' + id);
+      if (el) el.checked = checked;
+    }
+
+    // Query real browser permission and update state
+    async function queryBrowserPerm(name) {
+      if (!navigator.permissions) return 'unknown';
+      try {
+        const result = await navigator.permissions.query({ name });
+        return result.state; // 'granted' | 'denied' | 'prompt'
+      } catch(_) { return 'unknown'; }
+    }
+
+    async function recheckAllPermissions() {
+      // IP
+      const ipEnabled = permState.ip.enabled;
+      permState.ip.status = ipEnabled ? 'granted' : 'paused';
+      setBadge('ip', permState.ip.status);
+      setToggle('ip', ipEnabled);
+
+      // Location
+      const locBrowser = await queryBrowserPerm('geolocation');
+      if (!permState.location.enabled) {
+        permState.location.status = 'paused';
+      } else if (locBrowser === 'granted') {
+        permState.location.status = 'granted';
+      } else if (locBrowser === 'denied') {
+        permState.location.status = 'blocked';
+      } else {
+        permState.location.status = 'unknown';
+      }
+      setBadge('location', permState.location.status);
+      setToggle('location', permState.location.enabled);
+
+      // Storage
+      try {
+        localStorage.setItem('_hind_perm_test', '1');
+        localStorage.removeItem('_hind_perm_test');
+        permState.storage.status = permState.storage.enabled ? 'granted' : 'paused';
+      } catch(_) {
+        permState.storage.status = 'blocked';
+      }
+      setBadge('storage', permState.storage.status);
+      setToggle('storage', permState.storage.enabled);
+
+      // Camera
+      const camBrowser = await queryBrowserPerm('camera');
+      if (!permState.camera.enabled) {
+        permState.camera.status = 'paused';
+      } else if (camBrowser === 'granted') {
+        permState.camera.status = 'granted';
+      } else if (camBrowser === 'denied') {
+        permState.camera.status = 'blocked';
+      } else {
+        permState.camera.status = 'unknown';
+      }
+      setBadge('camera', permState.camera.status);
+      setToggle('camera', permState.camera.enabled);
+
+      // Microphone
+      const micBrowser = await queryBrowserPerm('microphone');
+      if (!permState.mic.enabled) {
+        permState.mic.status = 'paused';
+      } else if (micBrowser === 'granted') {
+        permState.mic.status = 'granted';
+      } else if (micBrowser === 'denied') {
+        permState.mic.status = 'blocked';
+      } else {
+        permState.mic.status = 'unknown';
+      }
+      setBadge('mic', permState.mic.status);
+      setToggle('mic', permState.mic.enabled);
+
+      // Speaker — no direct Permissions API; check SpeechSynthesis availability
+      const speakerOk = (typeof window.speechSynthesis !== 'undefined');
+      if (!permState.speaker.enabled) {
+        permState.speaker.status = 'paused';
+      } else {
+        permState.speaker.status = speakerOk ? 'granted' : 'blocked';
+      }
+      setBadge('speaker', permState.speaker.status);
+      setToggle('speaker', permState.speaker.enabled);
+
+      savePermState();
+    }
+
+    async function handlePermToggle(id, checked) {
+      permState[id] = permState[id] || { enabled: false, status: 'unknown' };
+      permState[id].enabled = checked;
+
+      if (!checked) {
+        // Pausing
+        permState[id].status = 'paused';
+        setBadge(id, 'paused');
+        savePermState();
+        showToast(`${id.charAt(0).toUpperCase() + id.slice(1)} permission paused`, 'success');
+
+        // Cancel any live speaker synthesis
+        if (id === 'speaker' && window.speechSynthesis) {
+          window.speechSynthesis.cancel();
+        }
+        return;
+      }
+
+      // Enabling — trigger real browser prompt for hardware perms
+      if (id === 'location') {
+        setBadge('location', 'checking');
+        navigator.geolocation.getCurrentPosition(
+          () => {
+            permState.location.status = 'granted';
+            setBadge('location', 'granted');
+            savePermState();
+            showToast('Location access granted!', 'success');
+          },
+          (err) => {
+            permState.location.enabled = false;
+            permState.location.status = err.code === 1 ? 'blocked' : 'unknown';
+            setToggle('location', false);
+            setBadge('location', permState.location.status);
+            savePermState();
+            showToast('Location permission denied or unavailable', 'error');
+          }
+        );
+        return;
+      }
+
+      if (id === 'camera') {
+        setBadge('camera', 'checking');
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+          stream.getTracks().forEach(t => t.stop()); // release immediately
+          permState.camera.status = 'granted';
+          setBadge('camera', 'granted');
+          savePermState();
+          showToast('Camera access granted!', 'success');
+        } catch(err) {
+          permState.camera.enabled = false;
+          permState.camera.status = 'blocked';
+          setToggle('camera', false);
+          setBadge('camera', 'blocked');
+          savePermState();
+          showToast('Camera permission denied by browser', 'error');
+        }
+        return;
+      }
+
+      if (id === 'mic') {
+        setBadge('mic', 'checking');
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+          stream.getTracks().forEach(t => t.stop()); // release immediately
+          permState.mic.status = 'granted';
+          setBadge('mic', 'granted');
+          savePermState();
+          showToast('Microphone access granted!', 'success');
+        } catch(err) {
+          permState.mic.enabled = false;
+          permState.mic.status = 'blocked';
+          setToggle('mic', false);
+          setBadge('mic', 'blocked');
+          savePermState();
+          showToast('Microphone permission denied by browser', 'error');
+        }
+        return;
+      }
+
+      if (id === 'speaker') {
+        if (typeof window.speechSynthesis !== 'undefined') {
+          permState.speaker.status = 'granted';
+          setBadge('speaker', 'granted');
+          savePermState();
+          // Quick test utterance
+          const u = new SpeechSynthesisUtterance('Speaker enabled');
+          u.volume = 0.4;
+          window.speechSynthesis.speak(u);
+          showToast('Speaker / audio output enabled!', 'success');
+        } else {
+          permState.speaker.enabled = false;
+          permState.speaker.status = 'blocked';
+          setToggle('speaker', false);
+          setBadge('speaker', 'blocked');
+          savePermState();
+          showToast('Speaker not supported in this browser', 'error');
+        }
+        return;
+      }
+
+      if (id === 'ip') {
+        permState.ip.status = 'granted';
+        setBadge('ip', 'granted');
+        savePermState();
+        showToast('IP detection enabled', 'success');
+        return;
+      }
+
+      if (id === 'storage') {
+        permState.storage.status = 'granted';
+        setBadge('storage', 'granted');
+        savePermState();
+        showToast('Local storage access enabled', 'success');
+        return;
+      }
+    }
+
+    function initPermissions() {
+      loadPermState();
+      recheckAllPermissions();
+    }
+
+    // ── 6. Toast Notifications ──
     let toastTimeout = null;
     function showToast(message, type = 'success') {
       const toast = document.getElementById('hindToast');
@@ -1621,6 +2160,7 @@
       loadProfile();
       loadStatistics();
       renderJsonPreview();
+      initPermissions();
 
       // Load preferences
       try {
