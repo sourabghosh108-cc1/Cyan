@@ -483,19 +483,25 @@
         padding: 0.2rem 0.5rem 0.4rem !important;
       }
 
-      /* Position language widget neatly below header so it never blocks chat input or buttons */
+      /* Keep language widget at bottom, non-blocking */
       #hind_lang_widget {
-        bottom: auto !important;
-        top: 3.85rem !important;
-        left: auto !important;
-        right: 0.65rem !important;
+        bottom: 0.85rem !important;
+        left: 0.85rem !important;
+        top: auto !important;
+        right: auto !important;
+        pointer-events: none !important;
+      }
+
+      #hind_lang_pill,
+      #hind_lang_menu {
+        pointer-events: auto !important;
       }
 
       #hind_lang_menu {
-        top: 2.2rem !important;
-        bottom: auto !important;
-        right: 0 !important;
-        left: auto !important;
+        bottom: 2.8rem !important;
+        top: auto !important;
+        left: 0 !important;
+        right: auto !important;
       }
     }
   </style>
@@ -521,11 +527,11 @@
 
   <main class="chat-container">
     <div class="chat-box" style="position: relative;">
-      <!-- Disclaimer Overlay -->
-      <div id="aiDisclaimer" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: var(--card-bg); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; text-align: center; border-radius: 16px; pointer-events: auto;">
-        <i class="fa-solid fa-triangle-exclamation text-warning mb-3" style="font-size: 3rem;"></i>
-        <p style="font-size: 1.1rem; margin-bottom: 2rem; max-width: 400px; color: var(--text-main);">AI model is in development stage. Data knowledge cutoff may apply.</p>
-        <button type="button" id="aiDisclaimerDismissBtn" onclick="dismissAiDisclaimer(event)" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); color: white; border: none; padding: 0.75rem 2.5rem; border-radius: 25px; font-weight: 600; font-size: 1.05rem; cursor: pointer; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3); touch-action: manipulation; -webkit-tap-highlight-color: transparent; position: relative; z-index: 10000; min-height: 48px; min-width: 180px;">OK, Continue</button>
+      <!-- Disclaimer Overlay (Click button or tap overlay to dismiss) -->
+      <div id="aiDisclaimer" onclick="this.style.display='none'; this.remove();" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: var(--card-bg); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; text-align: center; border-radius: 16px; cursor: pointer; -webkit-tap-highlight-color: transparent;">
+        <i class="fa-solid fa-triangle-exclamation text-warning mb-3" style="font-size: 3rem; pointer-events: none;"></i>
+        <p style="font-size: 1.1rem; margin-bottom: 2rem; max-width: 400px; color: var(--text-main); pointer-events: none;">AI model is in development stage. Data knowledge cutoff may apply.</p>
+        <button type="button" id="aiDisclaimerDismissBtn" onclick="event.stopPropagation(); const d=document.getElementById('aiDisclaimer'); if(d){d.style.display='none';d.remove();} if(window.dismissAiDisclaimer)window.dismissAiDisclaimer(event);" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); color: white; border: none; padding: 0.75rem 2.5rem; border-radius: 25px; font-weight: 600; font-size: 1.05rem; cursor: pointer; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3); touch-action: manipulation; -webkit-tap-highlight-color: transparent; position: relative; z-index: 10000; min-height: 50px; min-width: 200px;">OK, Continue</button>
       </div>
 
       <!-- Model selector + quota bar -->
@@ -626,7 +632,7 @@
     });
 
     // Disclaimer Dismissal (robust touch & click support)
-    function dismissAiDisclaimer(e) {
+    window.dismissAiDisclaimer = function(e) {
       if (e) {
         if (e.preventDefault) e.preventDefault();
         if (e.stopPropagation) e.stopPropagation();
@@ -634,20 +640,35 @@
       const disc = document.getElementById('aiDisclaimer');
       if (disc) {
         disc.style.display = 'none';
+        try { disc.remove(); } catch (_) {}
       }
       const input = document.getElementById('chatInput');
       if (input) {
         try { input.focus(); } catch (_) {}
       }
+    };
+
+    function setupDisclaimerDismiss() {
+      const discBtn = document.getElementById('aiDisclaimerDismissBtn');
+      const disc = document.getElementById('aiDisclaimer');
+      if (discBtn) {
+        discBtn.onclick = window.dismissAiDisclaimer;
+        discBtn.ontouchend = window.dismissAiDisclaimer;
+        discBtn.addEventListener('click', window.dismissAiDisclaimer);
+        discBtn.addEventListener('touchend', window.dismissAiDisclaimer, { passive: false });
+      }
+      if (disc) {
+        disc.onclick = window.dismissAiDisclaimer;
+        disc.ontouchend = window.dismissAiDisclaimer;
+      }
     }
 
+    // Run setup immediately without waiting for DOMContentLoaded (in case it already fired)
+    setupDisclaimerDismiss();
+
     // Init quota badge & event bindings
-    document.addEventListener('DOMContentLoaded', () => {
-      const discBtn = document.getElementById('aiDisclaimerDismissBtn');
-      if (discBtn) {
-        discBtn.addEventListener('click', dismissAiDisclaimer);
-        discBtn.addEventListener('touchend', dismissAiDisclaimer, { passive: false });
-      }
+    function initShristiPage() {
+      setupDisclaimerDismiss();
 
       const badge = document.getElementById('shrishtiStandaloneQuotaBadge');
       if (badge) {
@@ -660,7 +681,13 @@
       if (window.innerWidth <= 768 && chatInputEl) {
         chatInputEl.placeholder = "Type message or /image...";
       }
-    });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initShristiPage);
+    } else {
+      initShristiPage();
+    }
 
     // Chat functionality
     const chatMessages = document.getElementById('chatMessages');
