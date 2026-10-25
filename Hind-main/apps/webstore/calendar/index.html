@@ -565,6 +565,250 @@
       color: var(--cyan-primary);
       text-decoration: underline;
     }
+
+    /* ── Responsive Overhauls for Calendar ── */
+    .badge-dot {
+      display: none;
+    }
+    .badge-text {
+      display: inline;
+    }
+    .mode-text-short {
+      display: none;
+    }
+    .home-text-short {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .calendar-header {
+        padding: 0.65rem 0.85rem;
+      }
+
+      .header-content {
+        gap: 0.45rem 0;
+      }
+
+      .cyan-logo {
+        font-size: 1.25rem;
+      }
+
+      .cyan-badge {
+        font-size: 1rem;
+        padding: 0.2rem 0.5rem;
+      }
+
+      .header-nav-right {
+        gap: 0.4rem;
+      }
+
+      .theme-toggle-btn {
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        border-radius: 50%;
+        justify-content: center;
+      }
+
+      .nav-btn {
+        padding: 0.35rem 0.55rem;
+        font-size: 0.82rem;
+      }
+
+      .home-text-full {
+        display: none;
+      }
+
+      .home-text-short {
+        display: inline;
+      }
+
+      .header-search-form {
+        width: 100%;
+        max-width: 100%;
+        order: 3;
+        margin-top: 0.35rem;
+      }
+
+      .header-search-input {
+        height: 40px;
+        font-size: 0.9rem;
+      }
+
+      .mode-bar {
+        padding: 0.5rem 0.85rem;
+      }
+
+      .mode-container {
+        gap: 0.45rem;
+        width: 100%;
+      }
+
+      .mode-tab {
+        flex: 1;
+        justify-content: center;
+        padding: 0.45rem 0.6rem;
+        font-size: 0.82rem;
+        border-radius: 14px;
+        text-align: center;
+      }
+
+      .mode-text-full {
+        display: none;
+      }
+
+      .mode-text-short {
+        display: inline;
+      }
+
+      .calendar-main {
+        padding: 0.75rem 0.6rem 3rem;
+      }
+
+      .cal-grid-layout {
+        gap: 1.25rem;
+      }
+
+      .cal-card {
+        padding: 0.85rem 0.55rem;
+        border-radius: 18px;
+      }
+
+      .cal-nav-header {
+        margin-bottom: 0.75rem;
+        gap: 0.4rem;
+      }
+
+      .month-year-title {
+        font-size: 1.25rem;
+      }
+
+      .cal-control-btn {
+        padding: 0.3rem 0.55rem;
+        font-size: 0.82rem;
+        border-radius: 8px;
+      }
+
+      .calendar-table {
+        border-spacing: 2px;
+        table-layout: fixed;
+      }
+
+      .calendar-table th {
+        padding: 0.3rem 0;
+        font-size: 0.72rem;
+      }
+
+      .cal-day-cell {
+        height: 52px;
+        padding: 3px 1px;
+        border-radius: 8px;
+        text-align: center;
+      }
+
+      .day-number {
+        font-size: 0.88rem;
+        line-height: 1.1;
+      }
+
+      .tithi-subtext {
+        font-size: 0.62rem;
+        line-height: 1;
+        margin-top: 1px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .badge-text {
+        display: none !important;
+      }
+
+      .badge-dot {
+        display: block !important;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        margin: 2px auto 0;
+      }
+
+      .event-indicator {
+        display: inline-block;
+        padding: 0;
+        margin: 2px 1px 0;
+        background: transparent;
+        border-radius: 50%;
+        width: 6px;
+        height: 6px;
+        min-width: 6px;
+        min-height: 6px;
+      }
+
+      .festival-indicator .badge-dot {
+        background: #f59e0b;
+        box-shadow: 0 0 5px rgba(245, 158, 11, 0.7);
+      }
+
+      .event-indicator:not(.festival-indicator) .badge-dot {
+        background: #06b6d4;
+        box-shadow: 0 0 5px rgba(6, 182, 212, 0.7);
+      }
+
+      .side-card {
+        padding: 1rem 0.85rem;
+        border-radius: 18px;
+      }
+
+      .side-title {
+        font-size: 1.1rem;
+        margin-bottom: 0.85rem;
+      }
+
+      .event-list-item {
+        padding: 0.65rem 0.75rem;
+        border-radius: 12px;
+        gap: 0.5rem;
+      }
+
+      .event-info {
+        min-width: 0;
+        flex: 1;
+      }
+
+      .event-title-text {
+        font-size: 0.86rem;
+        word-break: break-word;
+      }
+
+      .event-list-item .badge {
+        flex-shrink: 0;
+        font-size: 0.72rem;
+        padding: 0.25rem 0.5rem;
+      }
+
+      .vedic-panchang-card {
+        padding: 1.25rem 0.95rem;
+        border-radius: 18px;
+      }
+
+      .vedic-hero-title {
+        font-size: 1.35rem;
+      }
+
+      .panchang-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.65rem;
+      }
+
+      .panchang-metric-card {
+        padding: 0.85rem;
+        border-radius: 14px;
+      }
+
+      .panchang-value {
+        font-size: 1.15rem;
+      }
+    }
   </style>
 </head>
 <body>
@@ -587,11 +831,11 @@
       </form>
 
       <div class="header-nav-right">
-        <button id="themeToggle" class="theme-toggle-btn">
+        <button id="themeToggle" class="theme-toggle-btn" aria-label="Toggle theme">
           <i class="fa-solid fa-moon" id="themeIcon"></i>
-          <span id="themeText" class="ms-1 d-none d-sm-inline">Dark Mode</span>
+          <span id="themeText" class="ms-1 d-none d-sm-inline">Dark</span>
         </button>
-        <a href="../../../index.html" class="nav-btn"><i class="fa-solid fa-house me-1"></i> Hind Home</a>
+        <a href="../../../index.html" class="nav-btn"><i class="fa-solid fa-house me-1"></i> <span class="home-text-full">Hind Home</span><span class="home-text-short">Home</span></a>
       </div>
     </div>
   </header>
@@ -600,10 +844,14 @@
   <nav class="mode-bar">
     <div class="mode-container">
       <button class="mode-tab active-modern" id="modernModeBtn" onclick="switchMode('modern')">
-        <i class="fa-solid fa-calendar-days"></i> Modern Calendar &amp; Reminders
+        <i class="fa-solid fa-calendar-days"></i>
+        <span class="mode-text-full">Modern Calendar &amp; Reminders</span>
+        <span class="mode-text-short">Calendar</span>
       </button>
       <button class="mode-tab" id="vedicModeBtn" onclick="switchMode('vedic')">
-        <i class="fa-solid fa-om"></i> Vedic Panchang Calculator (हिन्दू पंचांग)
+        <i class="fa-solid fa-om"></i>
+        <span class="mode-text-full">Vedic Panchang Calculator (हिन्दू पंचांग)</span>
+        <span class="mode-text-short">Panchang</span>
       </button>
     </div>
   </nav>
@@ -1027,11 +1275,11 @@
             `;
 
             if (festivalName) {
-              cellHTML += `<span class="event-indicator festival-indicator" title="${festivalName}">${festivalName}</span>`;
+              cellHTML += `<span class="event-indicator festival-indicator" title="${festivalName}"><span class="badge-text">${festivalName}</span><span class="badge-dot"></span></span>`;
             }
 
             if (myEvents[fullDateKey]) {
-              cellHTML += `<span class="event-indicator" title="${myEvents[fullDateKey]}">${myEvents[fullDateKey]}</span>`;
+              cellHTML += `<span class="event-indicator" title="${myEvents[fullDateKey]}"><span class="badge-text">${myEvents[fullDateKey]}</span><span class="badge-dot"></span></span>`;
             }
 
             cell.innerHTML = cellHTML;
