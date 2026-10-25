@@ -1912,20 +1912,124 @@
 
     @media (max-width: 640px) {
       .search-header {
-        padding: 0.75rem 1rem;
+        padding: 0.65rem 0.85rem;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.45rem 0;
+      }
+
+      .header-left {
+        display: contents;
+      }
+
+      .header-logo-link {
+        order: 1;
+        margin-right: auto;
+      }
+
+      .header-logo-img {
+        height: 32px;
+      }
+
+      [data-theme="dark"] .header-logo-link {
+        padding: 4px 10px;
+        border-radius: 10px;
+      }
+
+      .header-right {
+        order: 2;
+        gap: 0.35rem;
+      }
+
+      .theme-btn {
+        padding: 0.32rem 0.55rem;
+        font-size: 0.8rem;
+      }
+
+      .nav-link-btn {
+        padding: 0.32rem 0.55rem;
+        font-size: 0.8rem;
       }
 
       .header-search-form {
+        order: 3;
+        width: 100%;
         max-width: 100%;
+        margin-top: 0.35rem;
+      }
+
+      .header-search-input {
+        height: 44px;
+        font-size: 0.92rem;
+        padding-left: 2.5rem;
+        padding-right: 5.2rem !important;
+        border-radius: 22px;
+      }
+
+      .header-search-icon {
+        left: 0.9rem;
+        font-size: 0.95rem;
+      }
+
+      .voice-mic-btn {
+        right: 2.7rem;
+        width: 32px;
+        height: 32px;
+        font-size: 0.95rem;
+      }
+
+      .header-search-btn {
+        right: 0.35rem;
+        width: 32px;
+        height: 32px;
+        font-size: 0.85rem;
+      }
+
+      .search-tabs-nav {
+        top: 102px;
+      }
+
+      .search-tabs-container {
+        padding: 0 0.75rem;
+        gap: 0.35rem;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+
+      .search-tabs-container::-webkit-scrollbar {
+        display: none;
+      }
+
+      .search-tab-btn {
+        padding: 0.5rem 0.85rem;
+        font-size: 0.84rem;
+        white-space: nowrap;
       }
 
       .results-main {
-        padding: 1rem;
+        padding: 0.85rem 0.85rem 2.5rem;
+      }
+
+      .ai-answer-card {
+        padding: 1rem 1.1rem;
+        border-radius: 14px;
+        margin-bottom: 1rem;
+      }
+
+      .ai-answer-content {
+        font-size: 0.92rem;
+        line-height: 1.6;
       }
 
       .ai-panel {
-        width: calc(100vw - 2rem);
-        right: 1rem;
+        width: calc(100vw - 1.5rem);
+        right: 0.75rem;
+        bottom: 4.5rem;
+        max-height: 75vh;
+        border-radius: 20px;
       }
 
       .hist-panel {

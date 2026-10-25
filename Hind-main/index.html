@@ -1593,6 +1593,168 @@
       background: #1d4ed8;
       border-color: #1d4ed8;
     }
+
+    /* ── Mobile Responsive Overhaul (Screens <= 640px) ── */
+    @media (max-width: 640px) {
+      .header-nav {
+        padding: 0.75rem 0.9rem;
+      }
+
+      .header-right {
+        gap: 0.4rem;
+      }
+
+      .theme-toggle-btn {
+        padding: 0.4rem 0.65rem;
+        font-size: 0.8rem;
+      }
+
+      .theme-toggle-btn #themeText {
+        display: none;
+      }
+
+      .nav-link-custom {
+        padding: 0.35rem 0.5rem;
+        font-size: 0.82rem;
+      }
+
+      .about-text-long {
+        display: none;
+      }
+
+      .about-text-short {
+        display: inline;
+      }
+
+      .settings-btn,
+      .apps-waffle-btn {
+        width: 35px;
+        height: 35px;
+        font-size: 0.92rem;
+      }
+
+      .main-wrapper {
+        padding: 1.25rem 1rem 2rem;
+        max-width: 100%;
+      }
+
+      .logo-container {
+        margin-bottom: 1.25rem;
+      }
+
+      .logo-brand-link {
+        padding: 10px 22px;
+        border-radius: 36px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+      }
+
+      .logo-img {
+        max-width: 170px;
+        max-height: 95px;
+        border-radius: 20px;
+      }
+
+      .tagline {
+        font-size: 0.82rem;
+        margin-top: 0.5rem;
+      }
+
+      .form-input {
+        height: 52px;
+        font-size: 0.94rem;
+        padding: 0 5.6rem 0 2.75rem;
+        border-radius: 26px;
+      }
+
+      .search-icon-left {
+        left: 1rem;
+        font-size: 1rem;
+      }
+
+      .voice-search-btn {
+        right: 3.1rem;
+        width: 36px;
+        height: 36px;
+        font-size: 1rem;
+      }
+
+      .search-btn-right {
+        width: 40px;
+        height: 40px;
+        right: 6px;
+        font-size: 0.95rem;
+      }
+
+      /* Stack Floating Action Buttons on Right on mobile to prevent clashing with the bottom-left language widget */
+      .ai-fab {
+        bottom: 1.25rem;
+        right: 1.25rem;
+        width: 48px;
+        height: 48px;
+        font-size: 1.25rem;
+      }
+
+      .calc-fab {
+        bottom: 4.85rem;
+        right: 1.25rem;
+        left: auto;
+        width: 44px;
+        height: 44px;
+        font-size: 1.1rem;
+      }
+
+      .ai-panel {
+        bottom: 4.75rem;
+        right: 0.75rem;
+        width: calc(100vw - 1.5rem);
+        max-width: 380px;
+        height: 72vh;
+        max-height: 520px;
+        border-radius: 20px;
+      }
+
+      .calc-panel {
+        bottom: 5.25rem;
+        right: 0.75rem;
+        left: auto;
+        width: calc(100vw - 1.5rem);
+        max-width: 310px;
+        transform-origin: bottom right;
+        border-radius: 20px;
+      }
+
+      .apps-panel {
+        top: 60px;
+        right: 0.75rem;
+        width: calc(100vw - 1.5rem);
+        max-width: 310px;
+        border-radius: 18px;
+      }
+
+      .ip-info-bar {
+        font-size: 0.72rem;
+        padding: 0.55rem 0.75rem;
+        flex-wrap: wrap;
+        line-height: 1.4;
+      }
+
+      .footer-container {
+        padding: 1.25rem 1rem 4.5rem;
+      }
+
+      .footer-links {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.35rem 0.65rem;
+      }
+    }
+
+    @media (min-width: 641px) {
+      .about-text-short {
+        display: none;
+      }
+    }
   </style>
 </head>
 
@@ -1608,7 +1770,7 @@
       </button>
     </div>
     <div class="header-right">
-      <a href="about.html" class="nav-link-custom"><i class="fa-solid fa-circle-info me-1"></i> About &amp; Privacy</a>
+      <a href="about.html" class="nav-link-custom"><i class="fa-solid fa-circle-info me-1"></i> <span class="about-text-long">About &amp; Privacy</span><span class="about-text-short">About</span></a>
       <!-- Settings Button (Gear Icon) -->
       <a href="settings.html" class="settings-btn" id="settingsBtn" aria-label="Settings" title="Settings">
         <i class="fa-solid fa-gear"></i>

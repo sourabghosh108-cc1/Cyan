@@ -216,6 +216,28 @@
   function createLanguageWidget(activeLang) {
     if (document.getElementById('hind_lang_widget')) return;
 
+    if (!document.getElementById('hind_lang_style')) {
+      const styleEl = document.createElement('style');
+      styleEl.id = 'hind_lang_style';
+      styleEl.textContent = `
+        @media (max-width: 600px) {
+          #hind_lang_widget {
+            bottom: 0.85rem !important;
+            left: 0.85rem !important;
+          }
+          #hind_lang_pill {
+            padding: 0.35rem 0.75rem !important;
+            font-size: 0.75rem !important;
+          }
+          #hind_lang_menu {
+            width: min(260px, calc(100vw - 1.5rem)) !important;
+            max-height: 55vh !important;
+          }
+        }
+      `;
+      document.head.appendChild(styleEl);
+    }
+
     const activeOpt = LANG_OPTIONS.find(o => o.code === activeLang) || LANG_OPTIONS[0];
 
     const container = document.createElement('div');

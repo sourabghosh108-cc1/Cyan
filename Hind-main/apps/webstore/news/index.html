@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cyan News — Bharat's Pulse | Hind.com</title>
-  <meta name="description" content="Live news from India and the world. Cyan News by Hind.com — stay informed with real-time RSS feeds.">
+  <meta name="description"
+    content="Live news from India and the world. Cyan News by Hind.com — stay informed with real-time RSS feeds.">
   <link rel="icon" type="image/x-icon" href="../../../icon.jpg">
   <link rel="apple-touch-icon" href="../../../icon.jpg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
   <style>
@@ -24,7 +28,7 @@
       --accent-light: #e8491d;
       --cyan: #0a6b8a;
       --cyan-light: #0e8fb5;
-      --cyan-glow: rgba(10,107,138,0.12);
+      --cyan-glow: rgba(10, 107, 138, 0.12);
       --header-bg: #1a1814;
       --header-text: #f5f3ef;
     }
@@ -40,16 +44,29 @@
       --accent-light: #f06040;
       --cyan: #22b8d8;
       --cyan-light: #38d0ee;
-      --cyan-glow: rgba(34,184,216,0.15);
+      --cyan-glow: rgba(34, 184, 216, 0.15);
       --header-bg: #0a0908;
       --header-text: #f0ece4;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: var(--bg); }
-    ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--accent);
+      border-radius: 4px;
+    }
 
     body {
       background: var(--bg);
@@ -68,7 +85,7 @@
       position: sticky;
       top: 0;
       z-index: 200;
-      box-shadow: 0 2px 20px rgba(0,0,0,0.35);
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.35);
     }
 
     .masthead-top {
@@ -76,7 +93,7 @@
       align-items: center;
       justify-content: space-between;
       padding: 0.85rem 2rem;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
 
     .brand-area {
@@ -102,11 +119,11 @@
     .brand-tagline {
       font-size: 0.68rem;
       font-weight: 600;
-      color: rgba(255,255,255,0.45);
+      color: rgba(255, 255, 255, 0.45);
       text-transform: uppercase;
       letter-spacing: 2px;
       align-self: center;
-      border-left: 1px solid rgba(255,255,255,0.15);
+      border-left: 1px solid rgba(255, 255, 255, 0.15);
       padding-left: 0.6rem;
       margin-left: 0.2rem;
     }
@@ -128,19 +145,22 @@
       width: 240px;
       padding: 0 2.5rem 0 1rem;
       border-radius: 4px;
-      border: 1px solid rgba(255,255,255,0.15);
-      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.08);
       color: #fff;
       font-size: 0.88rem;
       font-family: 'Plus Jakarta Sans', sans-serif;
       transition: all 0.2s;
     }
 
-    .search-input-top::placeholder { color: rgba(255,255,255,0.4); }
+    .search-input-top::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
     .search-input-top:focus {
       outline: none;
       border-color: var(--accent-light);
-      background: rgba(255,255,255,0.12);
+      background: rgba(255, 255, 255, 0.12);
     }
 
     .search-btn-top {
@@ -148,17 +168,20 @@
       right: 0.5rem;
       background: none;
       border: none;
-      color: rgba(255,255,255,0.5);
+      color: rgba(255, 255, 255, 0.5);
       cursor: pointer;
       font-size: 0.9rem;
       transition: color 0.2s;
     }
-    .search-btn-top:hover { color: var(--accent-light); }
+
+    .search-btn-top:hover {
+      color: var(--accent-light);
+    }
 
     .theme-btn {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.15);
-      color: rgba(255,255,255,0.7);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: rgba(255, 255, 255, 0.7);
       padding: 0.4rem 0.8rem;
       border-radius: 4px;
       font-size: 0.82rem;
@@ -170,7 +193,11 @@
       transition: all 0.2s;
       font-family: 'Plus Jakarta Sans', sans-serif;
     }
-    .theme-btn:hover { background: rgba(255,255,255,0.15); color: #fff; }
+
+    .theme-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+    }
 
     .home-btn {
       background: var(--accent);
@@ -188,7 +215,11 @@
       transition: background 0.2s;
       font-family: 'Plus Jakarta Sans', sans-serif;
     }
-    .home-btn:hover { background: var(--accent-light); color: #fff; }
+
+    .home-btn:hover {
+      background: var(--accent-light);
+      color: #fff;
+    }
 
     /* ── DATE LINE ── */
     .dateline {
@@ -213,7 +244,7 @@
       gap: 0.4rem;
       font-size: 0.72rem;
       font-weight: 700;
-      color: rgba(255,255,255,0.9);
+      color: rgba(255, 255, 255, 0.9);
       text-transform: uppercase;
       letter-spacing: 1px;
     }
@@ -228,8 +259,17 @@
     }
 
     @keyframes livePulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.75); }
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.4;
+        transform: scale(0.75);
+      }
     }
 
     /* ── HERO SECTION ── */
@@ -297,7 +337,9 @@
       border-bottom: 2px solid var(--ink);
     }
 
-    [data-theme="dark"] .section-rule { border-color: var(--rule); }
+    [data-theme="dark"] .section-rule {
+      border-color: var(--rule);
+    }
 
     .section-rule-label {
       font-family: 'Playfair Display', Georgia, serif;
@@ -344,11 +386,11 @@
 
     .news-card:hover {
       transform: translateY(-4px);
-      box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
     }
 
     [data-theme="dark"] .news-card:hover {
-      box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
     }
 
     .news-thumb {
@@ -359,12 +401,12 @@
       background-position: center;
       position: relative;
     }
-    
+
     .news-thumb::after {
       content: '';
       position: absolute;
       inset: 0;
-      background: linear-gradient(to top, rgba(0,0,0,0.4), transparent);
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.4), transparent);
       opacity: 0.5;
     }
 
@@ -398,7 +440,9 @@
       overflow: hidden;
     }
 
-    .news-title:hover { color: var(--accent-light); }
+    .news-title:hover {
+      color: var(--accent-light);
+    }
 
     .news-desc {
       font-size: 0.85rem;
@@ -453,7 +497,7 @@
       font-family: 'Playfair Display', Georgia, serif;
       font-weight: 700;
       font-size: 1rem;
-      color: rgba(255,255,255,0.8);
+      color: rgba(255, 255, 255, 0.8);
     }
 
     .footer-links {
@@ -463,33 +507,62 @@
     }
 
     .footer-links a {
-      color: rgba(255,255,255,0.45);
+      color: rgba(255, 255, 255, 0.45);
       font-size: 0.8rem;
       font-weight: 600;
       text-decoration: none;
       transition: color 0.2s;
     }
 
-    .footer-links a:hover { color: var(--accent-light); }
+    .footer-links a:hover {
+      color: var(--accent-light);
+    }
 
     .footer-copy {
-      color: rgba(255,255,255,0.3);
+      color: rgba(255, 255, 255, 0.3);
       font-size: 0.75rem;
       font-weight: 500;
     }
 
     @media (max-width: 700px) {
-      .masthead-top { padding: 0.75rem 1rem; flex-wrap: wrap; gap: 0.6rem; }
-      .search-input-top { width: 160px; }
-      .dateline { padding: 0.3rem 1rem; }
-      .news-hero { padding: 1.5rem 1rem 1.25rem; }
-      .content-wrap { padding: 1.5rem 1rem; }
-      .rss-inner { padding: 1rem; }
-      .footer-inner { flex-direction: column; text-align: center; }
-      .brand-tagline { display: none; }
+      .masthead-top {
+        padding: 0.75rem 1rem;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+      }
+
+      .search-input-top {
+        width: 160px;
+      }
+
+      .dateline {
+        padding: 0.3rem 1rem;
+      }
+
+      .news-hero {
+        padding: 1.5rem 1rem 1.25rem;
+      }
+
+      .content-wrap {
+        padding: 1.5rem 1rem;
+      }
+
+      .rss-inner {
+        padding: 1rem;
+      }
+
+      .footer-inner {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .brand-tagline {
+        display: none;
+      }
     }
   </style>
 </head>
+
 <body>
 
   <!-- ── MASTHEAD ── -->
@@ -519,7 +592,8 @@
     </div>
 
     <div class="dateline">
-      <span class="dateline-text"><i class="fa-solid fa-globe me-1"></i> World Edition &nbsp;·&nbsp; Cyan News &nbsp;·&nbsp; Hind.com</span>
+      <span class="dateline-text"><i class="fa-solid fa-globe me-1"></i> World Edition &nbsp;·&nbsp; Cyan News
+        &nbsp;·&nbsp; Hind.com</span>
       <span class="live-dot">Live Feed</span>
     </div>
   </header>
@@ -531,7 +605,8 @@
         <i class="fa-solid fa-rss"></i> Live News Stream
       </div>
       <h1 class="hero-headline">Bharat's Pulse — World in Focus</h1>
-      <p class="hero-sub">Real-time headlines from India and across the globe, curated from the world's top news sources. Refreshed automatically.</p>
+      <p class="hero-sub">Real-time headlines from India and across the globe, curated from the world's top news
+        sources. Refreshed automatically.</p>
     </div>
   </section>
 
@@ -570,8 +645,8 @@
   <script>
     // Dark Mode
     const themeToggle = document.getElementById('themeToggle');
-    const themeIcon   = document.getElementById('themeIcon');
-    const themeText   = document.getElementById('themeText');
+    const themeIcon = document.getElementById('themeIcon');
+    const themeText = document.getElementById('themeText');
 
     function setTheme(theme) {
       document.documentElement.setAttribute('data-theme', theme);
@@ -615,10 +690,10 @@
 
       // All HTTPS feeds — mixed-content safe
       const feeds = [
-        { url: 'https://feeds.bbci.co.uk/news/world/rss.xml',          name: 'BBC News' },
+        { url: 'https://feeds.bbci.co.uk/news/world/rss.xml', name: 'BBC News' },
         { url: 'https://timesofindia.indiatimes.com/rssfeedstopstories.cms', name: 'Times of India' },
         { url: 'https://www.thehindu.com/news/national/feeder/default.rss', name: 'The Hindu' },
-        { url: 'https://feeds.feedburner.com/ndtvnews-top-stories',     name: 'NDTV' },
+        { url: 'https://feeds.feedburner.com/ndtvnews-top-stories', name: 'NDTV' },
         { url: 'https://www.hindustantimes.com/feeds/rss/india-news/rssfeed.xml', name: 'Hindustan Times' }
       ];
 
@@ -639,12 +714,12 @@
         const entries = [...xml.querySelectorAll('item')];
         if (!entries.length) throw new Error('allorigins: no items');
         return entries.map(el => ({
-          title:       el.querySelector('title')?.textContent || '',
-          link:        el.querySelector('link')?.textContent || el.querySelector('guid')?.textContent || '#',
+          title: el.querySelector('title')?.textContent || '',
+          link: el.querySelector('link')?.textContent || el.querySelector('guid')?.textContent || '#',
           description: el.querySelector('description')?.textContent || '',
-          pubDate:     el.querySelector('pubDate')?.textContent || '',
-          thumbnail:   el.querySelector('enclosure')?.getAttribute('url') || '',
-          content:     el.querySelector('content\\:encoded')?.textContent || el.querySelector('description')?.textContent || '',
+          pubDate: el.querySelector('pubDate')?.textContent || '',
+          thumbnail: el.querySelector('enclosure')?.getAttribute('url') || '',
+          content: el.querySelector('content\\:encoded')?.textContent || el.querySelector('description')?.textContent || '',
         }));
       }
 
@@ -652,9 +727,9 @@
 
       await Promise.allSettled(feeds.map(async (feed) => {
         let items = null;
-        try { items = await fetchFeedViaRss2json(feed.url); } catch (_) {}
+        try { items = await fetchFeedViaRss2json(feed.url); } catch (_) { }
         if (!items) {
-          try { items = await fetchFeedViaAllOrigins(feed.url); } catch (_) {}
+          try { items = await fetchFeedViaAllOrigins(feed.url); } catch (_) { }
         }
         if (items && items.length > 0) {
           items.forEach(item => item.sourceName = feed.name);
@@ -688,13 +763,13 @@
     function renderGrid(items) {
       const grid = document.getElementById('newsGrid');
       grid.innerHTML = '';
-      
+
       items.forEach(item => {
         // Strip HTML from description for clean text
         const tmp = document.createElement('div');
         tmp.innerHTML = item.description;
         const cleanDesc = tmp.textContent || tmp.innerText || "";
-        
+
         // Find an image (from enclosure, thumbnail, or content)
         let imgUrl = item.thumbnail || (item.enclosure && item.enclosure.link);
         if (!imgUrl) {
@@ -705,7 +780,7 @@
 
         // Format Date
         const d = new Date(item.pubDate);
-        const timeStr = d.toLocaleTimeString('en-IN', { hour: '2-digit', minute:'2-digit' });
+        const timeStr = d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
 
         const card = document.createElement('article');
         card.className = 'news-card';
@@ -727,6 +802,7 @@
 
     loadNews();
   </script>
-<script src="../../../translate.js"></script>
+  <script src="../../../translate.js"></script>
 </body>
+
 </html>

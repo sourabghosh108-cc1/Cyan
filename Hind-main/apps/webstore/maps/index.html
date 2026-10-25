@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -419,6 +419,106 @@
       .map-search-form { max-width: 190px; }
       .maps-coords-bar { display: none; }
     }
+
+    /* ── Mobile Responsive Overhaul (Screens <= 680px) ── */
+    .border-text-short { display: none; }
+    @media (max-width: 680px) {
+      .maps-header {
+        height: 54px;
+        padding: 0 0.5rem;
+        gap: 0.35rem;
+      }
+
+      .back-btn {
+        padding: 0.3rem 0.45rem;
+        font-size: 0.8rem;
+      }
+
+      .back-btn span {
+        display: none;
+      }
+
+      .brand-badge {
+        width: 28px;
+        height: 28px;
+        font-size: 0.82rem;
+      }
+
+      .map-search-form {
+        max-width: none;
+        flex: 1;
+        min-width: 0;
+      }
+
+      .map-search-input {
+        height: 34px;
+        font-size: 0.8rem;
+        padding-left: 2rem;
+      }
+
+      .search-icon-pos {
+        left: 0.65rem;
+        font-size: 0.78rem;
+      }
+
+      .border-toggle-pill {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+      }
+
+      .border-text-full {
+        display: none;
+      }
+
+      .border-text-short {
+        display: inline;
+      }
+
+      .regions-scroll {
+        position: absolute;
+        top: 54px;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        background: var(--header-bg);
+        border-bottom: 1px solid var(--border);
+        padding: 0.35rem 0.5rem;
+        gap: 0.35rem;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      }
+
+      .region-pill {
+        padding: 0.22rem 0.55rem;
+        font-size: 0.74rem;
+      }
+
+      .header-right {
+        gap: 0.3rem;
+      }
+
+      .icon-ctrl-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 0.82rem;
+      }
+
+      .floating-map-actions {
+        top: 104px;
+        right: 10px;
+      }
+
+      .leaflet-top.leaflet-left {
+        top: 48px;
+        left: 4px;
+      }
+
+      .maps-watermark {
+        bottom: 8px;
+        left: 8px;
+        font-size: 0.68rem;
+        padding: 0.25rem 0.5rem;
+      }
+    }
   </style>
 </head>
 <body>
@@ -453,7 +553,7 @@
 
     <!-- Official India Outer Border Toggle -->
     <button type="button" class="border-toggle-pill active" id="borderToggleBtn" onclick="toggleIndiaBorder()" title="Toggle Official Survey of India Boundary">
-      <i class="fa-solid fa-shield-halved"></i> <span>India Border</span>
+      <i class="fa-solid fa-shield-halved"></i> <span class="border-text-full">India Border</span><span class="border-text-short">Border</span>
     </button>
 
     <!-- Quick Region Jump Pills -->
