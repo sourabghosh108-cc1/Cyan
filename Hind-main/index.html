@@ -603,6 +603,31 @@
       color: #2563eb;
     }
 
+    /* ── Header settings button ── */
+    .settings-btn {
+      background: var(--chip-bg);
+      border: 1.5px solid var(--chip-border);
+      color: var(--nav-link-color);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      text-decoration: none;
+      transition: all 0.25s ease;
+      position: relative;
+    }
+
+    .settings-btn:hover {
+      border-color: #2563eb;
+      color: #2563eb;
+      background: rgba(37, 99, 235, 0.08);
+      transform: rotate(45deg);
+    }
+
     /* ── Header waffle apps button ── */
     .apps-waffle-btn {
       background: var(--chip-bg);
@@ -1584,6 +1609,10 @@
     </div>
     <div class="header-right">
       <a href="about.html" class="nav-link-custom"><i class="fa-solid fa-circle-info me-1"></i> About &amp; Privacy</a>
+      <!-- Settings Button (Gear Icon) -->
+      <a href="settings.html" class="settings-btn" id="settingsBtn" aria-label="Settings" title="Settings">
+        <i class="fa-solid fa-gear"></i>
+      </a>
       <!-- Waffle/Grid Apps Button -->
       <button class="apps-waffle-btn" id="appsWaffleBtn" onclick="toggleApps()" aria-label="Apps" title="Apps"
         aria-expanded="false">
@@ -1632,6 +1661,12 @@
           style="background: linear-gradient(135deg,#ef4444,#dc2626); box-shadow: 0 4px 10px rgba(239,68,68,0.35);"><i
             class="fa-solid fa-calendar-days"></i></div>
         Cyan Calendar
+      </a>
+      <a href="settings.html" class="app-card">
+        <div class="app-icon"
+          style="background: linear-gradient(135deg,#475569,#334155); box-shadow: 0 4px 10px rgba(71,85,105,0.35);"><i
+            class="fa-solid fa-gear"></i></div>
+        Settings
       </a>
     </div>
   </div>
@@ -1848,6 +1883,15 @@
       const currentTheme = document.documentElement.getAttribute('data-theme');
       setTheme(currentTheme === 'dark' ? 'light' : 'dark');
     });
+
+    // Personalize Settings Button if user saved profile
+    try {
+      const p = JSON.parse(localStorage.getItem('hind_user_profile'));
+      if (p && p.name) {
+        const sb = document.getElementById('settingsBtn');
+        if (sb) sb.title = `Settings (${p.name})`;
+      }
+    } catch (_) {}
 
     // ============ Floating Calculator Logic ============
     const calcFab = document.getElementById('calcFab');

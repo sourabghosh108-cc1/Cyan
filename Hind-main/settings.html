@@ -1,0 +1,1642 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings — Hind.com</title>
+  <link rel="icon" type="image/x-icon" href="icon.jpg">
+  <link rel="apple-touch-icon" href="icon.jpg">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet">
+
+  <!-- Bootstrap & FontAwesome -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --card-subtle: #f1f5f9;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --nav-link-color: #475569;
+      --nav-link-hover-bg: rgba(37, 99, 235, 0.08);
+      --chip-bg: #ffffff;
+      --chip-border: #e2e8f0;
+      --input-bg: #ffffff;
+      --input-border: #cbd5e1;
+      --input-text: #1e293b;
+      --input-focus-border: #2563eb;
+      --btn-primary: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      --btn-primary-hover: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+      --btn-secondary-bg: #f1f5f9;
+      --btn-secondary-color: #334155;
+      --btn-secondary-border: #e2e8f0;
+      --danger-color: #ef4444;
+      --success-color: #10b981;
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+      --shadow-md: 0 10px 30px -5px rgba(0, 0, 0, 0.07);
+      --shadow-lg: 0 20px 45px -10px rgba(0, 0, 0, 0.1);
+      --code-bg: #0f172a;
+      --code-text: #e2e8f0;
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --card-subtle: #151e2e;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+      --nav-link-color: #cbd5e1;
+      --nav-link-hover-bg: rgba(255, 255, 255, 0.08);
+      --chip-bg: #1e293b;
+      --chip-border: #334155;
+      --input-bg: #0f172a;
+      --input-border: #334155;
+      --input-text: #f8fafc;
+      --input-focus-border: #3b82f6;
+      --btn-primary: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      --btn-primary-hover: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      --btn-secondary-bg: #151e2e;
+      --btn-secondary-color: #cbd5e1;
+      --btn-secondary-border: #334155;
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
+      --shadow-md: 0 10px 30px -5px rgba(0, 0, 0, 0.45);
+      --shadow-lg: 0 20px 45px -10px rgba(0, 0, 0, 0.6);
+      --code-bg: #020617;
+      --code-text: #f1f5f9;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* ── Header ── */
+    .settings-nav {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border-color);
+      backdrop-filter: blur(12px);
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+
+    .settings-nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0.9rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand-back-group {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--nav-link-color);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      padding: 0.45rem 0.85rem;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-color);
+      transition: all 0.2s ease;
+    }
+
+    .btn-back:hover {
+      color: #2563eb;
+      border-color: #2563eb;
+      transform: translateX(-2px);
+    }
+
+    .brand-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      text-decoration: none;
+    }
+
+    .brand-mini-logo {
+      height: 34px;
+      width: auto;
+      border-radius: 8px;
+    }
+
+    .brand-text {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      color: var(--text-main);
+    }
+
+    .brand-tag {
+      background: rgba(37, 99, 235, 0.1);
+      color: #2563eb;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.2rem 0.55rem;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    [data-theme="dark"] .brand-tag {
+      background: rgba(59, 130, 246, 0.2);
+      color: #60a5fa;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .theme-toggle-btn {
+      background: var(--bg-color);
+      border: 1px solid var(--border-color);
+      color: var(--nav-link-color);
+      padding: 0.45rem 0.9rem;
+      border-radius: 20px;
+      font-size: 0.86rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s ease;
+    }
+
+    .theme-toggle-btn:hover {
+      color: #2563eb;
+      border-color: #2563eb;
+    }
+
+    /* ── Main Layout ── */
+    .settings-container {
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+      flex: 1;
+    }
+
+    .page-header {
+      margin-bottom: 2rem;
+    }
+
+    .page-title {
+      font-size: 1.85rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .page-title i {
+      color: #2563eb;
+    }
+
+    .page-desc {
+      color: var(--text-muted);
+      font-size: 0.96rem;
+      margin-top: 0.35rem;
+    }
+
+    /* ── Cards & Sections ── */
+    .settings-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 1.75rem;
+      margin-bottom: 1.75rem;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.25s ease;
+    }
+
+    .settings-card:hover {
+      box-shadow: var(--shadow-md);
+      border-color: rgba(37, 99, 235, 0.25);
+    }
+
+    .card-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .card-title-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .card-icon-bubble {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+      flex-shrink: 0;
+    }
+
+    .bubble-blue {
+      background: rgba(37, 99, 235, 0.12);
+      color: #2563eb;
+    }
+
+    .bubble-green {
+      background: rgba(16, 185, 129, 0.12);
+      color: #10b981;
+    }
+
+    .bubble-purple {
+      background: rgba(139, 92, 246, 0.12);
+      color: #8b5cf6;
+    }
+
+    .bubble-amber {
+      background: rgba(245, 158, 11, 0.12);
+      color: #f59e0b;
+    }
+
+    .bubble-red {
+      background: rgba(239, 68, 68, 0.12);
+      color: #ef4444;
+    }
+
+    .card-title-text {
+      font-size: 1.18rem;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.25;
+    }
+
+    .card-subtitle-text {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      margin-top: 0.15rem;
+    }
+
+    /* ── Profile Preview & Inputs ── */
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
+
+    @media (max-width: 860px) {
+      .profile-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .profile-preview-card {
+      background: var(--card-subtle);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.5rem;
+      text-align: center;
+      position: sticky;
+      top: 85px;
+    }
+
+    .avatar-wrapper {
+      position: relative;
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 1.1rem;
+    }
+
+    .avatar-img,
+    .avatar-placeholder {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #2563eb;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
+    }
+
+    .avatar-placeholder {
+      background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      font-weight: 800;
+      user-select: none;
+    }
+
+    .avatar-upload-badge {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      background: #2563eb;
+      color: #ffffff;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.82rem;
+      cursor: pointer;
+      border: 2px solid var(--card-bg);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      transition: all 0.2s ease;
+    }
+
+    .avatar-upload-badge:hover {
+      background: #1d4ed8;
+      transform: scale(1.1);
+    }
+
+    .preview-name {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-main);
+      word-break: break-word;
+    }
+
+    .preview-email {
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      word-break: break-all;
+      margin-top: 0.2rem;
+    }
+
+    .preview-badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: rgba(16, 185, 129, 0.12);
+      color: #10b981;
+      font-size: 0.74rem;
+      font-weight: 700;
+      padding: 0.25rem 0.65rem;
+      border-radius: 12px;
+      margin-top: 0.75rem;
+    }
+
+    .preview-status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #10b981;
+      animation: pulseGreen 2s infinite;
+    }
+
+    @keyframes pulseGreen {
+      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
+      70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    /* ── Form Inputs ── */
+    .form-group-custom {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-label-custom {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 0.45rem;
+    }
+
+    .form-label-custom span {
+      color: var(--text-muted);
+      font-weight: 400;
+      font-size: 0.78rem;
+    }
+
+    .input-icon-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 1rem;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      pointer-events: none;
+    }
+
+    .form-control-custom {
+      width: 100%;
+      padding: 0.75rem 1rem 0.75rem 2.6rem;
+      background: var(--input-bg);
+      border: 1.5px solid var(--input-border);
+      border-radius: 12px;
+      color: var(--input-text);
+      font-family: inherit;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+      outline: none;
+    }
+
+    .form-control-custom:focus {
+      border-color: var(--input-focus-border);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    textarea.form-control-custom {
+      padding-left: 1rem;
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    /* ── Action Buttons ── */
+    .btn-hind-primary {
+      background: var(--btn-primary);
+      color: #ffffff;
+      border: none;
+      padding: 0.75rem 1.6rem;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+      text-decoration: none;
+    }
+
+    .btn-hind-primary:hover {
+      background: var(--btn-primary-hover);
+      color: #ffffff;
+      transform: translateY(-1.5px);
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+    }
+
+    .btn-hind-secondary {
+      background: var(--btn-secondary-bg);
+      color: var(--btn-secondary-color);
+      border: 1.5px solid var(--btn-secondary-border);
+      padding: 0.75rem 1.4rem;
+      border-radius: 12px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .btn-hind-secondary:hover {
+      border-color: #2563eb;
+      color: #2563eb;
+      transform: translateY(-1px);
+    }
+
+    .btn-hind-danger {
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+      border: 1.5px solid rgba(239, 68, 68, 0.25);
+      padding: 0.7rem 1.3rem;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+    }
+
+    .btn-hind-danger:hover {
+      background: #ef4444;
+      color: #ffffff;
+      border-color: #ef4444;
+      transform: translateY(-1px);
+    }
+
+    /* ── Data Stat Widgets ── */
+    .data-stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .data-stat-card {
+      background: var(--card-subtle);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: transform 0.2s ease;
+    }
+
+    .data-stat-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .stat-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .stat-number {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.1;
+    }
+
+    .stat-label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-top: 0.15rem;
+    }
+
+    /* ── Data Export Box ── */
+    .export-highlight-box {
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+      border: 1.5px dashed rgba(37, 99, 235, 0.35);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .export-desc-wrap h4 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .export-desc-wrap p {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin: 0;
+      max-width: 580px;
+      line-height: 1.45;
+    }
+
+    .export-btn-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    /* ── JSON Preview Viewer ── */
+    .json-preview-container {
+      display: none;
+      margin-top: 1.25rem;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      animation: fadeInDown 0.25s ease-out;
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .json-preview-header {
+      background: #1e293b;
+      color: #cbd5e1;
+      padding: 0.65rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .btn-copy-json {
+      background: rgba(255, 255, 255, 0.1);
+      color: #f8fafc;
+      border: none;
+      padding: 0.25rem 0.65rem;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: background 0.15s;
+    }
+
+    .btn-copy-json:hover {
+      background: rgba(255, 255, 255, 0.22);
+    }
+
+    .json-code-box {
+      background: var(--code-bg);
+      color: var(--code-text);
+      font-family: 'JetBrains Mono', Consolas, Monaco, monospace;
+      font-size: 0.84rem;
+      padding: 1.1rem;
+      max-height: 380px;
+      overflow-y: auto;
+      white-space: pre;
+      line-height: 1.5;
+    }
+
+    /* ── Preferences Toggle Options ── */
+    .pref-item-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .pref-item-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .pref-label-wrap h5 {
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 0.2rem;
+    }
+
+    .pref-label-wrap p {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    /* Switch toggle */
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 48px;
+      height: 26px;
+      flex-shrink: 0;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: var(--border-color);
+      transition: .25s ease;
+      border-radius: 26px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .25s ease;
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    input:checked + .slider {
+      background-color: #2563eb;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(22px);
+    }
+
+    /* ── Toast Notification ── */
+    .hind-toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 99999;
+      background: #1e293b;
+      color: #ffffff;
+      padding: 0.9rem 1.4rem;
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.92rem;
+      font-weight: 600;
+      transform: translateY(100px);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .hind-toast.show {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .hind-toast.toast-success i {
+      color: #10b981;
+    }
+
+    .hind-toast.toast-error i {
+      color: #ef4444;
+    }
+
+    /* ── Footer ── */
+    .settings-footer {
+      border-top: 1px solid var(--border-color);
+      padding: 1.5rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      background: var(--card-bg);
+      margin-top: auto;
+    }
+
+    .settings-footer a {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .settings-footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Top Header Navigation -->
+  <header class="settings-nav">
+    <div class="settings-nav-inner">
+      <div class="brand-back-group">
+        <a href="index.html" class="btn-back" title="Return to Search">
+          <i class="fa-solid fa-arrow-left"></i>
+          <span>Home</span>
+        </a>
+        <a href="index.html" class="brand-title-wrap">
+          <img src="download.png" alt="Hind" class="brand-mini-logo">
+          <span class="brand-text">Hind</span>
+          <span class="brand-tag">Settings</span>
+        </a>
+      </div>
+
+      <div class="nav-actions">
+        <button id="themeToggle" class="theme-toggle-btn" aria-label="Toggle theme">
+          <i class="fa-solid fa-moon" id="themeIcon"></i>
+          <span id="themeText">Dark Mode</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="settings-container">
+    <div class="page-header">
+      <h1 class="page-title">
+        <i class="fa-solid fa-gear"></i>
+        <span>Account &amp; Data Settings</span>
+      </h1>
+      <p class="page-desc">
+        Manage your profile identity, personalize your preferences, and export your personal data in standard JSON format.
+      </p>
+    </div>
+
+    <!-- Section 1: User Profile & Identity -->
+    <section class="settings-card" id="profileSection">
+      <div class="card-header-row">
+        <div class="card-title-group">
+          <div class="card-icon-bubble bubble-blue">
+            <i class="fa-solid fa-user-astronaut"></i>
+          </div>
+          <div>
+            <div class="card-title-text">User Profile</div>
+            <div class="card-subtitle-text">Save your name and email ID for personalization across Hind.com</div>
+          </div>
+        </div>
+        <div id="saveStatusIndicator" style="display: none;">
+          <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fw-semibold">
+            <i class="fa-solid fa-check me-1"></i> Saved locally
+          </span>
+        </div>
+      </div>
+
+      <div class="profile-grid">
+        <!-- Live Profile Card Preview -->
+        <div class="profile-preview-card">
+          <div class="avatar-wrapper">
+            <div class="avatar-placeholder" id="avatarDisplay">U</div>
+            <img id="avatarImageDisplay" src="" alt="Avatar" class="avatar-img" style="display: none;">
+            <label for="avatarInput" class="avatar-upload-badge" title="Change Avatar Image">
+              <i class="fa-solid fa-camera"></i>
+            </label>
+            <input type="file" id="avatarInput" accept="image/*" style="display: none;" onchange="handleAvatarUpload(event)">
+          </div>
+
+          <h3 class="preview-name" id="previewName">User Name</h3>
+          <div class="preview-email" id="previewEmail">user@example.com</div>
+
+          <div class="preview-badge-status">
+            <span class="preview-status-dot"></span>
+            <span id="memberSinceText">Active Session</span>
+          </div>
+
+          <div style="margin-top: 1.25rem; font-size: 0.78rem; color: var(--text-muted); border-top: 1px solid var(--border-color); padding-top: 0.85rem;">
+            <i class="fa-solid fa-shield-halved me-1 text-primary"></i> Data is stored securely on your browser
+          </div>
+        </div>
+
+        <!-- Edit Form -->
+        <form id="profileForm" onsubmit="handleSaveProfile(event)">
+          <div class="row">
+            <div class="col-md-6 form-group-custom">
+              <label class="form-label-custom" for="userName">
+                Full Name <span class="text-danger">*</span>
+              </label>
+              <div class="input-icon-wrap">
+                <i class="fa-regular fa-user input-icon"></i>
+                <input type="text" id="userName" class="form-control-custom" placeholder="e.g. Ramesh Sharma" required autocomplete="name">
+              </div>
+            </div>
+
+            <div class="col-md-6 form-group-custom">
+              <label class="form-label-custom" for="userEmail">
+                Email Address <span class="text-danger">*</span>
+              </label>
+              <div class="input-icon-wrap">
+                <i class="fa-regular fa-envelope input-icon"></i>
+                <input type="email" id="userEmail" class="form-control-custom" placeholder="e.g. ramesh@example.com" required autocomplete="email">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group-custom">
+            <label class="form-label-custom" for="userBio">
+              About / Bio <span>(Optional)</span>
+            </label>
+            <textarea id="userBio" class="form-control-custom" placeholder="Write a brief tagline or bio..."></textarea>
+          </div>
+
+          <div class="d-flex align-items-center justify-content-between pt-2 flex-wrap gap-2">
+            <button type="submit" class="btn-hind-primary" id="saveProfileBtn">
+              <i class="fa-solid fa-floppy-disk"></i>
+              <span>Save Profile</span>
+            </button>
+            <button type="button" class="btn-hind-secondary" onclick="resetProfileFields()" title="Revert to last saved values">
+              <i class="fa-solid fa-arrow-rotate-left"></i>
+              <span>Reset</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- Section 2: Data Management & JSON Export (Core requirement) -->
+    <section class="settings-card" id="dataSection">
+      <div class="card-header-row">
+        <div class="card-title-group">
+          <div class="card-icon-bubble bubble-green">
+            <i class="fa-solid fa-file-export"></i>
+          </div>
+          <div>
+            <div class="card-title-text">Data Privacy &amp; Export</div>
+            <div class="card-subtitle-text">Your data belongs to you. Download or inspect everything stored in JSON format anytime.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Summary Stats -->
+      <div class="data-stats-row">
+        <div class="data-stat-card">
+          <div class="stat-icon bubble-blue">
+            <i class="fa-solid fa-id-card"></i>
+          </div>
+          <div>
+            <div class="stat-number" id="statProfileSet">Yes</div>
+            <div class="stat-label">Profile Configured</div>
+          </div>
+        </div>
+
+        <div class="data-stat-card">
+          <div class="stat-icon bubble-purple">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+          </div>
+          <div>
+            <div class="stat-number" id="statSearchCount">0</div>
+            <div class="stat-label">Saved Searches</div>
+          </div>
+        </div>
+
+        <div class="data-stat-card">
+          <div class="stat-icon bubble-amber">
+            <i class="fa-solid fa-sparkles"></i>
+          </div>
+          <div>
+            <div class="stat-number" id="statAiUsage">15 / 15</div>
+            <div class="stat-label">AI Queries Left</div>
+          </div>
+        </div>
+
+        <div class="data-stat-card">
+          <div class="stat-icon bubble-green">
+            <i class="fa-solid fa-calendar-check"></i>
+          </div>
+          <div>
+            <div class="stat-number" id="statCalendarCount">0</div>
+            <div class="stat-label">Calendar Events</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Export Banner Box -->
+      <div class="export-highlight-box">
+        <div class="export-desc-wrap">
+          <h4><i class="fa-solid fa-file-code text-primary"></i> Export Data in JSON</h4>
+          <p>
+            Download an exhaustive, machine-readable JSON archive of your personal details (name, email, bio, avatar), search queries, theme configuration, and application state.
+          </p>
+        </div>
+
+        <div class="export-btn-group">
+          <button type="button" class="btn-hind-primary" id="downloadDataBtn" onclick="downloadUserDataJson()">
+            <i class="fa-solid fa-download"></i>
+            <span>Download Data (.json)</span>
+          </button>
+          <button type="button" class="btn-hind-secondary" id="previewDataBtn" onclick="toggleJsonPreview()">
+            <i class="fa-solid fa-code"></i>
+            <span id="previewBtnLabel">Preview JSON</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Collapsible Live JSON Preview -->
+      <div class="json-preview-container" id="jsonPreviewWrapper">
+        <div class="json-preview-header">
+          <span><i class="fa-brands fa-js me-2"></i> Live JSON Data Payload</span>
+          <button type="button" class="btn-copy-json" onclick="copyJsonData()">
+            <i class="fa-regular fa-copy"></i>
+            <span id="copyJsonBtnText">Copy JSON</span>
+          </button>
+        </div>
+        <pre class="json-code-box" id="jsonCodeView"></pre>
+      </div>
+
+      <!-- Import / Backup Section -->
+      <div class="pref-item-row mt-3">
+        <div class="pref-label-wrap">
+          <h5><i class="fa-solid fa-file-import me-1 text-primary"></i> Restore / Import JSON Data</h5>
+          <p>Load a previously exported JSON file to restore your name, email, and preferences.</p>
+        </div>
+        <div>
+          <input type="file" id="importJsonFileInput" accept=".json,application/json" style="display:none;" onchange="handleImportJson(event)">
+          <button type="button" class="btn-hind-secondary" onclick="document.getElementById('importJsonFileInput').click()">
+            <i class="fa-solid fa-upload"></i>
+            <span>Upload JSON</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Experience & Search Preferences -->
+    <section class="settings-card" id="preferencesSection">
+      <div class="card-header-row">
+        <div class="card-title-group">
+          <div class="card-icon-bubble bubble-purple">
+            <i class="fa-solid fa-sliders"></i>
+          </div>
+          <div>
+            <div class="card-title-text">Preferences &amp; Search Experience</div>
+            <div class="card-subtitle-text">Customize your search behavior, theme, and saved query records</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pref-item-row">
+        <div class="pref-label-wrap">
+          <h5>Dark Mode Theme</h5>
+          <p>Switch between light and sleek dark mode across Hind.com</p>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="prefThemeToggle" onchange="toggleThemeFromSwitch(this.checked)">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="pref-item-row">
+        <div class="pref-label-wrap">
+          <h5>Instant Search Suggestions</h5>
+          <p>Display real-time search recommendations and autocomplete while typing</p>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="prefSuggestToggle" checked onchange="togglePreference('suggest', this.checked)">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="pref-item-row">
+        <div class="pref-label-wrap">
+          <h5>Search History Recording</h5>
+          <p>Remember recent search queries in your private browser storage</p>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="prefHistoryToggle" checked onchange="togglePreference('save_history', this.checked)">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="pref-item-row">
+        <div class="pref-label-wrap">
+          <h5>Clear Search History</h5>
+          <p>Erase all saved recent search queries from your device</p>
+        </div>
+        <div>
+          <button type="button" class="btn-hind-secondary text-danger" onclick="clearSearchHistory()">
+            <i class="fa-solid fa-trash-can"></i>
+            <span>Clear History</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Danger Zone -->
+    <section class="settings-card" style="border-color: rgba(239, 68, 68, 0.3);">
+      <div class="card-header-row" style="border-bottom-color: rgba(239, 68, 68, 0.2);">
+        <div class="card-title-group">
+          <div class="card-icon-bubble bubble-red">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+          </div>
+          <div>
+            <div class="card-title-text text-danger">Danger Zone</div>
+            <div class="card-subtitle-text">Permanently wipe all locally stored profile info, history, and preferences</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div>
+          <div class="fw-bold text-main" style="font-size: 0.95rem;">Reset All Hind Data</div>
+          <p class="text-muted mb-0" style="font-size: 0.84rem;">
+            This will wipe your saved name, email, search history, and reset your preferences back to defaults.
+          </p>
+        </div>
+        <button type="button" class="btn-hind-danger" onclick="confirmResetAllData()">
+          <i class="fa-solid fa-trash-arrow-up"></i>
+          <span>Wipe All Data</span>
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Clean Footer -->
+  <footer class="settings-footer">
+    <div>
+      © 2026 Lemon India Inc. • <a href="index.html">Hind.com</a> • <a href="about.html">About &amp; Privacy</a>
+    </div>
+  </footer>
+
+  <!-- Floating Toast Notification -->
+  <div class="hind-toast toast-success" id="hindToast" role="alert" aria-live="polite">
+    <i class="fa-solid fa-circle-check fs-5" id="toastIcon"></i>
+    <span id="toastMessage">Changes saved successfully!</span>
+  </div>
+
+  <!-- JavaScript Engine -->
+  <script>
+    // Storage Keys
+    const PROFILE_KEY = 'hind_user_profile';
+    const THEME_KEY = 'hind_theme';
+    const HIST_KEY = 'hind_search_history';
+    const AI_QUOTA_KEY = 'shrishti_daily_quota';
+    const AI_PRO_KEY = 'shrishti_pro_credits';
+    const CALENDAR_KEY = 'cyan_calendar_events';
+    const PREF_KEY = 'hind_user_preferences';
+
+    // Current State
+    let userProfile = {
+      name: '',
+      email: '',
+      bio: '',
+      avatar: '',
+      joinedAt: new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' })
+    };
+
+    let userPrefs = {
+      suggest: true,
+      save_history: true
+    };
+
+    // ── 1. Theme Management ──
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const themeText = document.getElementById('themeText');
+    const prefThemeToggle = document.getElementById('prefThemeToggle');
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem(THEME_KEY, theme);
+      const isDark = theme === 'dark';
+      if (themeIcon) {
+        themeIcon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        themeIcon.style.color = isDark ? '#f59e0b' : '';
+      }
+      if (themeText) {
+        themeText.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+      }
+      if (prefThemeToggle) {
+        prefThemeToggle.checked = isDark;
+      }
+    }
+
+    function initTheme() {
+      const savedTheme = localStorage.getItem(THEME_KEY) ||
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      setTheme(savedTheme);
+
+      if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+          const current = document.documentElement.getAttribute('data-theme');
+          setTheme(current === 'dark' ? 'light' : 'dark');
+        });
+      }
+    }
+
+    function toggleThemeFromSwitch(isChecked) {
+      setTheme(isChecked ? 'dark' : 'light');
+    }
+
+    // ── 2. Profile Management ──
+    function loadProfile() {
+      try {
+        const saved = localStorage.getItem(PROFILE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          userProfile = { ...userProfile, ...parsed };
+        }
+      } catch (err) {
+        console.warn('Could not load profile:', err);
+      }
+
+      // Populate input fields
+      document.getElementById('userName').value = userProfile.name || '';
+      document.getElementById('userEmail').value = userProfile.email || '';
+      document.getElementById('userBio').value = userProfile.bio || '';
+
+      updateProfilePreview();
+    }
+
+    function updateProfilePreview() {
+      const name = userProfile.name.trim() || 'User Name';
+      const email = userProfile.email.trim() || 'user@example.com';
+      const joined = userProfile.joinedAt || 'Active Session';
+
+      document.getElementById('previewName').textContent = name;
+      document.getElementById('previewEmail').textContent = email;
+      document.getElementById('memberSinceText').textContent = userProfile.name ? `Joined ${joined}` : 'Guest Profile';
+
+      // Avatar
+      const avatarDisplay = document.getElementById('avatarDisplay');
+      const avatarImageDisplay = document.getElementById('avatarImageDisplay');
+
+      if (userProfile.avatar && userProfile.avatar.startsWith('data:image')) {
+        avatarDisplay.style.display = 'none';
+        avatarImageDisplay.src = userProfile.avatar;
+        avatarImageDisplay.style.display = 'block';
+      } else {
+        avatarImageDisplay.style.display = 'none';
+        avatarDisplay.style.display = 'flex';
+        // Compute Initials
+        const initials = name
+          .split(' ')
+          .filter(Boolean)
+          .slice(0, 2)
+          .map(w => w[0].toUpperCase())
+          .join('') || 'U';
+        avatarDisplay.textContent = initials;
+      }
+
+      // Update stat badge
+      document.getElementById('statProfileSet').textContent = userProfile.name ? 'Saved' : 'Not Set';
+      document.getElementById('statProfileSet').className = userProfile.name ? 'stat-number text-success' : 'stat-number text-warning';
+    }
+
+    function handleSaveProfile(e) {
+      if (e) e.preventDefault();
+
+      const nameInput = document.getElementById('userName').value.trim();
+      const emailInput = document.getElementById('userEmail').value.trim();
+      const bioInput = document.getElementById('userBio').value.trim();
+
+      if (!nameInput) {
+        showToast('Please enter your full name', 'error');
+        document.getElementById('userName').focus();
+        return;
+      }
+
+      if (!emailInput || !emailInput.includes('@')) {
+        showToast('Please enter a valid email address', 'error');
+        document.getElementById('userEmail').focus();
+        return;
+      }
+
+      userProfile.name = nameInput;
+      userProfile.email = emailInput;
+      userProfile.bio = bioInput;
+      userProfile.updatedAt = new Date().toISOString();
+      if (!userProfile.joinedAt) {
+        userProfile.joinedAt = new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' });
+      }
+
+      try {
+        localStorage.setItem(PROFILE_KEY, JSON.stringify(userProfile));
+        updateProfilePreview();
+        renderJsonPreview();
+        showToast('Profile saved successfully!', 'success');
+
+        // Show header saved indicator briefly
+        const indicator = document.getElementById('saveStatusIndicator');
+        if (indicator) {
+          indicator.style.display = 'block';
+          setTimeout(() => { indicator.style.display = 'none'; }, 3000);
+        }
+      } catch (err) {
+        showToast('Storage error while saving profile', 'error');
+      }
+    }
+
+    function resetProfileFields() {
+      loadProfile();
+      showToast('Fields reset to last saved state', 'success');
+    }
+
+    function handleAvatarUpload(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      if (file.size > 2 * 1024 * 1024) {
+        showToast('Avatar image must be under 2MB', 'error');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        userProfile.avatar = e.target.result;
+        updateProfilePreview();
+        renderJsonPreview();
+        // Autosave avatar
+        try {
+          localStorage.setItem(PROFILE_KEY, JSON.stringify(userProfile));
+          showToast('Profile avatar updated!', 'success');
+        } catch (_) {
+          showToast('Image too large to store in browser', 'error');
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // ── 3. Data Aggregation & JSON Download ──
+    function buildCompleteUserData() {
+      let searchHistory = [];
+      try {
+        searchHistory = JSON.parse(localStorage.getItem(HIST_KEY)) || [];
+      } catch (_) {}
+
+      let aiQuota = null;
+      try {
+        aiQuota = JSON.parse(localStorage.getItem(AI_QUOTA_KEY));
+      } catch (_) {}
+
+      let proCredits = null;
+      try {
+        proCredits = JSON.parse(localStorage.getItem(AI_PRO_KEY));
+      } catch (_) {}
+
+      let calendarEvents = {};
+      try {
+        calendarEvents = JSON.parse(localStorage.getItem(CALENDAR_KEY)) || {};
+      } catch (_) {}
+
+      const exportPayload = {
+        application: "Hind.com",
+        generator: "Hind Settings & Data Manager",
+        exportedAt: new Date().toISOString(),
+        version: "1.0.0",
+        profile: {
+          name: userProfile.name || null,
+          email: userProfile.email || null,
+          bio: userProfile.bio || null,
+          hasAvatar: !!userProfile.avatar,
+          joinedAt: userProfile.joinedAt || null,
+          lastUpdated: userProfile.updatedAt || null
+        },
+        preferences: {
+          theme: localStorage.getItem(THEME_KEY) || 'light',
+          searchSuggestions: userPrefs.suggest,
+          saveHistory: userPrefs.save_history
+        },
+        searchHistory: {
+          totalCount: searchHistory.length,
+          items: searchHistory
+        },
+        aiAssistantStats: {
+          dailyQueriesLeft: aiQuota ? `${aiQuota.count || 0}/15` : '15/15',
+          proCreditsLeft: proCredits ? `${proCredits.credits || 0}/10` : '10/10'
+        },
+        calendarEventsCount: Object.keys(calendarEvents).length
+      };
+
+      // If avatar exists, include in an optional payload field
+      if (userProfile.avatar) {
+        exportPayload.profile.avatarDataUrl = userProfile.avatar;
+      }
+
+      return exportPayload;
+    }
+
+    function downloadUserDataJson() {
+      try {
+        const data = buildCompleteUserData();
+        const jsonStr = JSON.stringify(data, null, 2);
+        const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+
+        const filenameSafeName = (userProfile.name || 'user')
+          .toLowerCase()
+          .replace(/[^a-z0-9]/g, '_');
+        const dateStamp = new Date().toISOString().slice(0, 10);
+        const fileName = `hind_data_${filenameSafeName}_${dateStamp}.json`;
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        showToast('Your data has been exported successfully!', 'success');
+      } catch (err) {
+        console.error(err);
+        showToast('Failed to export data file', 'error');
+      }
+    }
+
+    function renderJsonPreview() {
+      const codeBox = document.getElementById('jsonCodeView');
+      if (codeBox) {
+        const data = buildCompleteUserData();
+        codeBox.textContent = JSON.stringify(data, null, 2);
+      }
+    }
+
+    function toggleJsonPreview() {
+      const wrapper = document.getElementById('jsonPreviewWrapper');
+      const label = document.getElementById('previewBtnLabel');
+      if (wrapper.style.display === 'block') {
+        wrapper.style.display = 'none';
+        label.textContent = 'Preview JSON';
+      } else {
+        renderJsonPreview();
+        wrapper.style.display = 'block';
+        label.textContent = 'Hide Preview';
+      }
+    }
+
+    function copyJsonData() {
+      const codeBox = document.getElementById('jsonCodeView');
+      if (!codeBox) return;
+      const text = codeBox.textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const copyBtnText = document.getElementById('copyJsonBtnText');
+        copyBtnText.textContent = 'Copied!';
+        setTimeout(() => { copyBtnText.textContent = 'Copy JSON'; }, 2000);
+        showToast('JSON copied to clipboard!', 'success');
+      }).catch(() => {
+        showToast('Could not copy JSON to clipboard', 'error');
+      });
+    }
+
+    function handleImportJson(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (imported.profile) {
+            userProfile.name = imported.profile.name || userProfile.name;
+            userProfile.email = imported.profile.email || userProfile.email;
+            userProfile.bio = imported.profile.bio || userProfile.bio;
+            if (imported.profile.avatarDataUrl) {
+              userProfile.avatar = imported.profile.avatarDataUrl;
+            }
+            localStorage.setItem(PROFILE_KEY, JSON.stringify(userProfile));
+          }
+
+          if (imported.searchHistory && Array.isArray(imported.searchHistory.items)) {
+            localStorage.setItem(HIST_KEY, JSON.stringify(imported.searchHistory.items));
+          }
+
+          if (imported.preferences && imported.preferences.theme) {
+            setTheme(imported.preferences.theme);
+          }
+
+          loadProfile();
+          loadStatistics();
+          renderJsonPreview();
+          showToast('Data imported successfully!', 'success');
+        } catch (err) {
+          showToast('Invalid JSON file format', 'error');
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
+    // ── 4. Stats & Preferences ──
+    function loadStatistics() {
+      // Search History Count
+      try {
+        const hist = JSON.parse(localStorage.getItem(HIST_KEY)) || [];
+        document.getElementById('statSearchCount').textContent = hist.length;
+      } catch (_) {
+        document.getElementById('statSearchCount').textContent = '0';
+      }
+
+      // AI Quota Left
+      try {
+        const q = JSON.parse(localStorage.getItem(AI_QUOTA_KEY));
+        const left = q ? Math.max(0, 15 - (q.count || 0)) : 15;
+        document.getElementById('statAiUsage').textContent = `${left} / 15`;
+      } catch (_) {
+        document.getElementById('statAiUsage').textContent = '15 / 15';
+      }
+
+      // Calendar Events Count
+      try {
+        const events = JSON.parse(localStorage.getItem(CALENDAR_KEY)) || {};
+        let total = 0;
+        for (const k in events) {
+          if (Array.isArray(events[k])) total += events[k].length;
+        }
+        document.getElementById('statCalendarCount').textContent = total;
+      } catch (_) {
+        document.getElementById('statCalendarCount').textContent = '0';
+      }
+    }
+
+    function togglePreference(key, value) {
+      userPrefs[key] = value;
+      localStorage.setItem(PREF_KEY, JSON.stringify(userPrefs));
+      showToast('Preference updated', 'success');
+    }
+
+    function clearSearchHistory() {
+      if (confirm('Are you sure you want to clear your entire search history?')) {
+        localStorage.removeItem(HIST_KEY);
+        loadStatistics();
+        renderJsonPreview();
+        showToast('Search history cleared!', 'success');
+      }
+    }
+
+    function confirmResetAllData() {
+      const verified = confirm('CAUTION: This will delete your saved name, email, avatar, search history, and preferences from this browser. Do you want to proceed?');
+      if (verified) {
+        localStorage.removeItem(PROFILE_KEY);
+        localStorage.removeItem(HIST_KEY);
+        localStorage.removeItem(PREF_KEY);
+        userProfile = {
+          name: '',
+          email: '',
+          bio: '',
+          avatar: '',
+          joinedAt: ''
+        };
+        loadProfile();
+        loadStatistics();
+        renderJsonPreview();
+        showToast('All local data wiped successfully', 'success');
+      }
+    }
+
+    // ── 5. Toast Notifications ──
+    let toastTimeout = null;
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('hindToast');
+      const msg = document.getElementById('toastMessage');
+      const icon = document.getElementById('toastIcon');
+
+      if (!toast) return;
+
+      clearTimeout(toastTimeout);
+      msg.textContent = message;
+
+      if (type === 'error') {
+        toast.className = 'hind-toast toast-error show';
+        icon.className = 'fa-solid fa-circle-exclamation fs-5';
+      } else {
+        toast.className = 'hind-toast toast-success show';
+        icon.className = 'fa-solid fa-circle-check fs-5';
+      }
+
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3500);
+    }
+
+    // Initialize on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      initTheme();
+      loadProfile();
+      loadStatistics();
+      renderJsonPreview();
+
+      // Load preferences
+      try {
+        const saved = JSON.parse(localStorage.getItem(PREF_KEY));
+        if (saved) {
+          userPrefs = { ...userPrefs, ...saved };
+          if (document.getElementById('prefSuggestToggle')) {
+            document.getElementById('prefSuggestToggle').checked = userPrefs.suggest !== false;
+          }
+          if (document.getElementById('prefHistoryToggle')) {
+            document.getElementById('prefHistoryToggle').checked = userPrefs.save_history !== false;
+          }
+        }
+      } catch (_) {}
+    });
+  </script>
+</body>
+
+</html>
