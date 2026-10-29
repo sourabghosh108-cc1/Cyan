@@ -6,8 +6,14 @@ from ddgs import DDGS
 
 # ── HIND SAFE SEARCH — Content Filter ──────────────────────────────────────
 _BLOCKED_TERMS = [
-    "porn", "pornhub", "xvideos", "xnxx", "xxx", "nude", "naked", "nudity",
-    "sex video", "sex tape", "onlyfans", "nsfw", "hentai", "erotic", "adult film",
+    # Adult / Porn / Tube sites
+    "porn", "pornhub", "xvideos", "xnxx", "xhamster", "redtube", "youporn",
+    "brazzers", "chaturbate", "bongacams", "stripchat", "livejasmin", "beeg",
+    "spankbang", "eporner", "tube8", "tnaflix", "heavy-r", "motherless",
+    "camsoda", "myfreecams", "manyvids", "fansly", "playboy", "penthouse", "hustler",
+    "xxx", "nude", "naked", "nudity", "sex video", "sex tape", "onlyfans",
+    "nsfw", "hentai", "erotic", "adult film", "xrated", "milf", "blowjob",
+    "dildo", "hardcore sex", "masturbat", "cumshot", "gangbang", "creampie",
     "strip club", "cam girl", "webcam sex", "escort service",
     "child porn", "cp porn", "loli", "underage sex", "minor porn",
     "pedo", "pedophile",
