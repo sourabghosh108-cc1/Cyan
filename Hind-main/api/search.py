@@ -4,13 +4,68 @@ import json
 import re
 from ddgs import DDGS
 
+# ── HIND SAFE SEARCH — Content Filter ──────────────────────────────────────
+# All harmful categories blocked at the backend level.
+_BLOCKED_TERMS = [
+    # Adult / Porn
+    "porn", "pornhub", "xvideos", "xnxx", "xxx", "nude", "naked", "nudity",
+    "sex video", "sex tape", "onlyfans", "nsfw", "hentai", "erotic", "adult film",
+    "strip club", "cam girl", "webcam sex", "escort service",
+
+    # Child Safety (CSAM) — zero tolerance
+    "child porn", "cp porn", "loli", "underage sex", "minor porn",
+    "pedo", "pedophile",
+
+    # Terrorism / Extremism
+    "how to make bomb", "how to build bomb", "homemade bomb", "pipe bomb",
+    "ied instructions", "isis recruitment", "jihad attack", "terror attack plan",
+    "explosives recipe", "how to make explosives", "al qaeda",
+
+    # Drugs
+    "how to make meth", "methamphetamine synthesis", "buy cocaine online",
+    "buy heroin", "buy drugs online", "drug synthesis", "how to cook drugs",
+    "darknet drugs", "drug marketplace",
+
+    # Suicide / Self-Harm
+    "how to kill myself", "how to commit suicide", "suicide method",
+    "painless suicide", "how to hang myself", "how to overdose",
+    "self harm method", "cutting myself",
+
+    # Hacking / Cybercrime
+    "how to hack account", "how to hack facebook", "phishing kit download",
+    "credit card dump", "buy stolen data", "carding tutorial",
+    "ddos attack tool", "ransomware download", "keylogger download",
+
+    # Gore / Violence
+    "beheading video", "gore video", "snuff film", "murder video",
+    "execution video", "torture video", "real death video",
+
+    # Piracy
+    "movie piracy", "pirated movie download", "cracked software download",
+    "warez", "nulled script",
+]
+
+def is_query_blocked(query):
+    """Returns True if the query contains any blocked term."""
+    q = query.lower().strip()
+    for term in _BLOCKED_TERMS:
+        if term in q:
+            return True
+    return False
+
+BLOCKED_RESPONSE = {
+    "status": "blocked",
+    "message": "🚫 This search is restricted on Hind.com. We are committed to safe and responsible browsing."
+}
+# ───────────────────────────────────────────────────────────────────────────
+
 def get_videos(query, page=1, limit=25):
     videos = []
     status = "ok"
     message = ""
     try:
         with DDGS(timeout=10) as ddgs:
-            results = ddgs.videos(query, max_results=limit, page=page)
+            results = ddgs.videos(query, max_results=limit, page=page, safesearch="on")
             seen_urls = set()
             for r in results:
                 url = r.get('content', '')
@@ -52,7 +107,7 @@ def get_web(query, page=1, limit=25):
     items = []
     try:
         with DDGS(timeout=8) as ddgs:
-            results = list(ddgs.text(query, page=page, max_results=limit))
+            results = list(ddgs.text(query, page=page, max_results=limit, safesearch="on"))
             seen = set()
             for r in results:
                 href = r.get('href', '')
@@ -71,7 +126,7 @@ def get_images(query, page=1, limit=25):
     items = []
     try:
         with DDGS(timeout=8) as ddgs:
-            results = list(ddgs.images(query, page=page, max_results=limit))
+            results = list(ddgs.images(query, page=page, max_results=limit, safesearch="on"))
             for r in results:
                 items.append({
                     'title': r.get('title', ''),
@@ -87,7 +142,7 @@ def get_news(query, page=1, limit=20):
     items = []
     try:
         with DDGS(timeout=8) as ddgs:
-            results = list(ddgs.news(query, page=page, max_results=limit))
+            results = list(ddgs.news(query, page=page, max_results=limit, safesearch="on"))
             for r in results:
                 items.append({
                     'title': r.get('title', ''),
@@ -116,6 +171,15 @@ class handler(BaseHTTPRequestHandler):
             self.send_header('Access-Control-Allow-Origin', '*')
             self.end_headers()
             self.wfile.write(json.dumps({'error': 'Empty query'}).encode('utf-8'))
+            return
+
+        # ── Safe Search: block harmful queries ──
+        if is_query_blocked(query):
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(json.dumps(BLOCKED_RESPONSE).encode('utf-8'))
             return
 
         has_previous = page > 1

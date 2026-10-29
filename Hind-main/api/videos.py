@@ -4,6 +4,41 @@ import json
 import re
 from ddgs import DDGS
 
+# ── HIND SAFE SEARCH — Content Filter ──────────────────────────────────────
+_BLOCKED_TERMS = [
+    "porn", "pornhub", "xvideos", "xnxx", "xxx", "nude", "naked", "nudity",
+    "sex video", "sex tape", "onlyfans", "nsfw", "hentai", "erotic", "adult film",
+    "strip club", "cam girl", "webcam sex", "escort service",
+    "child porn", "cp porn", "loli", "underage sex", "minor porn",
+    "pedo", "pedophile",
+    "how to make bomb", "how to build bomb", "homemade bomb", "pipe bomb",
+    "ied instructions", "isis recruitment", "jihad attack", "terror attack plan",
+    "explosives recipe", "how to make explosives", "al qaeda",
+    "how to make meth", "methamphetamine synthesis", "buy cocaine online",
+    "buy heroin", "buy drugs online", "drug synthesis", "how to cook drugs",
+    "darknet drugs", "drug marketplace",
+    "how to kill myself", "how to commit suicide", "suicide method",
+    "painless suicide", "how to hang myself", "how to overdose",
+    "self harm method", "cutting myself",
+    "how to hack account", "how to hack facebook", "phishing kit download",
+    "credit card dump", "buy stolen data", "carding tutorial",
+    "ddos attack tool", "ransomware download", "keylogger download",
+    "beheading video", "gore video", "snuff film", "murder video",
+    "execution video", "torture video", "real death video",
+    "movie piracy", "pirated movie download", "cracked software download",
+    "warez", "nulled script",
+]
+
+def is_query_blocked(query):
+    q = query.lower().strip()
+    return any(term in q for term in _BLOCKED_TERMS)
+
+BLOCKED_RESPONSE = {
+    "status": "blocked",
+    "message": "🚫 This search is restricted on Hind.com. We are committed to safe and responsible browsing."
+}
+# ───────────────────────────────────────────────────────────────────────────
+
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
         parsed = urllib.parse.urlparse(self.path)
@@ -20,6 +55,15 @@ class handler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps({'error': 'Empty query'}).encode('utf-8'))
             return
 
+        # ── Safe Search: block harmful queries ──
+        if is_query_blocked(query):
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(json.dumps(BLOCKED_RESPONSE).encode('utf-8'))
+            return
+
         videos = []
         status = "ok"
         message = ""
@@ -29,7 +73,8 @@ class handler(BaseHTTPRequestHandler):
                 results = ddgs.videos(
                     query,
                     max_results=limit,
-                    page=page
+                    page=page,
+                    safesearch="on"
                 )
                 seen_urls = set()
                 for r in results:

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -3088,6 +3088,34 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
+    // -- Hind Safe Search: Frontend Blocklist -----------------------------------------
+    const HIND_BLOCKED_TERMS = [
+      "porn","pornhub","xvideos","xnxx","xxx","nude","naked","nudity",
+      "sex video","sex tape","onlyfans","nsfw","hentai","erotic","adult film",
+      "strip club","cam girl","webcam sex","escort service",
+      "child porn","cp porn","loli","underage sex","minor porn","pedo","pedophile",
+      "how to make bomb","how to build bomb","homemade bomb","pipe bomb",
+      "ied instructions","isis recruitment","jihad attack","terror attack plan",
+      "explosives recipe","how to make explosives","al qaeda",
+      "how to make meth","methamphetamine synthesis","buy cocaine online",
+      "buy heroin","buy drugs online","drug synthesis","darknet drugs","drug marketplace",
+      "how to kill myself","how to commit suicide","suicide method",
+      "painless suicide","how to hang myself","how to overdose",
+      "self harm method","cutting myself",
+      "how to hack account","how to hack facebook","phishing kit download",
+      "credit card dump","buy stolen data","carding tutorial",
+      "ddos attack tool","ransomware download","keylogger download",
+      "beheading video","gore video","snuff film","murder video",
+      "execution video","torture video","real death video",
+      "movie piracy","pirated movie download","cracked software download",
+      "warez","nulled script"
+    ];
+    function isQueryBlocked(q) {
+      const lower = q.toLowerCase().trim();
+      return HIND_BLOCKED_TERMS.some(term => lower.includes(term));
+    }
+    // ------------------------------------------------------------------------------
+
     // Perform Search API Request with Page support
     async function performSearch(query, type = 'web', page = 1) {
       const trimmed = (query || '').trim();
@@ -3101,6 +3129,13 @@
       if (!trimmed) {
         document.title = 'Search - Hind';
         container.innerHTML = renderEmptyPrompt();
+        return;
+      }
+
+      // -- Frontend safe search gate --
+      if (isQueryBlocked(trimmed)) {
+        document.title = 'Search - Hind';
+        container.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 2rem;text-align:center;gap:1rem;"><div style="font-size:3rem;">&#x1F6AB;</div><h2 style="font-size:1.3rem;font-weight:700;color:var(--text-main);">Search Restricted</h2><p style="color:var(--text-muted);max-width:420px;line-height:1.6;">This search is not allowed on <strong>Hind.com</strong>. We are committed to a safe, family-friendly browsing experience.</p></div>';
         return;
       }
 
