@@ -17,9 +17,14 @@ _BLOCKED_TERMS = [
     "dildo", "hardcore sex", "masturbat", "cumshot", "gangbang", "creampie",
     "strip club", "cam girl", "webcam sex", "escort service",
 
+    # Hentai / Adult Anime
+    "hanime", "hentaihaven", "nhentai", "hentai2read", "hentaistream",
+    "hentaigasm", "hentaifox", "fakku", "hentai manga", "hentai anime",
+    "doujinshi", "ecchi stream", "rule34",
+
     # Child Safety (CSAM) — zero tolerance
     "child porn", "cp porn", "loli", "underage sex", "minor porn",
-    "pedo", "pedophile",
+    "pedo", "pedophile", "shota", "lolicon",
 
     # Terrorism / Extremism
     "how to make bomb", "how to build bomb", "homemade bomb", "pipe bomb",
@@ -45,9 +50,15 @@ _BLOCKED_TERMS = [
     "beheading video", "gore video", "snuff film", "murder video",
     "execution video", "torture video", "real death video",
 
-    # Piracy
+    # Piracy — General
     "movie piracy", "pirated movie download", "cracked software download",
     "warez", "nulled script",
+
+    # Piracy — Anime Streaming sites
+    "hianime", "kissanime", "9anime", "gogoanime", "animesuge", "animekisa",
+    "animepahe", "zoro.to", "aniwatch", "animefreak", "animeultima",
+    "4anime", "animedao", "animeland", "crunchyroll crack", "funimation crack",
+    "anime piracy", "pirated anime", "free anime streaming illegal",
 ]
 
 def is_query_blocked(query):

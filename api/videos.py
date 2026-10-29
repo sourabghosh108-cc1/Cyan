@@ -15,24 +15,40 @@ _BLOCKED_TERMS = [
     "nsfw", "hentai", "erotic", "adult film", "xrated", "milf", "blowjob",
     "dildo", "hardcore sex", "masturbat", "cumshot", "gangbang", "creampie",
     "strip club", "cam girl", "webcam sex", "escort service",
+    # Hentai / Adult Anime
+    "hanime", "hentaihaven", "nhentai", "hentai2read", "hentaistream",
+    "hentaigasm", "hentaifox", "fakku", "hentai manga", "hentai anime",
+    "doujinshi", "ecchi stream", "rule34",
+    # Child Safety
     "child porn", "cp porn", "loli", "underage sex", "minor porn",
-    "pedo", "pedophile",
+    "pedo", "pedophile", "shota", "lolicon",
+    # Terrorism
     "how to make bomb", "how to build bomb", "homemade bomb", "pipe bomb",
     "ied instructions", "isis recruitment", "jihad attack", "terror attack plan",
     "explosives recipe", "how to make explosives", "al qaeda",
+    # Drugs
     "how to make meth", "methamphetamine synthesis", "buy cocaine online",
     "buy heroin", "buy drugs online", "drug synthesis", "how to cook drugs",
     "darknet drugs", "drug marketplace",
+    # Suicide
     "how to kill myself", "how to commit suicide", "suicide method",
     "painless suicide", "how to hang myself", "how to overdose",
     "self harm method", "cutting myself",
+    # Hacking
     "how to hack account", "how to hack facebook", "phishing kit download",
     "credit card dump", "buy stolen data", "carding tutorial",
     "ddos attack tool", "ransomware download", "keylogger download",
+    # Gore
     "beheading video", "gore video", "snuff film", "murder video",
     "execution video", "torture video", "real death video",
+    # Piracy — General
     "movie piracy", "pirated movie download", "cracked software download",
     "warez", "nulled script",
+    # Piracy — Anime
+    "hianime", "kissanime", "9anime", "gogoanime", "animesuge", "animekisa",
+    "animepahe", "zoro.to", "aniwatch", "animefreak", "animeultima",
+    "4anime", "animedao", "animeland", "crunchyroll crack", "funimation crack",
+    "anime piracy", "pirated anime", "free anime streaming illegal",
 ]
 
 def is_query_blocked(query):
